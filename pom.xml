@@ -12,6 +12,7 @@
 		<module>core</module>
 		<module>model</module>
 		<module>docker</module>
+		<module>openstack</module>
 		<module>custom-mongodb</module>
 		<module>custom-postgresql</module>
 	</modules>
