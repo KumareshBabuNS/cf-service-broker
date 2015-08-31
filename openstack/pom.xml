@@ -13,25 +13,15 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>openstack</name>
-
 	<dependencies>
-	
+
+		<!-- Openstack Fluent -->
 		<dependency>
-			<groupId>com.woorea</groupId>
-			<artifactId>openstack-client</artifactId>
-			<version>3.2.1</version>
+			<groupId>org.pacesys</groupId>
+			<artifactId>openstack4j</artifactId>
+			<version>2.0.5-SNAPSHOT</version>
 		</dependency>
-		<dependency>
-			<groupId>com.woorea</groupId>
-			<artifactId>keystone-client</artifactId>
-			<version>3.2.1</version>
-		</dependency>
-		<dependency>
-			<groupId>com.woorea</groupId>
-			<artifactId>nova-client</artifactId>
-			<version>3.2.1</version>
-		</dependency>
-		
+
 		<!-- Logging -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
@@ -57,7 +47,7 @@
 			<artifactId>model-nosql</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
-		
+
 		<!-- Testing -->
 		<dependency>
 			<groupId>junit</groupId>
@@ -73,7 +63,7 @@
 			<groupId>org.hamcrest</groupId>
 			<artifactId>hamcrest-all</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>de.evoila.cf.broker</groupId>
 			<artifactId>core</artifactId>
@@ -146,5 +136,11 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-
+	<repositories>
+		<repository>
+			<id>st-snapshots</id>
+			<name>sonatype-snapshots</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</repository>
+	</repositories>
 </project>
