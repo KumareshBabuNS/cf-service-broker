@@ -5,6 +5,7 @@ package de.evoila.cf.cpi.openstack.fluent;
 
 import java.util.List;
 
+import org.apache.commons.codec.binary.Base64;
 import org.openstack4j.api.OSClient;
 import org.openstack4j.model.compute.Flavor;
 import org.openstack4j.model.compute.Keypair;
@@ -47,6 +48,8 @@ public class NovaFluent {
 			.image(imageId)
 			.flavor(flavorId)
 			.networks(networks)
+			.addAdminPass("c1oudc0w")
+			.userData(new String(Base64.encodeBase64("su c1oudc0w & apt-get-install postgresql postgresql-common postgresql-contrib".getBytes())))
 			.build();
 		
 		Server server = null;
@@ -58,6 +61,10 @@ public class NovaFluent {
 	
 	public void deleteInstance(String serverId) {
 		client().compute().servers().delete(serverId);
+	}
+	
+	public void attach(String serverId, String volumeId, String device) {
+		client().compute().servers().attachVolume(serverId, volumeId, device);
 	}
 	
 }
