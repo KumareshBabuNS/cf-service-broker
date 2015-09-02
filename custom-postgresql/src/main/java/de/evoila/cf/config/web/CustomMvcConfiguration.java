@@ -40,11 +40,11 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter {
 	
 	@Bean
 	public ServiceDefinition serviceDefinition() {
-		Plan plan = new Plan("MongoDB Basic Plan", "500 MB MongoDB Basic Instance", "The most basic MongoDB plan currently available. Providing" +
-				"500 MB of capcity in MongoDB.");
+		Plan plan = new Plan("PostgreSQL Basic Plan", "500 MB PostgreSQL DB Basic Instance", "The most basic PostgreSQL plan currently available. Providing" +
+				"500 MB of capcity in a PostgreSQL DB.");
 		
-		ServiceDefinition serviceDefinition = new ServiceDefinition("mongoDB", 
-				"MongoDB", "MongoDB Instances", true, Arrays.asList(plan));
+		ServiceDefinition serviceDefinition = new ServiceDefinition("postgres", 
+				"postgres", "PostgreSQL Instances", true, Arrays.asList(plan));
 		
 		return serviceDefinition;
 	}

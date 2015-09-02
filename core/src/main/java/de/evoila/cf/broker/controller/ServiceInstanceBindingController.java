@@ -1,6 +1,5 @@
 package de.evoila.cf.broker.controller;
 
-
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -18,19 +17,20 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import de.evoila.cf.broker.exception.ServerviceInstanceBindingDoesNotExistsException;
 import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.exception.ServiceInstanceBindingExistsException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.model.ErrorMessage;
-import de.evoila.cf.broker.model.ServiceInstance;
-import de.evoila.cf.broker.model.ServiceInstanceBinding;
 import de.evoila.cf.broker.model.ServiceInstanceBindingRequest;
 import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
 import de.evoila.cf.broker.service.ServiceInstanceBindingService;
 import de.evoila.cf.broker.service.ServiceInstanceService;
 
 /**
- * See: Source: http://docs.cloudfoundry.com/docs/running/architecture/services/writing-service.html
+ * See: Source:
+ * http://docs.cloudfoundry.com/docs/running/architecture/services/writing-
+ * service.html
  * 
  * @author sgreenberg@gopivotal.com
  * @author Johannes Hiemer.
@@ -38,75 +38,66 @@ import de.evoila.cf.broker.service.ServiceInstanceService;
 @Controller
 @RequestMapping(value = "/v2/service_instances")
 public class ServiceInstanceBindingController extends BaseController {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(ServiceInstanceBindingController.class);
-	
+
 	public static final String SERVICE_INSTANCE_BINDING_BASE_PATH = "/v2/service_instances/{instanceId}/service_bindings";
-	
+
 	@Autowired
 	private ServiceInstanceBindingService serviceInstanceBindingService;
-	
+
 	@Autowired
 	private ServiceInstanceService serviceInstanceService;
-	
+
 	@RequestMapping(value = "/{instanceId}/service_bindings/{bindingId}", method = RequestMethod.PUT)
-	public ResponseEntity<ServiceInstanceBindingResponse> bindServiceInstance(@PathVariable("instanceId") String instanceId, 
-			@PathVariable("bindingId") String bindingId, @Valid @RequestBody ServiceInstanceBindingRequest request) throws
-			ServiceInstanceDoesNotExistException, ServiceInstanceBindingExistsException, ServiceBrokerException {
-		
-		logger.debug( "PUT: " + SERVICE_INSTANCE_BINDING_BASE_PATH + "/{bindingId}"
-				+ ", bindServiceInstance(), serviceInstance.id = " + instanceId 
-				+ ", bindingId = " + bindingId);
-		
-		ServiceInstance instance = serviceInstanceService.getServiceInstance(instanceId);
-		if (instance == null) {
-			throw new ServiceInstanceDoesNotExistException(instanceId);
-		}
-		
-		ServiceInstanceBinding binding = serviceInstanceBindingService.createServiceInstanceBinding(
-				bindingId, instance, request.getServiceDefinitionId(),
-				request.getPlanId(), request.getAppGuid());
-		
-		logger.debug("ServiceInstanceBinding Created: " + binding.getId());
-        
-		return new ResponseEntity<ServiceInstanceBindingResponse>(new ServiceInstanceBindingResponse(binding), 
-        		HttpStatus.CREATED);
+	public ResponseEntity<ServiceInstanceBindingResponse> bindServiceInstance(
+			@PathVariable("instanceId") String instanceId, @PathVariable("bindingId") String bindingId,
+			@Valid @RequestBody ServiceInstanceBindingRequest request) throws ServiceInstanceDoesNotExistException,
+					ServiceInstanceBindingExistsException, ServiceBrokerException {
+
+		logger.debug("PUT: " + SERVICE_INSTANCE_BINDING_BASE_PATH + "/{bindingId}"
+				+ ", bindServiceInstance(), serviceInstance.id = " + instanceId + ", bindingId = " + bindingId);
+
+		ServiceInstanceBindingResponse response = serviceInstanceBindingService.createServiceInstanceBinding(bindingId,
+				instanceId, request.getServiceDefinitionId(), request.getPlanId(), request.getAppGuid());
+
+		logger.debug("ServiceInstanceBinding Created: " + bindingId);
+
+		return new ResponseEntity<ServiceInstanceBindingResponse>(response, HttpStatus.CREATED);
 	}
-	
+
 	@RequestMapping(value = "/{instanceId}/service_bindings/{bindingId}", method = RequestMethod.DELETE)
-	public ResponseEntity<String> deleteServiceInstanceBinding(@PathVariable("instanceId") String instanceId, 
+	public ResponseEntity<String> deleteServiceInstanceBinding(@PathVariable("instanceId") String instanceId,
 			@PathVariable("bindingId") String bindingId, @RequestParam("service_id") String serviceId,
 			@RequestParam("plan_id") String planId) throws ServiceBrokerException {
-		
-		logger.debug( "DELETE: " + SERVICE_INSTANCE_BINDING_BASE_PATH + "/{bindingId}"
-				+ ", deleteServiceInstanceBinding(),  serviceInstance.id = " + instanceId 
-				+ ", bindingId = " + bindingId 
-				+ ", serviceId = " + serviceId
-				+ ", planId = " + planId);
-		
-		ServiceInstanceBinding binding = serviceInstanceBindingService.deleteServiceInstanceBinding(bindingId);
-		
-		if (binding == null) {
+
+		logger.debug("DELETE: " + SERVICE_INSTANCE_BINDING_BASE_PATH + "/{bindingId}"
+				+ ", deleteServiceInstanceBinding(),  serviceInstance.id = " + instanceId + ", bindingId = " + bindingId
+				+ ", serviceId = " + serviceId + ", planId = " + planId);
+
+		try {
+			serviceInstanceBindingService.deleteServiceInstanceBinding(bindingId);
+		} catch (ServerviceInstanceBindingDoesNotExistsException e) {
 			return new ResponseEntity<String>("{}", HttpStatus.NOT_FOUND);
 		}
-		
-		logger.debug("ServiceInstanceBinding Deleted: " + binding.getId());
-        
+
+		logger.debug("ServiceInstanceBinding Deleted: " + bindingId);
+
 		return new ResponseEntity<String>("{}", HttpStatus.OK);
 	}
-	
+
 	@ExceptionHandler(ServiceInstanceDoesNotExistException.class)
 	@ResponseBody
-	public ResponseEntity<ErrorMessage> handleException(ServiceInstanceDoesNotExistException ex, 
+	public ResponseEntity<ErrorMessage> handleException(ServiceInstanceDoesNotExistException ex,
 			HttpServletResponse response) {
-	    return getErrorResponse(ex.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
+		return getErrorResponse(ex.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
 	}
-	
+
 	@ExceptionHandler(ServiceInstanceBindingExistsException.class)
-	@ResponseBody public ResponseEntity<ErrorMessage> handleException(
-			ServiceInstanceBindingExistsException ex, 
+	@ResponseBody
+	public ResponseEntity<ErrorMessage> handleException(ServiceInstanceBindingExistsException ex,
 			HttpServletResponse response) {
-	    return getErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
+		return getErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
 	}
-	
+
 }
