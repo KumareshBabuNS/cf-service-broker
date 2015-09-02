@@ -12,16 +12,24 @@ import de.evoila.cf.config.web.CustomMvcConfiguration;
  */
 public class CustomWebInitializer extends BasedCustomWebInitializer {
 
-	/* (non-Javadoc)
-	 * @see org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer#getRootConfigClasses()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.springframework.web.servlet.support.
+	 * AbstractAnnotationConfigDispatcherServletInitializer#getRootConfigClasses
+	 * ()
 	 */
 	@Override
 	protected Class<?>[] getRootConfigClasses() {
 		return new Class<?>[] { CustomSecurityConfiguration.class };
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer#getServletConfigClasses()
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.springframework.web.servlet.support.
+	 * AbstractAnnotationConfigDispatcherServletInitializer#
+	 * getServletConfigClasses()
 	 */
 	@Override
 	protected Class<?>[] getServletConfigClasses() {
