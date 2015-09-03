@@ -4,7 +4,7 @@ import org.springframework.stereotype.Controller;
 
 
 @Controller
-public class MysqlServiceFactory extends IDockerServiceFactory {
+public class MysqlService extends DockerServiceFactory {
 	
 	@Override
 	protected String getType() {

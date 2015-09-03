@@ -35,7 +35,7 @@ import de.evoila.cf.broker.service.impl.ServiceInstanceServiceImpl;
  * @author Dennis Mueller, evoila GmbH, Aug 26, 2015
  *
  */
-public abstract class IDockerServiceFactory extends ServiceInstanceServiceImpl {
+public abstract class DockerServiceFactory extends ServiceInstanceServiceImpl {
 
 	private static final int PORT = 2345;
 

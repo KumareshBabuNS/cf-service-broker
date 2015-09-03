@@ -49,12 +49,15 @@ public class NovaFluentTest extends BaseConnectionFactoryTest {
 		
 		Volume volume = cinderFluent.create("test", "-", 20);
 		
-		Thread.sleep(10000);
+		Thread.sleep(20000);
 		
 		novaFluent.attach(server.getId(), volume.getId(), "/dev/vdb");
 		
-		Assert.assertNotNull(server);
+		//Assert.assertNotNull(server);
+		
 		//novaFluent.deleteInstance(server.getId());
+		
+		//cinderFluent.delete(volume.getId());
 	}
 
 }

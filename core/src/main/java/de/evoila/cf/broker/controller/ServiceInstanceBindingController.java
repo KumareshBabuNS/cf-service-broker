@@ -24,7 +24,7 @@ import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.model.ErrorMessage;
 import de.evoila.cf.broker.model.ServiceInstanceBindingRequest;
 import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
-import de.evoila.cf.broker.service.ServiceInstanceService;
+import de.evoila.cf.cpi.docker.PostgresService;
 
 /**
  * See: Source:
@@ -43,7 +43,7 @@ public class ServiceInstanceBindingController extends BaseController {
 	public static final String SERVICE_INSTANCE_BINDING_BASE_PATH = "/v2/service_instances/{instanceId}/service_bindings";
 
 	@Autowired
-	private ServiceInstanceService serviceInstanceService;
+	private PostgresService serviceInstanceService;
 
 	@RequestMapping(value = "/{instanceId}/service_bindings/{bindingId}", method = RequestMethod.PUT)
 	public ResponseEntity<ServiceInstanceBindingResponse> bindServiceInstance(

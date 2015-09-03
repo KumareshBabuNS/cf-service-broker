@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
-		<parent>
+	<parent>
 		<groupId>de.evoila.cf.broker</groupId>
 		<artifactId>parent</artifactId>
 		<version>1.0</version>
@@ -14,32 +14,7 @@
 	<packaging>war</packaging>
 	<name>ssb-mongodb</name>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
-		<org.springframework>4.0.1.RELEASE</org.springframework>
-		<org.springframework.security>3.2.0.RELEASE</org.springframework.security>
-		<org.springframework.mongodb>1.4.0.M1</org.springframework.mongodb>
-
-		<org.hibernate.validator>5.0.2.Final</org.hibernate.validator>
-		<org.javax.validation>1.1.0.Final</org.javax.validation>
-
-		<org.slf4j>1.6.6</org.slf4j>
-		<org.logback>1.0.7</org.logback>
-		<org.jackson>2.3.0</org.jackson>
-
-		<servlet.api.version>3.0.1</servlet.api.version>
-
-		<junit.version>4.11</junit.version>
-		<mockito.version>1.9.5</mockito.version>
-	</properties>
-
 	<dependencies>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-web</artifactId>
-		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-webmvc</artifactId>
@@ -53,22 +28,11 @@
 		<!-- Spring Security -->
 		<dependency>
 			<groupId>org.springframework.security</groupId>
-			<artifactId>spring-security-core</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-web</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-config</artifactId>
-		</dependency>
-		
-		<!-- Spring Data MongoDB -->
-		<dependency>
-			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-mongodb</artifactId>
-			<version>${org.springframework.mongodb}</version>
 		</dependency>
 
 		<!-- Hibernate 5 Validator -->
@@ -121,11 +85,13 @@
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.hamcrest</groupId>
 			<artifactId>hamcrest-all</artifactId>
+			<scope>test</scope>
 		</dependency>
 		
 		<dependency>

@@ -53,7 +53,7 @@ public class CatalogControllerIntegrationTest {
 	public void catalogIsRetrievedCorrectly() throws Exception {
 	    when(catalogService.getCatalog()).thenReturn(CatalogFixture.getCatalog());
 	
-	    this.mockMvc.perform(get(CatalogController.BASE_PATH)
+	    this.mockMvc.perform(get("/v2/catalog")
 	        .accept(MediaType.APPLICATION_JSON))
 	        .andExpect(status().isOk())
             .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))

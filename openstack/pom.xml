@@ -35,23 +35,11 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
-		
-		<dependency>
-	<groupId>org.apache.commons</groupId>
-	<artifactId>commons-lang3</artifactId>
-	<version>3.4</version>
-</dependency>
 
-		<!-- cloudscale -->
 		<dependency>
-			<groupId>de.cloudscale.core</groupId>
-			<artifactId>model</artifactId>
-			<version>1.0-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>de.cloudscale.core</groupId>
-			<artifactId>model-nosql</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.4</version>
 		</dependency>
 
 		<!-- Testing -->

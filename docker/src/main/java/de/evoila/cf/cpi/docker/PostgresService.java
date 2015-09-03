@@ -1,12 +1,20 @@
+/**
+ * 
+ */
 package de.evoila.cf.cpi.docker;
 
 import javax.annotation.PostConstruct;
 
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 
-@Controller
-public class PostgresFactory extends IDockerServiceFactory {
+/**
+ * 
+ * @author Dennis Müller.
+ *
+ */
+@Service("service")
+public class PostgresService extends DockerServiceFactory {
 	
 	@PostConstruct
 	public void init() {

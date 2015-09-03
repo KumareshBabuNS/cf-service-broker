@@ -44,3 +44,8 @@
 2015-09-02 18:34:51,618 INFO [main] d.e.c.c.o.f.n.NovaFluentConnectionFactory [NovaFluentConnectionFactory.java:49] Initializing Provider:openstack-fluent--provider
 2015-09-02 18:36:33,688 INFO [main] d.e.c.c.o.f.n.NovaFluentConnectionFactory [NovaFluentConnectionFactory.java:49] Initializing Provider:openstack-fluent--provider
 2015-09-02 18:37:10,356 INFO [main] d.e.c.c.o.f.n.NovaFluentConnectionFactory [NovaFluentConnectionFactory.java:49] Initializing Provider:openstack-fluent--provider
+2015-09-03 11:28:45,824 INFO [main] d.e.c.c.o.f.n.NovaFluentConnectionFactory [NovaFluentConnectionFactory.java:49] Initializing Provider:openstack-fluent--provider
+2015-09-03 11:31:35,163 INFO [main] d.e.c.c.o.f.n.NovaFluentConnectionFactory [NovaFluentConnectionFactory.java:49] Initializing Provider:openstack-fluent--provider
+2015-09-03 11:36:55,855 INFO [main] d.e.c.c.o.f.n.NovaFluentConnectionFactory [NovaFluentConnectionFactory.java:49] Initializing Provider:openstack-fluent--provider
+2015-09-03 11:43:11,756 INFO [main] d.e.c.c.o.f.n.NovaFluentConnectionFactory [NovaFluentConnectionFactory.java:49] Initializing Provider:openstack-fluent--provider
+2015-09-03 11:50:32,639 INFO [main] d.e.c.c.o.f.n.NovaFluentConnectionFactory [NovaFluentConnectionFactory.java:49] Initializing Provider:openstack-fluent--provider

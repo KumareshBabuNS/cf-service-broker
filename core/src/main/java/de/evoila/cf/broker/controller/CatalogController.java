@@ -17,18 +17,17 @@ import de.evoila.cf.broker.service.CatalogService;
  * @author sgreenberg@gopivotal.com
  */
 @Controller
+@RequestMapping(value = "/v2/catalog")
 public class CatalogController extends BaseController {
-	
-	public static final String BASE_PATH = "/v2/catalog";
 	
 	private static final Logger logger = LoggerFactory.getLogger(CatalogController.class);
 	
 	@Autowired 
 	private CatalogService service;
 	
-	@RequestMapping(value = BASE_PATH, method = RequestMethod.GET)
+	@RequestMapping(value = { "/", "" }, method = RequestMethod.GET)
 	public @ResponseBody Catalog getCatalog() {
-		logger.debug("GET: " + BASE_PATH + ", getCatalog()");
+		logger.debug("GET: getCatalog()");
 		return service.getCatalog();
 	}
 	

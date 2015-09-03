@@ -48,13 +48,12 @@ public class NovaFluent {
 			.image(imageId)
 			.flavor(flavorId)
 			.networks(networks)
-			.addAdminPass("c1oudc0w")
-			.userData(new String(Base64.encodeBase64("su c1oudc0w & apt-get-install postgresql postgresql-common postgresql-contrib".getBytes())))
+			.userData(new String(Base64.encodeBase64("#!/bin/bash \n sudo apt-get-install -y postgresql postgresql-common postgresql-contrib".getBytes())))
 			.build();
 		
 		Server server = null;
 		if (powerOn)
-			server = client().compute().servers().boot(serverCreate);
+			server = client().compute().servers().boot(serverCreate) ;
 		
 		return server;
 	}

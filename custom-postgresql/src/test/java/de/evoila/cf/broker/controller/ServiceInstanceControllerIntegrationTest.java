@@ -23,6 +23,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import de.evoila.cf.broker.controller.ServiceInstanceController;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.fixture.ServiceInstanceFixture;
 import de.evoila.cf.broker.service.CatalogService;
