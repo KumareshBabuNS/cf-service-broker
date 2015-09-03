@@ -1,7 +1,5 @@
 package de.evoila.cf.broker.service;
 
-import java.util.List;
-
 import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.exception.ServiceInstanceExistsException;
 import de.evoila.cf.broker.model.ServiceDefinition;
@@ -14,38 +12,50 @@ import de.evoila.cf.broker.model.ServiceInstance;
  */
 public interface ServiceInstanceService {
 
-	/**
-	 * @return All known ServiceInstances
-	 */
-	List<ServiceInstance> getAllServiceInstances();
-	
+	// /**
+	// * @return All known ServiceInstances
+	// */
+	// List<ServiceInstance> getAllServiceInstances();
+
 	/**
 	 * Create a new instance of a service
-	 * @param service The service definition of the instance to create
-	 * @param serviceInstanceId The id of the instance provided by the CloudController
-	 * @param planId The id of the plan for this instance
-	 * @param organizationGuid The guid of the org this instance belongs to
-	 * @param spaceGuid The guid of the space this instance belongs to
+	 * 
+	 * @param service
+	 *            The service definition of the instance to create
+	 * @param serviceInstanceId
+	 *            The id of the instance provided by the CloudController
+	 * @param planId
+	 *            The id of the plan for this instance
+	 * @param organizationGuid
+	 *            The guid of the org this instance belongs to
+	 * @param spaceGuid
+	 *            The guid of the space this instance belongs to
 	 * @return The newly created ServiceInstance
-	 * @throws ServiceInstanceExistsException if the service instance already exists.
-	 * @throws ServiceBrokerException if something goes wrong internally
+	 * @throws ServiceInstanceExistsException
+	 *             if the service instance already exists.
+	 * @throws ServiceBrokerException
+	 *             if something goes wrong internally
 	 */
-	ServiceInstance createServiceInstance(ServiceDefinition service, String serviceInstanceId, String planId,
-			String organizationGuid, String spaceGuid) 
-			throws ServiceInstanceExistsException, ServiceBrokerException;
-	
+	String createServiceInstance(ServiceDefinition service, String serviceInstanceId, String planId,
+			String organizationGuid, String spaceGuid) throws ServiceInstanceExistsException, ServiceBrokerException;
+
 	/**
 	 * @param id
-	 * @return The ServiceInstance with the given id or null if one does not exist
+	 * @return The ServiceInstance with the given id or null if one does not
+	 *         exist
 	 */
 	ServiceInstance getServiceInstance(String id);
-	
+
 	/**
 	 * Delete and return the instance if it exists.
+	 * 
 	 * @param id
 	 * @return The delete ServiceInstance or null if one did not exist.
-	 * @throws ServiceBrokerException is something goes wrong internally
+	 * @throws ServiceBrokerException
+	 *             is something goes wrong internally
 	 */
 	ServiceInstance deleteServiceInstance(String id) throws ServiceBrokerException;
-	
+
+	String getInternalId(String instanceId);
+
 }

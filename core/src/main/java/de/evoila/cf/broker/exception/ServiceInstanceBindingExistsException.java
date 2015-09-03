@@ -1,26 +1,26 @@
 package de.evoila.cf.broker.exception;
 
-import de.evoila.cf.broker.model.ServiceInstanceBinding;
-
 /**
- * Thrown when a duplicate request to bind to a service instance is 
- * received.
+ * Thrown when a duplicate request to bind to a service instance is received.
  * 
  * @author sgreenberg@gopivotal.com
  */
 public class ServiceInstanceBindingExistsException extends Exception {
 
 	private static final long serialVersionUID = -914571358227517785L;
-	
-	private ServiceInstanceBinding binding;
-	
-	public ServiceInstanceBindingExistsException(ServiceInstanceBinding binding) {
-		this.binding = binding;
+
+	private String bindingId;
+
+	private String serviceInstanceId;
+
+	public ServiceInstanceBindingExistsException(String bindingId, String serviceInstanceId) {
+		this.bindingId = bindingId;
+		this.serviceInstanceId = serviceInstanceId;
 	}
-	
+
+	@Override
 	public String getMessage() {
-		return "ServiceInstanceBinding already exists: serviceInstanceBinding.id = " 
-				+ binding.getId()
-				+ ", serviceInstance.id = " + binding.getServiceInstanceId();
+		return "ServiceInstanceBinding already exists: serviceInstanceBinding.id = " + bindingId
+				+ ", serviceInstance.id = " + serviceInstanceId;
 	}
 }
