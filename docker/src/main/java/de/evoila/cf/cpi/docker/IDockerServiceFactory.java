@@ -1,14 +1,12 @@
 package de.evoila.cf.cpi.docker;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import javax.annotation.PostConstruct;
 
-import org.cloudfoundry.client.lib.domain.CloudServiceInstance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,13 +25,17 @@ import com.github.dockerjava.core.DockerClientConfig.DockerClientConfigBuilder;
 import com.github.dockerjava.core.LocalDirectorySSLConfig;
 import com.github.dockerjava.core.SSLConfig;
 
+import de.evoila.cf.broker.exception.ServiceBrokerException;
+import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
+import de.evoila.cf.broker.model.ServiceInstanceCreationResult;
+import de.evoila.cf.broker.service.impl.ServiceInstanceServiceImpl;
 
 /**
  * 
  * @author Dennis Mueller, evoila GmbH, Aug 26, 2015
  *
  */
-public abstract class IDockerServiceFactory {
+public abstract class IDockerServiceFactory extends ServiceInstanceServiceImpl {
 
 	private static final int PORT = 2345;
 
@@ -53,12 +55,14 @@ public abstract class IDockerServiceFactory {
 	protected abstract String getContainerEnviornment();
 
 	protected abstract String getContainerVolume();
-	
+
 	protected abstract String getPassword();
 
 	protected abstract String getUsername();
-	
+
 	protected abstract String getVhost();
+	
+	private Map<String, Map<String, Object>> containerCredentialMap = new HashMap<String, Map<String,Object>>();
 
 	@Value("${docker.certpath}")
 	private String dockerCertPath;
@@ -115,11 +119,12 @@ public abstract class IDockerServiceFactory {
 		return container.getId();
 	}
 
-	public CloudServiceInstance createService(CloudServiceInstance cloudServiceInstance) {
-		String flavor = cloudServiceInstance.getServicePlan().getExtra();
-		
+	@Override
+	public ServiceInstanceCreationResult provisionServiceInstance(String serviceInstanceId, String planId)
+			throws ServiceBrokerException {
+
 		Properties volume;
-		switch (flavor.toUpperCase()) {
+		switch (planId.toUpperCase()) {
 		case "S":
 			volume = this.createDockerVolume(SMALL_SIZE + getOffset());
 			break;
@@ -127,16 +132,16 @@ public abstract class IDockerServiceFactory {
 			volume = this.createDockerVolume(MEDIUM_SIZE + getOffset());
 			break;
 		default:
-			logger.error("No correct Service size");
-			return null;
+			volume = this.createDockerVolume(SMALL_SIZE + getOffset());
+			break;
 		}
 		String mountPoint = volume.getProperty("mountPoint");
 		String volumeName = volume.getProperty("name");
 		String containerId;
 		try {
 			containerId = this.createDockerContainer(getImageName(),
-			getSevicePort(), getContainerVolume(), mountPoint,
-			getContainerEnviornment());
+					getSevicePort(), getContainerVolume(), mountPoint,
+					getContainerEnviornment());
 		} catch (Exception e) {
 			logger.error("Cannot create docker container");
 			return null;
@@ -145,6 +150,8 @@ public abstract class IDockerServiceFactory {
 				+ getSevicePort() + ":" + "PORT" + " -v " + mountPoint + ":"
 				+ getContainerVolume() + " -e " + getContainerEnviornment()
 				+ " " + getImageName());
+		ServiceInstanceCreationResult creationResult = new ServiceInstanceCreationResult();
+		
 		Map<String, Object> credentials = new HashMap<String, Object>();
 		//credentials.put("uri", getUri());
 		credentials.put("hostname", dockerHost);
@@ -154,9 +161,26 @@ public abstract class IDockerServiceFactory {
 		credentials.put("username", getUsername());
 		credentials.put("password", getPassword());
 		
-		cloudServiceInstance.setCredentials(credentials);
-		cloudServiceInstance.setType("managed_service_instance");
-		return cloudServiceInstance;
+		containerCredentialMap.put(containerId, credentials); 
+		
+		creationResult.setDaschboardUrl(null);
+		creationResult.setInternalId(containerId);
+		return creationResult;
+	}
+
+	@Override
+	public ServiceInstanceBindingResponse bindService(String insternalId)
+			throws ServiceBrokerException {
+		ServiceInstanceBindingResponse bindingResponse = new ServiceInstanceBindingResponse();
+
+		bindingResponse.setCredentials(this.containerCredentialMap.get(insternalId));
+		bindingResponse.setSyslogDrainUrl(null);
+		return bindingResponse;
+	}
+
+	@Override
+	public void deleteBinding(String internalId) throws ServiceBrokerException {
+
 	}
 
 }

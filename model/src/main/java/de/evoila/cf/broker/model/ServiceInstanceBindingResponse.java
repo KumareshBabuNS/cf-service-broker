@@ -28,7 +28,7 @@ public class ServiceInstanceBindingResponse {
 	 */
 	public ServiceInstanceBindingResponse(Map<String, Object> credentials) {
 		super();
-		this.credentials = credentials;
+		this.setCredentials(credentials);
 	}
 
 	/**
@@ -37,8 +37,8 @@ public class ServiceInstanceBindingResponse {
 	 */
 	public ServiceInstanceBindingResponse(Map<String, Object> credentials, String syslogDrainUrl) {
 		super();
-		this.credentials = credentials;
-		this.syslogDrainUrl = syslogDrainUrl;
+		this.setCredentials(credentials);
+		this.setSyslogDrainUrl(syslogDrainUrl);
 	}
 
 	@JsonSerialize
@@ -51,6 +51,14 @@ public class ServiceInstanceBindingResponse {
 	@JsonProperty("syslog_drain_url")
 	public String getSyslogDrainUrl() {
 		return this.syslogDrainUrl;
+	}
+
+	public void setCredentials(Map<String, Object> credentials) {
+		this.credentials = credentials;
+	}
+
+	public void setSyslogDrainUrl(String syslogDrainUrl) {
+		this.syslogDrainUrl = syslogDrainUrl;
 	}
 
 }

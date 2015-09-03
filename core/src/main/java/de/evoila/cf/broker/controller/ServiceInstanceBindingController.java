@@ -24,7 +24,6 @@ import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.model.ErrorMessage;
 import de.evoila.cf.broker.model.ServiceInstanceBindingRequest;
 import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
-import de.evoila.cf.broker.service.ServiceInstanceBindingService;
 import de.evoila.cf.broker.service.ServiceInstanceService;
 
 /**
@@ -44,9 +43,6 @@ public class ServiceInstanceBindingController extends BaseController {
 	public static final String SERVICE_INSTANCE_BINDING_BASE_PATH = "/v2/service_instances/{instanceId}/service_bindings";
 
 	@Autowired
-	private ServiceInstanceBindingService serviceInstanceBindingService;
-
-	@Autowired
 	private ServiceInstanceService serviceInstanceService;
 
 	@RequestMapping(value = "/{instanceId}/service_bindings/{bindingId}", method = RequestMethod.PUT)
@@ -58,7 +54,7 @@ public class ServiceInstanceBindingController extends BaseController {
 		logger.debug("PUT: " + SERVICE_INSTANCE_BINDING_BASE_PATH + "/{bindingId}"
 				+ ", bindServiceInstance(), serviceInstance.id = " + instanceId + ", bindingId = " + bindingId);
 
-		ServiceInstanceBindingResponse response = serviceInstanceBindingService.createServiceInstanceBinding(bindingId,
+		ServiceInstanceBindingResponse response = serviceInstanceService.createServiceInstanceBinding(bindingId,
 				instanceId, request.getServiceDefinitionId(), request.getPlanId(), request.getAppGuid());
 
 		logger.debug("ServiceInstanceBinding Created: " + bindingId);
@@ -76,7 +72,7 @@ public class ServiceInstanceBindingController extends BaseController {
 				+ ", serviceId = " + serviceId + ", planId = " + planId);
 
 		try {
-			serviceInstanceBindingService.deleteServiceInstanceBinding(bindingId);
+			serviceInstanceService.deleteServiceInstanceBinding(bindingId);
 		} catch (ServerviceInstanceBindingDoesNotExistsException e) {
 			return new ResponseEntity<String>("{}", HttpStatus.NOT_FOUND);
 		}
