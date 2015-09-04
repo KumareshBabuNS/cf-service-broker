@@ -1,5 +1,7 @@
 package de.evoila.cf.broker.model;
 
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -39,6 +41,10 @@ public class ServiceInstance {
 	@JsonSerialize
 	@JsonProperty("dashboard_url")
 	private String dashboardUrl;
+	
+	@JsonSerialize
+	@JsonProperty("parameters")
+	private Map<String, String> parameters;
 
 	@SuppressWarnings("unused")
 	private ServiceInstance() {}
@@ -98,6 +104,14 @@ public class ServiceInstance {
 
 	private void setDashboardUrl(String dashboardUrl) {
 		this.dashboardUrl = dashboardUrl;
+	}
+
+	public Map<String, String> getParameters() {
+		return parameters;
+	}
+
+	public void setParameters(Map<String, String> parameters) {
+		this.parameters = parameters;
 	}
 	
 }

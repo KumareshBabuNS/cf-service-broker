@@ -12,10 +12,16 @@ import java.util.Map;
 public class ServiceInstanceBinding {
 
 	private String id;
+	
 	private String serviceInstanceId;
+	
 	private Map<String,Object> credentials = new HashMap<String,Object>();
+	
 	private String syslogDrainUrl;
+	
 	private String appGuid;
+	
+	private Map<String, String> parameters;
 
 	public ServiceInstanceBinding(String id, 
 			String serviceInstanceId, 
@@ -54,6 +60,14 @@ public class ServiceInstanceBinding {
 	
 	public String getAppGuid() {
 		return appGuid;
+	}
+
+	public Map<String, String> getParameters() {
+		return parameters;
+	}
+
+	public void setParameters(Map<String, String> parameters) {
+		this.parameters = parameters;
 	}
 	
 }

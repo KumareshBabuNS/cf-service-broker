@@ -1,5 +1,7 @@
 package de.evoila.cf.broker.model;
 
+import java.util.Map;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -33,6 +35,10 @@ public class ServiceInstanceBindingRequest {
 	@JsonProperty("app_guid")
 	private String appGuid;
 	
+	@JsonSerialize
+	@JsonProperty("parameters")
+	private Map<String, String> parameters;
+	
 	public ServiceInstanceBindingRequest() {}
 	
 	public ServiceInstanceBindingRequest(String serviceDefinitionId, String planId, String appGuid) {
@@ -63,6 +69,14 @@ public class ServiceInstanceBindingRequest {
 
 	public void setAppGuid(String appGuid) {
 		this.appGuid = appGuid;
+	}
+
+	public Map<String, String> getParameters() {
+		return parameters;
+	}
+
+	public void setParameters(Map<String, String> parameters) {
+		this.parameters = parameters;
 	}
 	
 }
