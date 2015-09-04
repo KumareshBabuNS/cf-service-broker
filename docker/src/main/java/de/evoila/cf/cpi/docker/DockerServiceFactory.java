@@ -9,7 +9,10 @@ import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.web.client.RestTemplate;
 
 import com.github.dockerjava.api.DockerClient;
@@ -64,7 +67,7 @@ public abstract class DockerServiceFactory extends ServiceInstanceServiceImpl {
 
 	private Map<String, Map<String, Object>> containerCredentialMap = new HashMap<String, Map<String, Object>>();
 
-	@Value("${docker.certpath}")
+	//@Value("${docker.certpath}")
 	private String dockerCertPath;
 
 	@Value("${docker.host}")
@@ -75,13 +78,18 @@ public abstract class DockerServiceFactory extends ServiceInstanceServiceImpl {
 
 	@Value("${docker.volume.service.port}")
 	private String dockerVolumePort;
-
+	
+	@Autowired
+	private ApplicationContext context;
+	
 	@PostConstruct
-	public void init() {
-
+	public void init() throws IOException {
+		Resource resource = context.getResource("classpath*:key.pem");
+		dockerCertPath = resource.getFile().getPath();
 	}
 
 	private DockerClient createDockerClientInstance() {
+		
 		SSLConfig sslConfig = new LocalDirectorySSLConfig(dockerCertPath);
 		DockerClientConfig dockerClientConfig = new DockerClientConfigBuilder().withSSLConfig(sslConfig)
 				.withUri("https://" + dockerHost + ":" + dockerPort).build();
@@ -162,6 +170,11 @@ public abstract class DockerServiceFactory extends ServiceInstanceServiceImpl {
 		creationResult.setInternalId(containerId);
 		return creationResult;
 	}
+	
+	@Override
+	protected void deprovisionServiceInstance(String internalId) {
+		//TODO
+	};
 
 	@Override
 	public ServiceInstanceBindingResponse bindService(String insternalId) throws ServiceBrokerException {

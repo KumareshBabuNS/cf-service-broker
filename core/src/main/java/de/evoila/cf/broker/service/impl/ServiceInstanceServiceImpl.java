@@ -46,7 +46,7 @@ public abstract class ServiceInstanceServiceImpl implements ServiceInstanceFacto
 				spaceGuid);
 
 		// create
-		ServiceInstanceCreationResult creationResult = provisionServiceInstance(instance, planId);
+		ServiceInstanceCreationResult creationResult = provisionServiceInstance(serviceInstanceId, planId);
 
 		serviceInstances.put(serviceInstanceId, instance);
 

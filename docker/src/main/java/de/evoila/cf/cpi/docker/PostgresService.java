@@ -3,9 +3,6 @@
  */
 package de.evoila.cf.cpi.docker;
 
-import javax.annotation.PostConstruct;
-
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
@@ -14,12 +11,7 @@ import org.springframework.stereotype.Service;
  *
  */
 @Service("service")
-public class PostgresService extends DockerServiceFactory {
-	
-	@PostConstruct
-	public void init() {
-		LoggerFactory.getLogger(getClass()).info("lhflashdf");
-	}
+public class PostgresService extends DockerServiceFactory {	
 
 	@Override
 	protected String getType() {
