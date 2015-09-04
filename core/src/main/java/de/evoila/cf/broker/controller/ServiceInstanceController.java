@@ -19,14 +19,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.exception.ServiceDefinitionDoesNotExistException;
+import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceExistsException;
 import de.evoila.cf.broker.model.CreateServiceInstanceRequest;
 import de.evoila.cf.broker.model.CreateServiceInstanceResponse;
 import de.evoila.cf.broker.model.ErrorMessage;
 import de.evoila.cf.broker.model.ServiceDefinition;
-import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.service.CatalogService;
-import de.evoila.cf.broker.service.ServiceInstanceService;
+import de.evoila.cf.broker.service.ServiceInstanceFactory;
 
 /**
  * See: http://docs.cloudfoundry.com/docs/running/architecture/services/writing-
@@ -45,7 +45,7 @@ public class ServiceInstanceController extends BaseController {
 	public static final String SERVICE_INSTANCE_BASE_PATH = "/v2/service_instances";
 
 	@Autowired
-	private ServiceInstanceService service;
+	private ServiceInstanceFactory service;
 
 	@Autowired
 	private CatalogService catalogService;
@@ -96,12 +96,12 @@ public class ServiceInstanceController extends BaseController {
 				+ ", deleteServiceInstanceBinding(), serviceInstanceId = " + instanceId + ", serviceId = " + serviceId
 				+ ", planId = " + planId);
 
-		ServiceInstance instance = service.deleteServiceInstance(instanceId);
-
-		if (instance == null) {
-			return new ResponseEntity<String>("{}", HttpStatus.NOT_FOUND);
+		try {
+			service.deleteServiceInstance(instanceId);
+		} catch (ServiceInstanceDoesNotExistException e) {
+			return new ResponseEntity<String>("{}", HttpStatus.GONE);
 		}
-		logger.debug("ServiceInstance Deleted: " + instance.getId());
+		logger.debug("ServiceInstance Deleted: " + instanceId);
 
 		return new ResponseEntity<String>("{}", HttpStatus.OK);
 	}

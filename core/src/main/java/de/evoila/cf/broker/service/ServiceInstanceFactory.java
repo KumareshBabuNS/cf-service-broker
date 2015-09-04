@@ -6,7 +6,6 @@ import de.evoila.cf.broker.exception.ServiceInstanceBindingExistsException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceExistsException;
 import de.evoila.cf.broker.model.ServiceDefinition;
-import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
 
 /**
@@ -14,7 +13,7 @@ import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
  * 
  * @author sgreenberg@gopivotal.com
  */
-public interface ServiceInstanceService {
+public interface ServiceInstanceFactory {
 
 	// /**
 	// * @return All known ServiceInstances
@@ -48,8 +47,8 @@ public interface ServiceInstanceService {
 	 * @return The ServiceInstance with the given id or null if one does not
 	 *         exist
 	 */
-	//XXX
-	//ServiceInstance getServiceInstance(String id);
+	// XXX
+	// ServiceInstance getServiceInstance(String id);
 
 	/**
 	 * Delete and return the instance if it exists.
@@ -59,9 +58,7 @@ public interface ServiceInstanceService {
 	 * @throws ServiceBrokerException
 	 *             is something goes wrong internally
 	 */
-	ServiceInstance deleteServiceInstance(String id) throws ServiceBrokerException;
-
-	String getInternalId(String instanceId);
+	void deleteServiceInstance(String id) throws ServiceBrokerException, ServiceInstanceDoesNotExistException;
 
 	/**
 	 * Create a new binding to a service instance.

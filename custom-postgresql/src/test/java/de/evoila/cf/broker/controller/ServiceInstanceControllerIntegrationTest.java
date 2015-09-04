@@ -27,7 +27,7 @@ import de.evoila.cf.broker.controller.ServiceInstanceController;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.fixture.ServiceInstanceFixture;
 import de.evoila.cf.broker.service.CatalogService;
-import de.evoila.cf.broker.service.ServiceInstanceService;
+import de.evoila.cf.broker.service.ServiceInstanceFactory;
 
 /**
  * 
@@ -42,7 +42,7 @@ public class ServiceInstanceControllerIntegrationTest {
 	private ServiceInstanceController controller;
 
 	@Mock
-	private ServiceInstanceService serviceInstanceService;
+	private ServiceInstanceFactory serviceInstanceService;
 
 	@Mock
 	private CatalogService catalogService;

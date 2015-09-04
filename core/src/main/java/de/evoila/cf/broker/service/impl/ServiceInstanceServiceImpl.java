@@ -15,23 +15,17 @@ import de.evoila.cf.broker.model.ServiceDefinition;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
 import de.evoila.cf.broker.model.ServiceInstanceCreationResult;
-import de.evoila.cf.broker.service.ServiceInstanceService;
+import de.evoila.cf.broker.service.ServiceInstanceFactory;
 
 /**
  * @author Christian
  *
  */
-public abstract class ServiceInstanceServiceImpl implements ServiceInstanceService {
+public abstract class ServiceInstanceServiceImpl implements ServiceInstanceFactory {
 
-	public abstract ServiceInstanceCreationResult provisionServiceInstance(String serviceInstanceId, String planId)
-			throws ServiceBrokerException;
+	private Map<String, ServiceInstance> serviceInstances = new ConcurrentHashMap<String, ServiceInstance>();
 
-	public abstract ServiceInstanceBindingResponse bindService(String internalId) throws ServiceBrokerException;
-
-	public abstract void deleteBinding(String internalId) throws ServiceBrokerException;
-
-	
-	private Map<String, String> internalIdMapping = new ConcurrentHashMap<String, String>();
+	private Map<String, String> internalBindingIdMapping = new ConcurrentHashMap<String, String>();
 
 	/*
 	 * (non-Javadoc)
@@ -41,20 +35,24 @@ public abstract class ServiceInstanceServiceImpl implements ServiceInstanceServi
 	 * de.evoila.cf.broker.model.ServiceDefinition, java.lang.String,
 	 * java.lang.String, java.lang.String, java.lang.String)
 	 */
+	@Override
 	public String createServiceInstance(ServiceDefinition service, String serviceInstanceId, String planId,
 			String organizationGuid, String spaceGuid) throws ServiceInstanceExistsException, ServiceBrokerException {
 
-		if (internalIdMapping.containsKey(serviceInstanceId)) {
+		if (serviceInstances.containsKey(serviceInstanceId)) {
 			throw new ServiceInstanceExistsException(serviceInstanceId, service.getId());
 		}
-		// create
-		ServiceInstanceCreationResult creationResult = provisionServiceInstance(serviceInstanceId, planId);
+		ServiceInstance instance = new ServiceInstance(serviceInstanceId, service.getId(), planId, organizationGuid,
+				spaceGuid);
 
-		internalIdMapping.put(serviceInstanceId, creationResult.getInternalId());
+		// create
+		ServiceInstanceCreationResult creationResult = provisionServiceInstance(instance, planId);
+
+		serviceInstances.put(serviceInstanceId, instance);
 
 		return creationResult.getDaschboardUrl();
 	}
-	
+
 	// /*
 	// * (non-Javadoc)
 	// *
@@ -67,6 +65,13 @@ public abstract class ServiceInstanceServiceImpl implements ServiceInstanceServi
 	// return null;
 	// }
 
+	protected abstract ServiceInstanceCreationResult provisionServiceInstance(String serviceInstanceId, String planId)
+			throws ServiceBrokerException;
+
+	protected String getInternalId(String instanceId) {
+		return this.serviceInstances.get(instanceId).getInternalId();
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -74,35 +79,23 @@ public abstract class ServiceInstanceServiceImpl implements ServiceInstanceServi
 	 * de.evoila.cf.broker.service.ServiceInstanceService#deleteServiceInstance(
 	 * java.lang.String)
 	 */
-	public ServiceInstance deleteServiceInstance(String id) throws ServiceBrokerException {
-		// TODO Auto-generated method stub
-		return null;
+	@Override
+	public void deleteServiceInstance(String instanceId)
+			throws ServiceBrokerException, ServiceInstanceDoesNotExistException {
+		String internalId = getInternalInstance(instanceId);
+
+		deprovisionServiceInstance(internalId);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * de.evoila.cf.broker.service.ServiceInstanceService#getInternalId(java.
-	 * lang.String)
-	 */
-	public String getInternalId(String instanceId) {
-		return this.internalIdMapping.get(instanceId);
-	}
-	
-	private ConcurrentHashMap<String, String> internalBindingIdMapping = new ConcurrentHashMap<String, String>();
+	protected abstract void deprovisionServiceInstance(String internalId);
 
+	@Override
 	public ServiceInstanceBindingResponse createServiceInstanceBinding(String bindingId, String instanceId,
 			String serviceId, String planId, String appGuid) throws ServiceInstanceBindingExistsException,
 					ServiceBrokerException, ServiceInstanceDoesNotExistException {
-		String internalId = this.getInternalId(instanceId);
-		if (internalId == null) {
-			throw new ServiceInstanceDoesNotExistException(instanceId);
-		}
+		String internalId = getInternalInstance(instanceId);
 
-		if (internalBindingIdMapping.containsKey(bindingId)) {
-			throw new ServiceInstanceBindingExistsException(bindingId, instanceId);
-		}
+		validateBindingNotExists(bindingId, instanceId);
 
 		ServiceInstanceBindingResponse response = bindService(internalId);
 
@@ -111,19 +104,44 @@ public abstract class ServiceInstanceServiceImpl implements ServiceInstanceServi
 		return response;
 	}
 
+	private void validateBindingNotExists(String bindingId, String instanceId)
+			throws ServiceInstanceBindingExistsException {
+		if (internalBindingIdMapping.containsKey(bindingId)) {
+			throw new ServiceInstanceBindingExistsException(bindingId, instanceId);
+		}
+	}
+
+	private String getInternalInstance(String instanceId) throws ServiceInstanceDoesNotExistException {
+		String internalId = this.getInternalId(instanceId);
+		if (internalId == null) {
+			throw new ServiceInstanceDoesNotExistException(instanceId);
+		}
+		return internalId;
+	}
+
+	protected abstract ServiceInstanceBindingResponse bindService(String internalId) throws ServiceBrokerException;
+
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see de.evoila.cf.broker.service.ServiceInstanceBindingService#
 	 * deleteServiceInstanceBinding(java.lang.String)
 	 */
+	@Override
 	public void deleteServiceInstanceBinding(String bindingId)
 			throws ServiceBrokerException, ServerviceInstanceBindingDoesNotExistsException {
+		String internalId = getBinding(bindingId);
+		deleteBinding(internalId);
+	}
+
+	private String getBinding(String bindingId) throws ServerviceInstanceBindingDoesNotExistsException {
 		String internalId = internalBindingIdMapping.get(bindingId);
 		if (internalId == null) {
 			throw new ServerviceInstanceBindingDoesNotExistsException(bindingId);
 		}
-		deleteBinding(internalId);
+		return internalId;
 	}
+
+	protected abstract void deleteBinding(String internalId) throws ServiceBrokerException;
 
 }
