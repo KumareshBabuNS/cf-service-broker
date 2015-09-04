@@ -25,6 +25,7 @@ import de.evoila.cf.broker.model.CreateServiceInstanceRequest;
 import de.evoila.cf.broker.model.CreateServiceInstanceResponse;
 import de.evoila.cf.broker.model.ErrorMessage;
 import de.evoila.cf.broker.model.ServiceDefinition;
+import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.service.CatalogService;
 import de.evoila.cf.broker.service.ServiceInstanceFactory;
 
@@ -78,12 +79,12 @@ public class ServiceInstanceController extends BaseController {
 			throw new ServiceDefinitionDoesNotExistException(request.getServiceDefinitionId());
 		}
 
-		String dashboardUrl = service.createServiceInstance(svc, serviceInstanceId, request.getPlanId(),
+		ServiceInstance serviceInstance = service.createServiceInstance(svc, serviceInstanceId, request.getPlanId(),
 				request.getOrganizationGuid(), request.getSpaceGuid());
 
-		logger.debug("ServiceInstance Created: " + dashboardUrl);
+		logger.debug("ServiceInstance Created: " + serviceInstance.getInternalId());
 
-		return new ResponseEntity<CreateServiceInstanceResponse>(new CreateServiceInstanceResponse(dashboardUrl),
+		return new ResponseEntity<CreateServiceInstanceResponse>(new CreateServiceInstanceResponse(serviceInstance),
 				HttpStatus.CREATED);
 	}
 

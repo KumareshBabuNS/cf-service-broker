@@ -20,6 +20,10 @@ public class CreateServiceInstanceResponse {
 
 	public CreateServiceInstanceResponse() {
 	}
+	
+	public CreateServiceInstanceResponse(ServiceInstance serviceInstance) {
+		this.dashboardUrl = serviceInstance.getDashboardUrl();
+	}
 
 	public CreateServiceInstanceResponse(String dashboardUrl) {
 		this.dashboardUrl = dashboardUrl;
