@@ -24,7 +24,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import de.evoila.cf.broker.controller.ServiceInstanceController;
+import de.evoila.cf.broker.model.ServiceDefinition;
 import de.evoila.cf.broker.model.ServiceInstance;
+import de.evoila.cf.broker.model.fixture.ServiceFixture;
 import de.evoila.cf.broker.model.fixture.ServiceInstanceFixture;
 import de.evoila.cf.broker.service.CatalogService;
 import de.evoila.cf.broker.service.ServiceInstanceFactory;
@@ -140,79 +142,78 @@ public class ServiceInstanceControllerIntegrationTest {
 	// containsString(instance.getId())));
 	// }
 
-	// @Test
-	// public void badJsonServiceInstanceCreationFails() throws Exception {
-	// ServiceInstance instance = ServiceInstanceFixture.getServiceInstance();
-	//
-	// when(serviceInstanceService.createServiceInstance(any(ServiceDefinition.class),
-	// any(String.class),
-	// any(String.class), any(String.class),
-	// any(String.class))).thenReturn(instance);
-	//
-	// when(catalogService.getServiceDefinition(any(String.class))).thenReturn(ServiceFixture.getService());
-	//
-	// String url = ServiceInstanceController.SERVICE_INSTANCE_BASE_PATH + "/" +
-	// instance.getId();
-	// String body =
-	// ServiceInstanceFixture.getCreateServiceInstanceRequestJson();
-	// body = body.replace("service_id", "foo");
-	//
-	// mockMvc.perform(
-	// put(url).contentType(MediaType.APPLICATION_JSON).content(body).accept(MediaType.APPLICATION_JSON))
-	// .andExpect(status().isUnprocessableEntity()).andExpect(jsonPath("$.message",
-	// containsString("foo")));
-	// }
+	 @Test
+	 public void badJsonServiceInstanceCreationFails() throws Exception {
+		 ServiceInstance instance = ServiceInstanceFixture.getServiceInstance();
+	
+		 when(serviceInstanceService.createServiceInstance(any(ServiceDefinition.class),
+		 any(String.class),
+		 any(String.class), any(String.class),
+		 any(String.class))).thenReturn(instance);
+		
+		 when(catalogService.getServiceDefinition(any(String.class))).thenReturn(ServiceFixture.getService());
+		
+		 String url = ServiceInstanceController.SERVICE_INSTANCE_BASE_PATH + "/" +
+		 instance.getId();
+		 String body =
+		 ServiceInstanceFixture.getCreateServiceInstanceRequestJson();
+		 body = body.replace("service_id", "foo");
+		
+		 mockMvc.perform(
+		 put(url).contentType(MediaType.APPLICATION_JSON).content(body).accept(MediaType.APPLICATION_JSON))
+		 .andExpect(status().isUnprocessableEntity()).andExpect(jsonPath("$.message",
+		 containsString("foo")));
+	 }
 
-	// @Test
-	// public void badJsonServiceInstanceCreationFailsMissingFields() throws
-	// Exception {
-	// ServiceInstance instance = ServiceInstanceFixture.getServiceInstance();
-	//
-	// when(serviceInstanceService.createServiceInstance(any(ServiceDefinition.class),
-	// any(String.class),
-	// any(String.class), any(String.class),
-	// any(String.class))).thenReturn(instance);
-	//
-	// when(catalogService.getServiceDefinition(any(String.class))).thenReturn(ServiceFixture.getService());
-	//
-	// String url = ServiceInstanceController.SERVICE_INSTANCE_BASE_PATH + "/" +
-	// instance.getId();
-	// String body = "{}";
-	//
-	// mockMvc.perform(
-	// put(url).contentType(MediaType.APPLICATION_JSON).content(body).accept(MediaType.APPLICATION_JSON))
-	// .andExpect(status().isUnprocessableEntity())
-	// .andExpect(jsonPath("$.message", containsString("serviceDefinitionId")))
-	// .andExpect(jsonPath("$.message", containsString("planId")))
-	// .andExpect(jsonPath("$.message", containsString("organizationGuid")))
-	// .andExpect(jsonPath("$.message", containsString("spaceGuid")));
-	// }
+	 @Test
+	 public void badJsonServiceInstanceCreationFailsMissingFields() throws Exception {
+		 ServiceInstance instance = ServiceInstanceFixture.getServiceInstance();
+		
+		 when(serviceInstanceService.createServiceInstance(any(ServiceDefinition.class),
+				 any(String.class),
+				 any(String.class), any(String.class),
+				 any(String.class))).thenReturn(instance);
+		
+		 when(catalogService.getServiceDefinition(any(String.class))).thenReturn(ServiceFixture.getService());
+		
+		 String url = ServiceInstanceController.SERVICE_INSTANCE_BASE_PATH + "/" +
+		 instance.getId();
+		 String body = "{}";
+		
+		 mockMvc.perform(
+		 put(url).contentType(MediaType.APPLICATION_JSON).content(body).accept(MediaType.APPLICATION_JSON))
+		 .andExpect(status().isUnprocessableEntity())
+		 .andExpect(jsonPath("$.message", containsString("serviceDefinitionId")))
+		 .andExpect(jsonPath("$.message", containsString("planId")))
+		 .andExpect(jsonPath("$.message", containsString("organizationGuid")))
+		 .andExpect(jsonPath("$.message", containsString("spaceGuid")));
+	 }
 
-//	@Test
-//	public void serviceInstanceIsDeletedSuccessfully() throws Exception {
-//		ServiceInstance instance = ServiceInstanceFixture.getServiceInstance();
-//
-//		when(serviceInstanceService.deleteServiceInstance(any(String.class))).thenReturn(instance);
-//
-//		String url = ServiceInstanceController.SERVICE_INSTANCE_BASE_PATH + "/" + instance.getId() + "?service_id="
-//				+ instance.getServiceDefinitionId() + "&plan_id=" + instance.getPlanId();
-//
-//		mockMvc.perform(delete(url).accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-//				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-//				.andExpect(jsonPath("$", is("{}")));
-//	}
-//
-//	@Test
-//	public void deleteUnknownServiceInstanceFails() throws Exception {
-//		ServiceInstance instance = ServiceInstanceFixture.getServiceInstance();
-//
-//		when(serviceInstanceService.deleteServiceInstance(any(String.class))).thenReturn(null);
-//
-//		String url = ServiceInstanceController.SERVICE_INSTANCE_BASE_PATH + "/" + instance.getId() + "?service_id="
-//				+ instance.getServiceDefinitionId() + "&plan_id=" + instance.getPlanId();
-//
-//		mockMvc.perform(delete(url).accept(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound())
-//				.andExpect(jsonPath("$", is("{}")));
-//	}
+	@Test
+	public void serviceInstanceIsDeletedSuccessfully() throws Exception {
+		ServiceInstance instance = ServiceInstanceFixture.getServiceInstance();
+
+		when(serviceInstanceService.deleteServiceInstance(any(String.class))).thenReturn(instance);
+
+		String url = ServiceInstanceController.SERVICE_INSTANCE_BASE_PATH + "/" + instance.getId() + "?service_id="
+				+ instance.getServiceDefinitionId() + "&plan_id=" + instance.getPlanId();
+
+		mockMvc.perform(delete(url).accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+				.andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+				.andExpect(jsonPath("$", is("{}")));
+	}
+
+	@Test
+	public void deleteUnknownServiceInstanceFails() throws Exception {
+		ServiceInstance instance = ServiceInstanceFixture.getServiceInstance();
+
+		when(serviceInstanceService.deleteServiceInstance(any(String.class))).thenReturn(null);
+
+		String url = ServiceInstanceController.SERVICE_INSTANCE_BASE_PATH + "/" + instance.getId() + "?service_id="
+				+ instance.getServiceDefinitionId() + "&plan_id=" + instance.getPlanId();
+
+		mockMvc.perform(delete(url).accept(MediaType.APPLICATION_JSON)).andExpect(status().isNotFound())
+				.andExpect(jsonPath("$", is("{}")));
+	}
 
 }

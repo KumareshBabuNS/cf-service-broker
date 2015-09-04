@@ -5,7 +5,6 @@ package de.evoila.cf.cpi.openstack.fluent;
 
 import java.util.List;
 
-import org.apache.commons.codec.binary.Base64;
 import org.openstack4j.api.OSClient;
 import org.openstack4j.model.compute.Flavor;
 import org.openstack4j.model.compute.Keypair;
@@ -48,7 +47,6 @@ public class NovaFluent {
 			.image(imageId)
 			.flavor(flavorId)
 			.networks(networks)
-			.userData(new String(Base64.encodeBase64("#!/bin/bash \n sudo apt-get-install -y postgresql postgresql-common postgresql-contrib".getBytes())))
 			.build();
 		
 		Server server = null;

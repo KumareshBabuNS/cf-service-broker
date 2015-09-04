@@ -6,6 +6,7 @@ import de.evoila.cf.broker.exception.ServiceInstanceBindingExistsException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceExistsException;
 import de.evoila.cf.broker.model.ServiceDefinition;
+import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
 
 /**
@@ -15,9 +16,9 @@ import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
  */
 public interface ServiceInstanceFactory {
 
-	// /**
-	// * @return All known ServiceInstances
-	// */
+	/**
+	 * @return All known ServiceInstances
+	 */
 	// List<ServiceInstance> getAllServiceInstances();
 
 	/**
@@ -39,7 +40,7 @@ public interface ServiceInstanceFactory {
 	 * @throws ServiceBrokerException
 	 *             if something goes wrong internally
 	 */
-	String createServiceInstance(ServiceDefinition service, String serviceInstanceId, String planId,
+	ServiceInstance createServiceInstance(ServiceDefinition service, String serviceInstanceId, String planId,
 			String organizationGuid, String spaceGuid) throws ServiceInstanceExistsException, ServiceBrokerException;
 
 	/**
@@ -47,8 +48,7 @@ public interface ServiceInstanceFactory {
 	 * @return The ServiceInstance with the given id or null if one does not
 	 *         exist
 	 */
-	// XXX
-	// ServiceInstance getServiceInstance(String id);
+	//ServiceInstance getServiceInstance(String id);
 
 	/**
 	 * Delete and return the instance if it exists.
@@ -58,7 +58,7 @@ public interface ServiceInstanceFactory {
 	 * @throws ServiceBrokerException
 	 *             is something goes wrong internally
 	 */
-	void deleteServiceInstance(String id) throws ServiceBrokerException, ServiceInstanceDoesNotExistException;
+	ServiceInstance deleteServiceInstance(String id) throws ServiceBrokerException, ServiceInstanceDoesNotExistException;
 
 	/**
 	 * Create a new binding to a service instance.
@@ -83,11 +83,11 @@ public interface ServiceInstanceFactory {
 			String serviceId, String planId, String appGuid) throws ServiceInstanceBindingExistsException,
 					ServiceBrokerException, ServiceInstanceDoesNotExistException;
 
-	// /**
-	// * @param id
-	// * @return The ServiceInstanceBinding or null if one does not exist.
-	// */
-	// ServiceInstanceBinding getServiceInstanceBinding(String id);
+	/**
+	 * @param id
+	 * @return The ServiceInstanceBinding or null if one does not exist.
+	*/
+	//ServiceInstanceBinding getServiceInstanceBinding(String id);
 
 	/**
 	 * Delete the service instance binding. If a binding doesn't exist, return
