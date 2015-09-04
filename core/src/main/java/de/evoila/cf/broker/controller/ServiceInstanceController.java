@@ -26,7 +26,7 @@ import de.evoila.cf.broker.model.ErrorMessage;
 import de.evoila.cf.broker.model.ServiceDefinition;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.service.CatalogService;
-import de.evoila.cf.cpi.docker.PostgresService;
+import de.evoila.cf.broker.service.ServiceInstanceService;
 
 /**
  * See: http://docs.cloudfoundry.com/docs/running/architecture/services/writing-
@@ -40,13 +40,12 @@ import de.evoila.cf.cpi.docker.PostgresService;
 @RequestMapping(value = "/v2")
 public class ServiceInstanceController extends BaseController {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(ServiceInstanceController.class);
+	private static final Logger logger = LoggerFactory.getLogger(ServiceInstanceController.class);
 
 	public static final String SERVICE_INSTANCE_BASE_PATH = "/v2/service_instances";
 
 	@Autowired
-	private PostgresService service;
+	private ServiceInstanceService service;
 
 	@Autowired
 	private CatalogService catalogService;
@@ -67,44 +66,35 @@ public class ServiceInstanceController extends BaseController {
 	@RequestMapping(value = "/service_instances/{instanceId}", method = RequestMethod.PUT)
 	public ResponseEntity<CreateServiceInstanceResponse> createServiceInstance(
 			@PathVariable("instanceId") String serviceInstanceId,
-			@Valid @RequestBody CreateServiceInstanceRequest request)
-			throws ServiceDefinitionDoesNotExistException,
-			ServiceInstanceExistsException, ServiceBrokerException {
+			@Valid @RequestBody CreateServiceInstanceRequest request) throws ServiceDefinitionDoesNotExistException,
+					ServiceInstanceExistsException, ServiceBrokerException {
 
 		logger.debug("PUT: " + SERVICE_INSTANCE_BASE_PATH + "/{instanceId}"
-				+ ", createServiceInstance(), serviceInstanceId = "
-				+ serviceInstanceId);
+				+ ", createServiceInstance(), serviceInstanceId = " + serviceInstanceId);
 
-		ServiceDefinition svc = catalogService.getServiceDefinition(request
-				.getServiceDefinitionId());
+		ServiceDefinition svc = catalogService.getServiceDefinition(request.getServiceDefinitionId());
 
 		if (svc == null) {
-			throw new ServiceDefinitionDoesNotExistException(
-					request.getServiceDefinitionId());
+			throw new ServiceDefinitionDoesNotExistException(request.getServiceDefinitionId());
 		}
 
-		String dashboardUrl = service.createServiceInstance(svc,
-				serviceInstanceId, request.getPlanId(),
+		String dashboardUrl = service.createServiceInstance(svc, serviceInstanceId, request.getPlanId(),
 				request.getOrganizationGuid(), request.getSpaceGuid());
 
 		logger.debug("ServiceInstance Created: " + dashboardUrl);
 
-		return new ResponseEntity<CreateServiceInstanceResponse>(
-				new CreateServiceInstanceResponse(dashboardUrl),
+		return new ResponseEntity<CreateServiceInstanceResponse>(new CreateServiceInstanceResponse(dashboardUrl),
 				HttpStatus.CREATED);
 	}
 
 	@RequestMapping(value = "/service_instances/{instanceId}", method = RequestMethod.DELETE)
-	public ResponseEntity<String> deleteServiceInstance(
-			@PathVariable("instanceId") String instanceId,
-			@RequestParam("service_id") String serviceId,
-			@RequestParam("plan_id") String planId)
-			throws ServiceBrokerException {
+	public ResponseEntity<String> deleteServiceInstance(@PathVariable("instanceId") String instanceId,
+			@RequestParam("service_id") String serviceId, @RequestParam("plan_id") String planId)
+					throws ServiceBrokerException {
 
 		logger.debug("DELETE: " + SERVICE_INSTANCE_BASE_PATH + "/{instanceId}"
-				+ ", deleteServiceInstanceBinding(), serviceInstanceId = "
-				+ instanceId + ", serviceId = " + serviceId + ", planId = "
-				+ planId);
+				+ ", deleteServiceInstanceBinding(), serviceInstanceId = " + instanceId + ", serviceId = " + serviceId
+				+ ", planId = " + planId);
 
 		ServiceInstance instance = service.deleteServiceInstance(instanceId);
 
@@ -118,17 +108,15 @@ public class ServiceInstanceController extends BaseController {
 
 	@ExceptionHandler(ServiceDefinitionDoesNotExistException.class)
 	@ResponseBody
-	public ResponseEntity<ErrorMessage> handleException(
-			ServiceDefinitionDoesNotExistException ex,
+	public ResponseEntity<ErrorMessage> handleException(ServiceDefinitionDoesNotExistException ex,
 			HttpServletResponse response) {
-		return getErrorResponse(ex.getMessage(),
-				HttpStatus.UNPROCESSABLE_ENTITY);
+		return getErrorResponse(ex.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
 	}
 
 	@ExceptionHandler(ServiceInstanceExistsException.class)
 	@ResponseBody
-	public ResponseEntity<ErrorMessage> handleException(
-			ServiceInstanceExistsException ex, HttpServletResponse response) {
+	public ResponseEntity<ErrorMessage> handleException(ServiceInstanceExistsException ex,
+			HttpServletResponse response) {
 		return getErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
 	}
 

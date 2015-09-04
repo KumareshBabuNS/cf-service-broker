@@ -1,11 +1,7 @@
 package de.evoila.cf.cpi.docker;
 
-import org.springframework.stereotype.Controller;
-
-
-@Controller
 public class MysqlService extends DockerServiceFactory {
-	
+
 	@Override
 	protected String getType() {
 		return "mysql";

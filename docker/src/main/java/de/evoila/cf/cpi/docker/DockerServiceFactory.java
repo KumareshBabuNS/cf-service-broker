@@ -61,8 +61,8 @@ public abstract class DockerServiceFactory extends ServiceInstanceServiceImpl {
 	protected abstract String getUsername();
 
 	protected abstract String getVhost();
-	
-	private Map<String, Map<String, Object>> containerCredentialMap = new HashMap<String, Map<String,Object>>();
+
+	private Map<String, Map<String, Object>> containerCredentialMap = new HashMap<String, Map<String, Object>>();
 
 	@Value("${docker.certpath}")
 	private String dockerCertPath;
@@ -83,21 +83,19 @@ public abstract class DockerServiceFactory extends ServiceInstanceServiceImpl {
 
 	private DockerClient createDockerClientInstance() {
 		SSLConfig sslConfig = new LocalDirectorySSLConfig(dockerCertPath);
-		DockerClientConfig dockerClientConfig = new DockerClientConfigBuilder()
-				.withSSLConfig(sslConfig)
+		DockerClientConfig dockerClientConfig = new DockerClientConfigBuilder().withSSLConfig(sslConfig)
 				.withUri("https://" + dockerHost + ":" + dockerPort).build();
 		return DockerClientBuilder.getInstance(dockerClientConfig).build();
 	}
 
 	private Properties createDockerVolume(int volumeSize) {
 		RestTemplate restTemplate = new RestTemplate();
-		return restTemplate.getForObject("http://" + dockerHost + ":"
-				+ dockerVolumePort + "/create/volume/" + volumeSize,
-				Properties.class);
+		return restTemplate.getForObject(
+				"http://" + dockerHost + ":" + dockerVolumePort + "/create/volume/" + volumeSize, Properties.class);
 	}
 
-	private String createDockerContainer(String imageName, int servicePort,
-			String volumePath, String mountPoint, String env) {
+	private String createDockerContainer(String imageName, int servicePort, String volumePath, String mountPoint,
+			String env) {
 		DockerClient dockerClient = this.createDockerClientInstance();
 		// XXX: port mapping
 		Binding binding = new Binding(PORT);
@@ -105,8 +103,7 @@ public abstract class DockerServiceFactory extends ServiceInstanceServiceImpl {
 		PortBinding portBinding = new PortBinding(binding, exposedPort);
 		Volume volume = new Volume(volumePath);
 		Bind bind = new Bind(mountPoint, volume);
-		CreateContainerResponse container = dockerClient
-				.createContainerCmd(imageName).withPortBindings(portBinding)
+		CreateContainerResponse container = dockerClient.createContainerCmd(imageName).withPortBindings(portBinding)
 				.withVolumes(volume).withBinds(bind).withEnv(env)// ("POSTGRES_PASSWORD=123456")
 				.exec();
 		dockerClient.startContainerCmd(container.getId()).exec();
@@ -139,38 +136,35 @@ public abstract class DockerServiceFactory extends ServiceInstanceServiceImpl {
 		String volumeName = volume.getProperty("name");
 		String containerId;
 		try {
-			containerId = this.createDockerContainer(getImageName(),
-					getSevicePort(), getContainerVolume(), mountPoint,
+			containerId = this.createDockerContainer(getImageName(), getSevicePort(), getContainerVolume(), mountPoint,
 					getContainerEnviornment());
 		} catch (Exception e) {
 			logger.error("Cannot create docker container");
 			return null;
 		}
-		logger.trace("Docker container '" + containerId + "' created with: -p "
-				+ getSevicePort() + ":" + "PORT" + " -v " + mountPoint + ":"
-				+ getContainerVolume() + " -e " + getContainerEnviornment()
-				+ " " + getImageName());
+		logger.trace("Docker container '" + containerId + "' created with: -p " + getSevicePort() + ":" + "PORT"
+				+ " -v " + mountPoint + ":" + getContainerVolume() + " -e " + getContainerEnviornment() + " "
+				+ getImageName());
 		ServiceInstanceCreationResult creationResult = new ServiceInstanceCreationResult();
-		
+
 		Map<String, Object> credentials = new HashMap<String, Object>();
-		//credentials.put("uri", getUri());
+		// credentials.put("uri", getUri());
 		credentials.put("hostname", dockerHost);
 		credentials.put("port", this.PORT);
 		credentials.put("name", containerId);
 		credentials.put("vhost", getVhost());
 		credentials.put("username", getUsername());
 		credentials.put("password", getPassword());
-		
-		containerCredentialMap.put(containerId, credentials); 
-		
+
+		containerCredentialMap.put(containerId, credentials);
+
 		creationResult.setDaschboardUrl(null);
 		creationResult.setInternalId(containerId);
 		return creationResult;
 	}
 
 	@Override
-	public ServiceInstanceBindingResponse bindService(String insternalId)
-			throws ServiceBrokerException {
+	public ServiceInstanceBindingResponse bindService(String insternalId) throws ServiceBrokerException {
 		ServiceInstanceBindingResponse bindingResponse = new ServiceInstanceBindingResponse();
 
 		bindingResponse.setCredentials(this.containerCredentialMap.get(insternalId));

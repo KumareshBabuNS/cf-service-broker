@@ -28,9 +28,9 @@ import de.evoila.cf.broker.model.ServiceDefinition;
  */
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = {"de.evoila.cf.cpi", "de.evoila.cf.broker"})
+@ComponentScan(basePackages = { "de.evoila.cf.cpi", "de.evoila.cf.broker" })
 public class CustomMvcConfiguration extends WebMvcConfigurerAdapter {
-	
+
 	@Override
 	public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
 		configurer.enable();
@@ -39,7 +39,8 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter {
 	@Bean
 	public PropertyPlaceholderConfigurer properties() {
 		PropertyPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertyPlaceholderConfigurer();
-		Resource[] resources = new ClassPathResource[] { new ClassPathResource("application-mvc.properties") };
+		Resource[] resources = new ClassPathResource[] { new ClassPathResource("application-mvc.properties"),
+				new ClassPathResource("application.properties") };
 		propertyPlaceholderConfigurer.setLocations(resources);
 		propertyPlaceholderConfigurer.setIgnoreUnresolvablePlaceholders(true);
 		return propertyPlaceholderConfigurer;
@@ -47,8 +48,7 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter {
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		registry.addResourceHandler("/resources/**").addResourceLocations(
-				"/resources/");
+		registry.addResourceHandler("/resources/**").addResourceLocations("/resources/");
 	}
 
 	@Bean
@@ -70,19 +70,25 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter {
 	@Bean
 	public Catalog catalog() {
 		Catalog catalog = new Catalog(Arrays.asList(serviceDefinition()));
-		
+
 		return catalog;
 	}
-	
+
 	@Bean
 	public ServiceDefinition serviceDefinition() {
-		Plan plan = new Plan("PostgreSQL Basic Plan", "500 MB PostgreSQL DB Basic Instance", "The most basic PostgreSQL plan currently available. Providing" +
-				"500 MB of capcity in a PostgreSQL DB.");
-		
-		ServiceDefinition serviceDefinition = new ServiceDefinition("postgres", 
-				"postgres", "PostgreSQL Instances", true, Arrays.asList(plan));
-		
+		Plan plan = new Plan("PostgreSQL Basic Plan", "500 MB PostgreSQL DB Basic Instance",
+				"The most basic PostgreSQL plan currently available. Providing"
+						+ "500 MB of capcity in a PostgreSQL DB.");
+
+		ServiceDefinition serviceDefinition = new ServiceDefinition("postgres", "postgres", "PostgreSQL Instances",
+				true, Arrays.asList(plan));
+
 		return serviceDefinition;
 	}
-	
+
+	// @Bean
+	// public DockerServiceFactory service() {
+	// return new PostgresService();
+	// }
+
 }
