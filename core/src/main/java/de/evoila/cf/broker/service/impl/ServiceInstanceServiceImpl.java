@@ -36,34 +36,32 @@ public abstract class ServiceInstanceServiceImpl implements ServiceInstanceFacto
 	 * java.lang.String, java.lang.String, java.lang.String)
 	 */
 	@Override
-	public String createServiceInstance(ServiceDefinition service, String serviceInstanceId, String planId,
+	public ServiceInstance createServiceInstance(ServiceDefinition service, String serviceInstanceId, String planId,
 			String organizationGuid, String spaceGuid) throws ServiceInstanceExistsException, ServiceBrokerException {
 
 		if (serviceInstances.containsKey(serviceInstanceId)) {
 			throw new ServiceInstanceExistsException(serviceInstanceId, service.getId());
 		}
-		ServiceInstance instance = new ServiceInstance(serviceInstanceId, service.getId(), planId, organizationGuid,
+		ServiceInstance serviceInstance = new ServiceInstance(serviceInstanceId, service.getId(), planId, organizationGuid,
 				spaceGuid);
 
-		// create
 		ServiceInstanceCreationResult creationResult = provisionServiceInstance(serviceInstanceId, planId);
+		if (creationResult.getInternalId() != null)
+			serviceInstances.put(serviceInstanceId, serviceInstance);
 
-		serviceInstances.put(serviceInstanceId, instance);
-
-		return creationResult.getDaschboardUrl();
+		return serviceInstance;
 	}
 
-	// /*
-	// * (non-Javadoc)
-	// *
-	// * @see
-	// * de.evoila.cf.broker.service.ServiceInstanceService#getServiceInstance(
-	// * java.lang.String)
-	// */
-	// public ServiceInstance getServiceInstance(String id) {
-	// // TODO Auto-generated method stub
-	// return null;
-	// }
+	 /*
+	 * (non-Javadoc)
+	 *
+	 * @see
+	 * de.evoila.cf.broker.service.ServiceInstanceService#getServiceInstance(
+	 * java.lang.String)
+	 */
+	 public ServiceInstance getServiceInstance(String id) {
+		 return this.serviceInstances.get(id); 
+	 }
 
 	protected abstract ServiceInstanceCreationResult provisionServiceInstance(String serviceInstanceId, String planId)
 			throws ServiceBrokerException;
@@ -80,11 +78,13 @@ public abstract class ServiceInstanceServiceImpl implements ServiceInstanceFacto
 	 * java.lang.String)
 	 */
 	@Override
-	public void deleteServiceInstance(String instanceId)
+	public ServiceInstance deleteServiceInstance(String instanceId)
 			throws ServiceBrokerException, ServiceInstanceDoesNotExistException {
-		String internalId = getInternalInstance(instanceId);
+		ServiceInstance serviceInstance = getServiceInstance(instanceId);
 
-		deprovisionServiceInstance(internalId);
+		deprovisionServiceInstance(serviceInstance.getInternalId());
+		
+		return serviceInstance;
 	}
 
 	protected abstract void deprovisionServiceInstance(String internalId);
