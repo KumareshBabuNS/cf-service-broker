@@ -2,11 +2,13 @@ package de.evoila.cf.cpi.docker;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,16 +31,17 @@ import com.github.dockerjava.core.LocalDirectorySSLConfig;
 import com.github.dockerjava.core.SSLConfig;
 
 import de.evoila.cf.broker.exception.ServiceBrokerException;
+import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
 import de.evoila.cf.broker.model.ServiceInstanceCreationResult;
-import de.evoila.cf.broker.service.impl.ServiceInstanceServiceImpl;
+import de.evoila.cf.broker.service.impl.ServiceInstanceFactoryImplementation;
 
 /**
  * 
  * @author Dennis Mueller, evoila GmbH, Aug 26, 2015
  *
  */
-public abstract class DockerServiceFactory extends ServiceInstanceServiceImpl {
+public abstract class DockerServiceFactory extends ServiceInstanceFactoryImplementation {
 
 	private static final int PORT = 2345;
 
@@ -141,7 +144,10 @@ public abstract class DockerServiceFactory extends ServiceInstanceServiceImpl {
 			break;
 		}
 		String mountPoint = volume.getProperty("mountPoint");
+		
+		@SuppressWarnings("unused")
 		String volumeName = volume.getProperty("name");
+		
 		String containerId;
 		try {
 			containerId = this.createDockerContainer(getImageName(), getSevicePort(), getContainerVolume(), mountPoint,
@@ -158,7 +164,7 @@ public abstract class DockerServiceFactory extends ServiceInstanceServiceImpl {
 		Map<String, Object> credentials = new HashMap<String, Object>();
 		// credentials.put("uri", getUri());
 		credentials.put("hostname", dockerHost);
-		credentials.put("port", this.PORT);
+		credentials.put("port", DockerServiceFactory.PORT);
 		credentials.put("name", containerId);
 		credentials.put("vhost", getVhost());
 		credentials.put("username", getUsername());
@@ -173,7 +179,6 @@ public abstract class DockerServiceFactory extends ServiceInstanceServiceImpl {
 	
 	@Override
 	protected void deprovisionServiceInstance(String internalId) {
-		//TODO
 	};
 
 	@Override
@@ -187,7 +192,11 @@ public abstract class DockerServiceFactory extends ServiceInstanceServiceImpl {
 
 	@Override
 	public void deleteBinding(String internalId) throws ServiceBrokerException {
-
+	}
+	
+	@Override
+	public List<ServiceInstance> getAllServiceInstances() {
+		throw new NotImplementedException("Currently not supported");
 	}
 
 }

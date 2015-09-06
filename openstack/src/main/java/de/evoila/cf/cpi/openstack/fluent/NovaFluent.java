@@ -10,19 +10,21 @@ import org.openstack4j.model.compute.Flavor;
 import org.openstack4j.model.compute.Keypair;
 import org.openstack4j.model.compute.Server;
 import org.openstack4j.model.compute.ServerCreate;
+import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import de.evoila.cf.cpi.openstack.fluent.nova.NovaFluentConnectionFactory;
+import de.evoila.cf.cpi.openstack.fluent.connection.OpenstackConnectionFactory;
 
 
 /**
  * @author Johannes Hiemer.
  *
  */
+@Component
 public class NovaFluent {
 	
 	private OSClient client() {
-		return NovaFluentConnectionFactory.connection();
+		return OpenstackConnectionFactory.connection();
 	}
 	
 	public List<? extends Keypair> keyPairs() {
@@ -37,7 +39,7 @@ public class NovaFluent {
 		return client().compute().flavors().list();
 	}
 	
-	public Server createInstace(String name, String keypairName, String imageId, String flavorId, 
+	public Server create(String name, String keypairName, String imageId, String flavorId, 
 			List<String> networks, boolean powerOn) {
 		Assert.notNull(client());
 		
@@ -62,6 +64,10 @@ public class NovaFluent {
 	
 	public void attach(String serverId, String volumeId, String device) {
 		client().compute().servers().attachVolume(serverId, volumeId, device);
+	}
+	
+	public String ip(Server server, String subnet) {
+		return server.getAddresses().getAddresses().get(subnet).get(0).getAddr();
 	}
 	
 }

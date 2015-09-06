@@ -8,7 +8,7 @@ import static org.junit.Assert.assertNotNull;
 import org.junit.BeforeClass;
 import org.openstack4j.api.OSClient;
 
-import de.evoila.cf.cpi.openstack.fluent.nova.NovaFluentConnectionFactory;
+import de.evoila.cf.cpi.openstack.fluent.connection.OpenstackConnectionFactory;
 
 /**
  * @author Johannes Hiemer.
@@ -31,12 +31,12 @@ public class BaseConnectionFactoryTest {
 	 */
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		NovaFluentConnectionFactory.getInstance()
+		OpenstackConnectionFactory.getInstance()
 		.setCredential(username, password)
 		.authenticate(authUrlV2, tenant);
 		
-		assertNotNull(NovaFluentConnectionFactory.connection());
-		assertNotNull(NovaFluentConnectionFactory.connection().getToken());
+		assertNotNull(OpenstackConnectionFactory.connection());
+		assertNotNull(OpenstackConnectionFactory.connection().getToken());
 	}
 
 }

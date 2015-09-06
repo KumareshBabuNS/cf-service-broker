@@ -1,5 +1,7 @@
 package de.evoila.cf.broker.model;
 
+import java.util.Map;
+
 import org.hibernate.validator.constraints.NotEmpty;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -36,6 +38,10 @@ public class CreateServiceInstanceRequest {
 	@JsonSerialize
 	@JsonProperty("space_guid")
 	private String spaceGuid;
+	
+	@JsonSerialize
+	@JsonProperty("parameters")
+	private Map<String, String> parameters;
 	
 	public CreateServiceInstanceRequest() {}
 	
@@ -76,6 +82,14 @@ public class CreateServiceInstanceRequest {
 
 	public void setSpaceGuid(String spaceGuid) {
 		this.spaceGuid = spaceGuid;
+	}
+
+	public Map<String, String> getParameters() {
+		return parameters;
+	}
+
+	public void setParameters(Map<String, String> parameters) {
+		this.parameters = parameters;
 	}
 	
 }

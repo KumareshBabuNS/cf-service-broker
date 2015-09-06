@@ -24,6 +24,8 @@
 		<org.springframework>4.0.1.RELEASE</org.springframework>
 		<org.springframework.security>3.2.0.RELEASE</org.springframework.security>
 		<org.springframework.mongodb>1.4.0.M1</org.springframework.mongodb>
+		
+		<org.springframework.rest.docs>1.0.0.M1</org.springframework.rest.docs>
 
 		<org.hibernate.validator>5.0.2.Final</org.hibernate.validator>
 		<org.javax.validation>1.1.0.Final</org.javax.validation>
@@ -45,8 +47,13 @@
 				<artifactId>guava</artifactId>
 				<version>18.0</version>
 			</dependency>
-
-
+			
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-test</artifactId>
+				<version>${org.springframework}</version>
+				<scope>test</scope>
+			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-web</artifactId>
@@ -65,11 +72,6 @@
 			</dependency>
 
 			<!-- Spring Security -->
-			<dependency>
-				<groupId>org.springframework.security</groupId>
-				<artifactId>spring-security-core</artifactId>
-				<version>${org.springframework.security}</version>
-			</dependency>
 			<dependency>
 				<groupId>org.springframework.security</groupId>
 				<artifactId>spring-security-web</artifactId>
@@ -126,13 +128,7 @@
 				<version>0.9.1</version>
 			</dependency>
 
-
 			<!-- Logging -->
-			<dependency>
-				<groupId>ch.qos.logback</groupId>
-				<artifactId>logback-core</artifactId>
-				<version>${org.logback}</version>
-			</dependency>
 			<dependency>
 				<groupId>ch.qos.logback</groupId>
 				<artifactId>logback-classic</artifactId>
@@ -145,6 +141,12 @@
 			</dependency>
 
 			<!-- Testing -->
+			<dependency>
+			    <groupId>org.springframework.restdocs</groupId>
+			    <artifactId>spring-restdocs</artifactId>
+			    <version>${org.springframework.rest.docs}</version>
+			    <scope>test</scope>
+			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>

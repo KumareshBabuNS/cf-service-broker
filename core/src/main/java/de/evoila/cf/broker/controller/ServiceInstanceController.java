@@ -1,5 +1,7 @@
 package de.evoila.cf.broker.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -21,6 +23,7 @@ import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.exception.ServiceDefinitionDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceExistsException;
+import de.evoila.cf.broker.model.CreateServiceInstanceProcessingResponse;
 import de.evoila.cf.broker.model.CreateServiceInstanceRequest;
 import de.evoila.cf.broker.model.CreateServiceInstanceResponse;
 import de.evoila.cf.broker.model.ErrorMessage;
@@ -56,17 +59,25 @@ public class ServiceInstanceController extends BaseController {
 		return new ResponseEntity<String>(HttpStatus.OK);
 	}
 
-	//
-	// @RequestMapping(value = "/service_instances", method = RequestMethod.GET)
-	// public @ResponseBody List<ServiceInstance> getServiceInstances() {
-	// logger.debug("GET: " + SERVICE_INSTANCE_BASE_PATH + ",
-	// getServiceInstances()");
-	// return service.getAllServiceInstances();
-	// }
-	//
+	@RequestMapping(value = "/service_instances", method = RequestMethod.GET)
+	public @ResponseBody List<ServiceInstance> getServiceInstances() {
+		logger.debug("GET: " + SERVICE_INSTANCE_BASE_PATH + ", getServiceInstances()");
+		return service.getAllServiceInstances();
+	}
+
+	/**
+	 * TODO: Add Response Type Accepted 202 for long running process
+	 * @param serviceInstanceId
+	 * @param request
+	 * @return
+	 * @throws ServiceDefinitionDoesNotExistException
+	 * @throws ServiceInstanceExistsException
+	 * @throws ServiceBrokerException
+	 */
 	@RequestMapping(value = "/service_instances/{instanceId}", method = RequestMethod.PUT)
 	public ResponseEntity<CreateServiceInstanceResponse> createServiceInstance(
 			@PathVariable("instanceId") String serviceInstanceId,
+			@RequestParam("accepts_incomplete") boolean acceptsIncomplete,
 			@Valid @RequestBody CreateServiceInstanceRequest request) throws ServiceDefinitionDoesNotExistException,
 					ServiceInstanceExistsException, ServiceBrokerException {
 
@@ -84,10 +95,26 @@ public class ServiceInstanceController extends BaseController {
 
 		logger.debug("ServiceInstance Created: " + serviceInstance.getInternalId());
 
-		return new ResponseEntity<CreateServiceInstanceResponse>(new CreateServiceInstanceResponse(serviceInstance),
+		if (acceptsIncomplete)
+			return new ResponseEntity<CreateServiceInstanceResponse>(new CreateServiceInstanceResponse(serviceInstance),
+					HttpStatus.ACCEPTED);
+		else 
+			return new ResponseEntity<CreateServiceInstanceResponse>(new CreateServiceInstanceResponse(serviceInstance),
 				HttpStatus.CREATED);
 	}
-
+	
+	@RequestMapping(value = "/service_instances/{instanceId}/last_operation", method = RequestMethod.PUT)
+	public ResponseEntity<CreateServiceInstanceProcessingResponse> lastOperation(
+			@PathVariable("instanceId") String serviceInstanceId) throws ServiceDefinitionDoesNotExistException,
+					ServiceInstanceExistsException, ServiceBrokerException {
+		
+		CreateServiceInstanceProcessingResponse createServiceInstanceProcessingResponse =
+				new CreateServiceInstanceProcessingResponse("sample", "This is a sample response");
+		
+		return new ResponseEntity<CreateServiceInstanceProcessingResponse>(createServiceInstanceProcessingResponse,
+				HttpStatus.ACCEPTED);
+	}
+	
 	@RequestMapping(value = "/service_instances/{instanceId}", method = RequestMethod.DELETE)
 	public ResponseEntity<String> deleteServiceInstance(@PathVariable("instanceId") String instanceId,
 			@RequestParam("service_id") String serviceId, @RequestParam("plan_id") String planId)

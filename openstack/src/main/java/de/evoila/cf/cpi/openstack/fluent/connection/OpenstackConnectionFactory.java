@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.evoila.cf.cpi.openstack.fluent.nova;
+package de.evoila.cf.cpi.openstack.fluent.connection;
 
 import org.openstack4j.api.OSClient;
 import org.openstack4j.model.common.Identifier;
@@ -14,10 +14,10 @@ import org.springframework.util.Assert;
  * @author Johannes Hiemer, evoila.
  *
  */
-public class NovaFluentConnectionFactory {
+public class OpenstackConnectionFactory {
 	
 	private static final Logger log = LoggerFactory
-			.getLogger(NovaFluentConnectionFactory.class);
+			.getLogger(OpenstackConnectionFactory.class);
 	
 	protected static OSClient osClient; 
 
@@ -27,22 +27,22 @@ public class NovaFluentConnectionFactory {
 	
 	private static String PROVIDER = "openstack-fluent--provider";
 	
-	private static NovaFluentConnectionFactory instance = null;
+	private static OpenstackConnectionFactory instance = null;
 	
-	public static NovaFluentConnectionFactory getInstance() {
+	public static OpenstackConnectionFactory getInstance() {
 	      if(instance == null) {
-	         instance = new NovaFluentConnectionFactory();
+	         instance = new OpenstackConnectionFactory();
 	      }
 	      return instance;
 	   }
 		
-	public NovaFluentConnectionFactory setCredential(String username, String password) {
-		NovaFluentConnectionFactory.username = username;
-		NovaFluentConnectionFactory.password = password;
+	public OpenstackConnectionFactory setCredential(String username, String password) {
+		OpenstackConnectionFactory.username = username;
+		OpenstackConnectionFactory.password = password;
 		return instance;
 	}
 	
-	public NovaFluentConnectionFactory authenticate(String authUrl, String tenant) {
+	public OpenstackConnectionFactory authenticate(String authUrl, String tenant) {
 		Assert.notNull(username, "Username may not be empty, when initializing");
 		Assert.notNull(password, "Password may not be empty, when initializing");
 		
@@ -56,7 +56,7 @@ public class NovaFluentConnectionFactory {
 		return instance;
 	}
 	
-	public NovaFluentConnectionFactory authenticateV3(String authUrl, String tenant) {
+	public OpenstackConnectionFactory authenticateV3(String authUrl, String tenant) {
 		Assert.notNull(username, "Username may not be empty, when initializing");
 		Assert.notNull(password, "Password may not be empty, when initializing");
 		

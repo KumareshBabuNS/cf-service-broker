@@ -40,7 +40,7 @@ public class NovaFluentTest extends BaseConnectionFactoryTest {
 
 	@Test
 	public void testCreateAndDeleteServer() throws InterruptedException {
-		Server server = novaFluent.createInstace("test123", 
+		Server server = novaFluent.create("test123", 
 				"cf-microbosh",
 				"af9e47bc-e3fc-4844-8a0f-c09bf063d66d",
 				"3", 

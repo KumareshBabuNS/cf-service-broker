@@ -3,25 +3,80 @@
  */
 package de.evoila.cf.cpi.openstack.fluent;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.openstack4j.api.Builders;
 import org.openstack4j.api.OSClient;
 import org.openstack4j.api.heat.StackService;
+import org.openstack4j.model.compute.Server;
+import org.openstack4j.model.heat.Resource;
+import org.openstack4j.model.heat.Stack;
+import org.springframework.stereotype.Component;
 
-import de.evoila.cf.cpi.openstack.fluent.nova.NovaFluentConnectionFactory;
+import de.evoila.cf.cpi.openstack.fluent.connection.OpenstackConnectionFactory;
 
 /**
  * @author Johannes Hiemer.
  *
  */
+@Component
 public class HeatFluent {
 	
+	public static String NOVA_INSTANCE_TYPE = "OS::Nova::Server";
+	
+	public static String CINDER_INSTANCE_TYPE = "OS::Cinder::Volume";
+	
 	private OSClient client() {
-		return NovaFluentConnectionFactory.connection();
+		return OpenstackConnectionFactory.connection();
 	}
 	
 	public StackService list() {
 		return client().heat().stacks();
 	}
 	
-	public void create() {
+	public Stack create(String name, String template, Map<String, String> parameters, 
+			boolean disableRollback, Long timeOutMins) {
+		Stack stack = client().heat().stacks()
+				.create(Builders.stack()
+						.name(name) 
+						.template(template) 
+						.parameters(parameters)
+						.disableRollback(disableRollback)
+						.timeoutMins(timeOutMins)
+						.build());
+				
+		return stack;
+	}
+
+	public Stack get(String name) {
+		return client().heat().stacks().getStackByName(name);
+	}
+	
+	public List<? extends Resource> resources(String name, String stackId) {
+		return client().heat().resources().list(name, stackId);
+	}
+	
+	public List<? extends Resource> filter(String name, String stackId, String type) {
+		List<Resource> filteredResources = new ArrayList<Resource>();
+		List<? extends Resource> resources = resources(name, stackId);
+		
+		for (Resource resource : resources) 
+			if (resource.getType().equals(type))
+				filteredResources.add(resource);
+		
+		
+		return filteredResources;
+	}
+	
+	public List<Server> servers(String name, String stackId, String type) {
+		List<Server> servers = new ArrayList<Server>();
+		List<? extends Resource> resources = filter(name, stackId, type);
+		
+		for (Resource resource : resources) 
+			servers.add(client().compute().servers().get(resource.getPhysicalResourceId()));
+		
+		return servers;
 	}
 }

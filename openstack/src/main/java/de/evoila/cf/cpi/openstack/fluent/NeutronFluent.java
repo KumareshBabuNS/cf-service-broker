@@ -8,7 +8,7 @@ import java.util.List;
 import org.openstack4j.api.OSClient;
 import org.openstack4j.model.network.Network;
 
-import de.evoila.cf.cpi.openstack.fluent.nova.NovaFluentConnectionFactory;
+import de.evoila.cf.cpi.openstack.fluent.connection.OpenstackConnectionFactory;
 
 
 /**
@@ -18,7 +18,7 @@ import de.evoila.cf.cpi.openstack.fluent.nova.NovaFluentConnectionFactory;
 public class NeutronFluent {
 	
 	private OSClient client() {
-		return NovaFluentConnectionFactory.connection();
+		return OpenstackConnectionFactory.connection();
 	}
 	
 	public List<? extends Network> networks() {

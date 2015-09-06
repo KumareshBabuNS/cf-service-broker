@@ -10,7 +10,7 @@ import org.openstack4j.api.OSClient;
 import org.openstack4j.model.compute.ActionResponse;
 import org.openstack4j.model.storage.block.Volume;
 
-import de.evoila.cf.cpi.openstack.fluent.nova.NovaFluentConnectionFactory;
+import de.evoila.cf.cpi.openstack.fluent.connection.OpenstackConnectionFactory;
 
 /**
  * @author Johannes Hiemer.
@@ -19,7 +19,7 @@ import de.evoila.cf.cpi.openstack.fluent.nova.NovaFluentConnectionFactory;
 public class CinderFluent {
 	
 	private OSClient client() {
-		return NovaFluentConnectionFactory.connection();
+		return OpenstackConnectionFactory.connection();
 	}
 	
 	public List<? extends Volume> list() {

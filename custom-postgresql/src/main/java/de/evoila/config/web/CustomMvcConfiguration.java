@@ -76,7 +76,7 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter {
 
 	@Bean
 	public ServiceDefinition serviceDefinition() {
-		Plan plan = new Plan("PostgreSQL Basic Plan", "500 MB PostgreSQL DB Basic Instance",
+		Plan plan = new Plan("basic", "500 MB PostgreSQL DB Basic Instance",
 				"The most basic PostgreSQL plan currently available. Providing"
 						+ "500 MB of capcity in a PostgreSQL DB.");
 

@@ -21,7 +21,7 @@ import de.evoila.cf.broker.service.ServiceInstanceFactory;
  * @author Christian
  *
  */
-public abstract class ServiceInstanceServiceImpl implements ServiceInstanceFactory {
+public abstract class ServiceInstanceFactoryImplementation implements ServiceInstanceFactory {
 
 	private Map<String, ServiceInstance> serviceInstances = new ConcurrentHashMap<String, ServiceInstance>();
 

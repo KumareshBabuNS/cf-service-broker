@@ -1,5 +1,7 @@
 package de.evoila.cf.broker.service;
 
+import java.util.List;
+
 import de.evoila.cf.broker.exception.ServerviceInstanceBindingDoesNotExistsException;
 import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.exception.ServiceInstanceBindingExistsException;
@@ -19,7 +21,7 @@ public interface ServiceInstanceFactory {
 	/**
 	 * @return All known ServiceInstances
 	 */
-	// List<ServiceInstance> getAllServiceInstances();
+	List<ServiceInstance> getAllServiceInstances();
 
 	/**
 	 * Create a new instance of a service
