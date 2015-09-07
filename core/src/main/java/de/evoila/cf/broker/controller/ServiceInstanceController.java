@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import de.evoila.cf.broker.exception.AsyncRequiredException;
 import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.exception.ServiceDefinitionDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
@@ -79,7 +80,7 @@ public class ServiceInstanceController extends BaseController {
 			@PathVariable("instanceId") String serviceInstanceId,
 			@RequestParam("accepts_incomplete") boolean acceptsIncomplete,
 			@Valid @RequestBody CreateServiceInstanceRequest request) throws ServiceDefinitionDoesNotExistException,
-					ServiceInstanceExistsException, ServiceBrokerException {
+					ServiceInstanceExistsException, ServiceBrokerException, AsyncRequiredException {
 
 		logger.debug("PUT: " + SERVICE_INSTANCE_BASE_PATH + "/{instanceId}"
 				+ ", createServiceInstance(), serviceInstanceId = " + serviceInstanceId);
@@ -118,7 +119,7 @@ public class ServiceInstanceController extends BaseController {
 	@RequestMapping(value = "/service_instances/{instanceId}", method = RequestMethod.DELETE)
 	public ResponseEntity<String> deleteServiceInstance(@PathVariable("instanceId") String instanceId,
 			@RequestParam("service_id") String serviceId, @RequestParam("plan_id") String planId)
-					throws ServiceBrokerException {
+					throws ServiceBrokerException, AsyncRequiredException {
 
 		logger.debug("DELETE: " + SERVICE_INSTANCE_BASE_PATH + "/{instanceId}"
 				+ ", deleteServiceInstanceBinding(), serviceInstanceId = " + instanceId + ", serviceId = " + serviceId
@@ -146,6 +147,13 @@ public class ServiceInstanceController extends BaseController {
 	public ResponseEntity<ErrorMessage> handleException(ServiceInstanceExistsException ex,
 			HttpServletResponse response) {
 		return getErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
+	}
+	
+	@ExceptionHandler(AsyncRequiredException.class)
+	@ResponseBody
+	public ResponseEntity<ErrorMessage> handleException(AsyncRequiredException ex,
+			HttpServletResponse response) {
+		return getErrorResponse(ex.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
 	}
 
 }
