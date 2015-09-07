@@ -20,6 +20,7 @@ import org.springframework.web.servlet.view.JstlView;
 
 import de.evoila.cf.broker.model.Catalog;
 import de.evoila.cf.broker.model.Plan;
+import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceDefinition;
 
 /**
@@ -78,7 +79,7 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter {
 	public ServiceDefinition serviceDefinition() {
 		Plan plan = new Plan("basic", "500 MB PostgreSQL DB Basic Instance",
 				"The most basic PostgreSQL plan currently available. Providing"
-						+ "500 MB of capcity in a PostgreSQL DB.");
+						+ "500 MB of capcity in a PostgreSQL DB.", Platform.DOCKER, 25, null, 4);
 
 		ServiceDefinition serviceDefinition = new ServiceDefinition("postgres", "postgres", "PostgreSQL Instances",
 				true, Arrays.asList(plan));

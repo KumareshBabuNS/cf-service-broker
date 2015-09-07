@@ -33,14 +33,42 @@ public class Plan {
 	@JsonProperty("metadata")
 	private Map<String,Object> metadata = new HashMap<String,Object>();
 	
-	public Plan(String id, String name, String description) {
+	private int volumeSize;
+	
+	private Platform platform;
+	
+	private String flavor;
+	
+	private int connections;
+	
+	public int getVolumeSize() {
+		return volumeSize;
+	}
+
+	public Platform getPlatform() {
+		return platform;
+	}
+
+	public String getFlavor() {
+		return flavor;
+	}
+
+	public int getConnections() {
+		return connections;
+	}
+
+	public Plan(String id, String name, String description, Platform platform, int volumeSize, Flavor flavor, int connections) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
+		this.platform = platform;
+		this.volumeSize = volumeSize;
+		this.flavor = this.flavor;
+		this.connections = connections;
 	}
 
-	public Plan(String id, String name, String description, Map<String,Object> metadata) {
-		this(id, name, description);
+	public Plan(String id, String name, String description, Map<String,Object> metadata, Platform platform, int volumeSize, Flavor flavor, int connections) {
+		this(id, name, description, platform, volumeSize, flavor, connections);
 		setMetadata(metadata);
 	}
 	
