@@ -67,6 +67,7 @@ public class ServiceInstanceController extends BaseController {
 
 	/**
 	 * TODO: Add Response Type Accepted 202 for long running process
+	 * 
 	 * @param serviceInstanceId
 	 * @param request
 	 * @return
@@ -91,30 +92,30 @@ public class ServiceInstanceController extends BaseController {
 		}
 
 		ServiceInstance serviceInstance = service.createServiceInstance(svc, serviceInstanceId, request.getPlanId(),
-				request.getOrganizationGuid(), request.getSpaceGuid());
+				request.getOrganizationGuid(), request.getSpaceGuid(), request.getParameters());
 
 		logger.debug("ServiceInstance Created: " + serviceInstance.getInternalId());
 
 		if (acceptsIncomplete)
 			return new ResponseEntity<CreateServiceInstanceResponse>(new CreateServiceInstanceResponse(serviceInstance),
 					HttpStatus.ACCEPTED);
-		else 
+		else
 			return new ResponseEntity<CreateServiceInstanceResponse>(new CreateServiceInstanceResponse(serviceInstance),
-				HttpStatus.CREATED);
+					HttpStatus.CREATED);
 	}
-	
+
 	@RequestMapping(value = "/service_instances/{instanceId}/last_operation", method = RequestMethod.PUT)
 	public ResponseEntity<CreateServiceInstanceProcessingResponse> lastOperation(
 			@PathVariable("instanceId") String serviceInstanceId) throws ServiceDefinitionDoesNotExistException,
 					ServiceInstanceExistsException, ServiceBrokerException {
-		
-		CreateServiceInstanceProcessingResponse createServiceInstanceProcessingResponse =
-				new CreateServiceInstanceProcessingResponse("sample", "This is a sample response");
-		
+
+		CreateServiceInstanceProcessingResponse createServiceInstanceProcessingResponse = new CreateServiceInstanceProcessingResponse(
+				"sample", "This is a sample response");
+
 		return new ResponseEntity<CreateServiceInstanceProcessingResponse>(createServiceInstanceProcessingResponse,
 				HttpStatus.ACCEPTED);
 	}
-	
+
 	@RequestMapping(value = "/service_instances/{instanceId}", method = RequestMethod.DELETE)
 	public ResponseEntity<String> deleteServiceInstance(@PathVariable("instanceId") String instanceId,
 			@RequestParam("service_id") String serviceId, @RequestParam("plan_id") String planId)
