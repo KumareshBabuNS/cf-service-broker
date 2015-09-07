@@ -34,14 +34,14 @@ import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
 import de.evoila.cf.broker.model.ServiceInstanceCreationResult;
-import de.evoila.cf.broker.service.impl.ServiceInstanceFactoryImplementation;
+import de.evoila.cf.broker.service.impl.AbstractDeploymentServiceImpl;
 
 /**
  * 
  * @author Dennis Mueller, evoila GmbH, Aug 26, 2015
  *
  */
-public abstract class DockerServiceFactory extends ServiceInstanceFactoryImplementation {
+public abstract class DockerServiceFactory extends AbstractDeploymentServiceImpl {
 
 	private static final int PORT = 2345;
 
@@ -178,7 +178,7 @@ public abstract class DockerServiceFactory extends ServiceInstanceFactoryImpleme
 	}
 	
 	@Override
-	protected void deprovisionServiceInstance(String internalId) {
+	protected void preDeprovisionServiceInstance(String internalId) {
 	};
 
 	@Override

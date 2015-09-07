@@ -24,7 +24,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 
 import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
-import de.evoila.cf.broker.service.impl.ServiceInstanceFactoryImplementation;
+import de.evoila.cf.broker.service.impl.AbstractDeploymentServiceImpl;
 import de.evoila.cf.cpi.openstack.fluent.HeatFluent;
 import de.evoila.cf.cpi.openstack.fluent.NovaFluent;
 import de.evoila.cf.cpi.openstack.fluent.connection.OpenstackConnectionFactory;
@@ -33,7 +33,7 @@ import de.evoila.cf.cpi.openstack.fluent.connection.OpenstackConnectionFactory;
  * @author Johannes Hiemer.
  *
  */
-public abstract class OpenstackServiceFactory extends ServiceInstanceFactoryImplementation {
+public abstract class OpenstackServiceFactory extends AbstractDeploymentServiceImpl {
 	
 	private Logger log = LoggerFactory.getLogger(getClass());
 	

@@ -18,14 +18,14 @@ import de.evoila.cf.broker.service.CatalogService;
  *
  */
 @Service
-public class PostgresCatalogService implements CatalogService {
+public class CatalogServiceImpl implements CatalogService {
 
 	private Catalog catalog;
 
 	private Map<String, ServiceDefinition> serviceDefs = new HashMap<String, ServiceDefinition>();
 
 	@Autowired
-	public PostgresCatalogService(Catalog catalog) {
+	public CatalogServiceImpl(Catalog catalog) {
 		this.catalog = catalog;
 		initializeMap();
 	}

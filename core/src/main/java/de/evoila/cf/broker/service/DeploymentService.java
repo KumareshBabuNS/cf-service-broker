@@ -1,16 +1,16 @@
 package de.evoila.cf.broker.service;
 
-import java.util.List;
 import java.util.Map;
 
 import de.evoila.cf.broker.exception.AsyncRequiredException;
 import de.evoila.cf.broker.exception.ServerviceInstanceBindingDoesNotExistsException;
 import de.evoila.cf.broker.exception.ServiceBrokerException;
+import de.evoila.cf.broker.exception.ServiceDefinitionDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceBindingExistsException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceExistsException;
-import de.evoila.cf.broker.model.ServiceDefinition;
-import de.evoila.cf.broker.model.ServiceInstance;
+import de.evoila.cf.broker.model.CreateServiceInstanceResponse;
+import de.evoila.cf.broker.model.JobProgress;
 import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
 
 /**
@@ -18,12 +18,12 @@ import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
  * 
  * @author sgreenberg@gopivotal.com
  */
-public interface ServiceInstanceFactory {
+public interface DeploymentService {
 
-	/**
-	 * @return All known ServiceInstances
-	 */
-	List<ServiceInstance> getAllServiceInstances();
+	// /**
+	// * @return All known ServiceInstances
+	// */
+	// List<ServiceInstance> getAllServiceInstances();
 
 	/**
 	 * Create a new instance of a service
@@ -44,15 +44,17 @@ public interface ServiceInstanceFactory {
 	 * @throws ServiceBrokerException
 	 *             if something goes wrong internally
 	 */
-	ServiceInstance createServiceInstance(ServiceDefinition service, String serviceInstanceId, String planId,
-			String organizationGuid, String spaceGuid, Map<String, String> parameters) throws ServiceInstanceExistsException, ServiceBrokerException, AsyncRequiredException;
+	CreateServiceInstanceResponse createServiceInstance(String serviceInstanceId, String serviceDefinitionId,
+			String planId, String organizationGuid, String spaceGuid, Map<String, String> parameters)
+					throws ServiceInstanceExistsException, ServiceBrokerException, AsyncRequiredException,
+					ServiceDefinitionDoesNotExistException;
 
 	/**
 	 * @param id
 	 * @return The ServiceInstance with the given id or null if one does not
 	 *         exist
 	 */
-	//ServiceInstance getServiceInstance(String id);
+	// ServiceInstance getServiceInstance(String id);
 
 	/**
 	 * Delete and return the instance if it exists.
@@ -62,7 +64,8 @@ public interface ServiceInstanceFactory {
 	 * @throws ServiceBrokerException
 	 *             is something goes wrong internally
 	 */
-	ServiceInstance deleteServiceInstance(String id) throws ServiceBrokerException, ServiceInstanceDoesNotExistException, AsyncRequiredException;
+	void deleteServiceInstance(String id)
+			throws ServiceBrokerException, ServiceInstanceDoesNotExistException, AsyncRequiredException;
 
 	/**
 	 * Create a new binding to a service instance.
@@ -84,14 +87,15 @@ public interface ServiceInstanceFactory {
 	 * @throws ServiceInstanceDoesNotExistException
 	 */
 	public ServiceInstanceBindingResponse createServiceInstanceBinding(String bindingId, String instanceId,
-			String serviceId, String planId, String appGuid) throws ServiceInstanceBindingExistsException,
-					ServiceBrokerException, ServiceInstanceDoesNotExistException;
+			String serviceId, String planId, String appGuid)
+					throws ServiceInstanceBindingExistsException, ServiceBrokerException,
+					ServiceInstanceDoesNotExistException, ServiceDefinitionDoesNotExistException;
 
 	/**
 	 * @param id
 	 * @return The ServiceInstanceBinding or null if one does not exist.
-	*/
-	//ServiceInstanceBinding getServiceInstanceBinding(String id);
+	 */
+	// ServiceInstanceBinding getServiceInstanceBinding(String id);
 
 	/**
 	 * Delete the service instance binding. If a binding doesn't exist, return
@@ -103,5 +107,8 @@ public interface ServiceInstanceFactory {
 	 */
 	void deleteServiceInstanceBinding(String id)
 			throws ServiceBrokerException, ServerviceInstanceBindingDoesNotExistsException;
+
+	JobProgress getLastOperation(String serviceInstanceId)
+			throws ServiceInstanceDoesNotExistException, ServiceBrokerException;
 
 }

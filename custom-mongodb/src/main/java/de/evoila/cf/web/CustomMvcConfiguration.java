@@ -20,6 +20,7 @@ import org.springframework.web.servlet.view.JstlView;
 
 import de.evoila.cf.broker.model.Catalog;
 import de.evoila.cf.broker.model.Plan;
+import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceDefinition;
 
 /**
@@ -28,9 +29,9 @@ import de.evoila.cf.broker.model.ServiceDefinition;
  */
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = {"de.evoila.cf.cpi", "de.evoila.cf.broker"})
+@ComponentScan(basePackages = { "de.evoila.cf.cpi", "de.evoila.cf.broker" })
 public class CustomMvcConfiguration extends WebMvcConfigurerAdapter {
-	
+
 	@Override
 	public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
 		configurer.enable();
@@ -47,8 +48,7 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter {
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		registry.addResourceHandler("/resources/**").addResourceLocations(
-				"/resources/");
+		registry.addResourceHandler("/resources/**").addResourceLocations("/resources/");
 	}
 
 	@Bean
@@ -77,7 +77,8 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter {
 	@Bean
 	public ServiceDefinition serviceDefinition() {
 		Plan plan = new Plan("MongoDB Basic Plan", "500 MB MongoDB Basic Instance",
-				"The most basic MongoDB plan currently available. Providing" + "500 MB of capcity in MongoDB.");
+				"The most basic MongoDB plan currently available. Providing" + "500 MB of capcity in MongoDB.",
+				Platform.DOCKER, 25, null, 3);
 
 		ServiceDefinition serviceDefinition = new ServiceDefinition("mongoDB", "MongoDB", "MongoDB Instances", true,
 				Arrays.asList(plan));
