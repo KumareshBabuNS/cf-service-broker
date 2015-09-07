@@ -1,6 +1,7 @@
 package de.evoila.cf.broker.service;
 
 import java.util.List;
+import java.util.Map;
 
 import de.evoila.cf.broker.exception.ServerviceInstanceBindingDoesNotExistsException;
 import de.evoila.cf.broker.exception.ServiceBrokerException;
@@ -43,14 +44,15 @@ public interface ServiceInstanceFactory {
 	 *             if something goes wrong internally
 	 */
 	ServiceInstance createServiceInstance(ServiceDefinition service, String serviceInstanceId, String planId,
-			String organizationGuid, String spaceGuid) throws ServiceInstanceExistsException, ServiceBrokerException;
+			String organizationGuid, String spaceGuid, Map<String, String> parameters)
+					throws ServiceInstanceExistsException, ServiceBrokerException;
 
 	/**
 	 * @param id
 	 * @return The ServiceInstance with the given id or null if one does not
 	 *         exist
 	 */
-	//ServiceInstance getServiceInstance(String id);
+	// ServiceInstance getServiceInstance(String id);
 
 	/**
 	 * Delete and return the instance if it exists.
@@ -60,7 +62,8 @@ public interface ServiceInstanceFactory {
 	 * @throws ServiceBrokerException
 	 *             is something goes wrong internally
 	 */
-	ServiceInstance deleteServiceInstance(String id) throws ServiceBrokerException, ServiceInstanceDoesNotExistException;
+	ServiceInstance deleteServiceInstance(String id)
+			throws ServiceBrokerException, ServiceInstanceDoesNotExistException;
 
 	/**
 	 * Create a new binding to a service instance.
@@ -88,8 +91,8 @@ public interface ServiceInstanceFactory {
 	/**
 	 * @param id
 	 * @return The ServiceInstanceBinding or null if one does not exist.
-	*/
-	//ServiceInstanceBinding getServiceInstanceBinding(String id);
+	 */
+	// ServiceInstanceBinding getServiceInstanceBinding(String id);
 
 	/**
 	 * Delete the service instance binding. If a binding doesn't exist, return

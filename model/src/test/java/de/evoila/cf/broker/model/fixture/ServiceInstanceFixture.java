@@ -6,6 +6,7 @@ package de.evoila.cf.broker.model.fixture;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -31,12 +32,14 @@ public class ServiceInstanceFixture {
 
 	public static ServiceInstance getServiceInstance() {
 		return new ServiceInstance("service-instance-one-id", "service-one-id", "plan-one-id",
-				DataFixture.getOrgOneGuid(), DataFixture.getSpaceOneGuid(), "dashboard_url");
+				DataFixture.getOrgOneGuid(), DataFixture.getSpaceOneGuid(), new ConcurrentHashMap<String, String>(),
+				"dashboard_url");
 	}
 
 	public static ServiceInstance getServiceInstanceTwo() {
 		return new ServiceInstance("service-instance-two-id", "service-two-id", "plan-two-id",
-				DataFixture.getOrgOneGuid(), DataFixture.getSpaceOneGuid(), "dashboard_url");
+				DataFixture.getOrgOneGuid(), DataFixture.getSpaceOneGuid(), new ConcurrentHashMap<String, String>(),
+				"dashboard_url");
 	}
 
 	public static String getServiceInstanceId() {

@@ -23,35 +23,35 @@ public class ServiceDefinition {
 	@JsonSerialize
 	@JsonProperty("id")
 	private String id;
-	
+
 	@JsonSerialize
 	@JsonProperty("name")
 	private String name;
-	
+
 	@JsonSerialize
 	@JsonProperty("description")
 	private String description;
-	
+
 	@JsonSerialize
 	@JsonProperty("bindable")
 	private boolean bindable;
-	
+
 	@JsonSerialize
 	@JsonProperty("plans")
 	private List<Plan> plans = new ArrayList<Plan>();
-	
+
 	@JsonSerialize
 	@JsonProperty("tags")
 	private List<String> tags = new ArrayList<String>();
-	
+
 	@JsonSerialize
 	@JsonProperty("metadata")
-	private Map<String,Object> metadata = new HashMap<String,Object>();
-	
+	private Map<String, Object> metadata = new HashMap<String, Object>();
+
 	@JsonSerialize
 	@JsonProperty("requires")
 	private List<String> requires = new ArrayList<String>();
-	
+
 	public ServiceDefinition(String id, String name, String description, boolean bindable, List<Plan> plans) {
 		this.id = id;
 		this.name = name;
@@ -61,13 +61,13 @@ public class ServiceDefinition {
 	}
 
 	public ServiceDefinition(String id, String name, String description, boolean bindable, List<Plan> plans,
-			List<String> tags, Map<String,Object> metadata, List<String> requires) {
+			List<String> tags, Map<String, Object> metadata, List<String> requires) {
 		this(id, name, description, bindable, plans);
 		setTags(tags);
 		setMetadata(metadata);
 		setRequires(requires);
 	}
-	
+
 	public String getId() {
 		return id;
 	}
@@ -89,7 +89,7 @@ public class ServiceDefinition {
 	}
 
 	private void setPlans(List<Plan> plans) {
-		if ( plans == null ) {
+		if (plans == null) {
 			// ensure serialization as an empty array and not null
 			this.plans = new ArrayList<Plan>();
 		} else {
@@ -101,7 +101,7 @@ public class ServiceDefinition {
 		return tags;
 	}
 
-	public void setTags(List<String> tags) {
+	private void setTags(List<String> tags) {
 		if (tags == null) {
 			this.tags = new ArrayList<String>();
 		} else {
@@ -113,7 +113,7 @@ public class ServiceDefinition {
 		return requires;
 	}
 
-	public void setRequires(List<String> requires) {
+	private void setRequires(List<String> requires) {
 		if (requires == null) {
 			this.requires = new ArrayList<String>();
 		} else {
@@ -125,9 +125,9 @@ public class ServiceDefinition {
 		return metadata;
 	}
 
-	public void setMetadata(Map<String, Object> metadata) {
+	private void setMetadata(Map<String, Object> metadata) {
 		if (metadata == null) {
-			this.metadata = new HashMap<String,Object>();
+			this.metadata = new HashMap<String, Object>();
 		} else {
 			this.metadata = metadata;
 		}
