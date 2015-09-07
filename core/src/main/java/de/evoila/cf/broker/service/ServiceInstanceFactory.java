@@ -1,6 +1,7 @@
 package de.evoila.cf.broker.service;
 
 import java.util.List;
+import java.util.Map;
 
 import de.evoila.cf.broker.exception.AsyncRequiredException;
 import de.evoila.cf.broker.exception.ServerviceInstanceBindingDoesNotExistsException;
@@ -44,7 +45,7 @@ public interface ServiceInstanceFactory {
 	 *             if something goes wrong internally
 	 */
 	ServiceInstance createServiceInstance(ServiceDefinition service, String serviceInstanceId, String planId,
-			String organizationGuid, String spaceGuid) throws ServiceInstanceExistsException, ServiceBrokerException, AsyncRequiredException;
+			String organizationGuid, String spaceGuid, Map<String, String> parameters) throws ServiceInstanceExistsException, ServiceBrokerException, AsyncRequiredException;
 
 	/**
 	 * @param id

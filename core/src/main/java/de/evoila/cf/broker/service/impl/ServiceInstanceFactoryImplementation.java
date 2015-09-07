@@ -37,13 +37,14 @@ public abstract class ServiceInstanceFactoryImplementation implements ServiceIns
 	 */
 	@Override
 	public ServiceInstance createServiceInstance(ServiceDefinition service, String serviceInstanceId, String planId,
-			String organizationGuid, String spaceGuid) throws ServiceInstanceExistsException, ServiceBrokerException {
+			String organizationGuid, String spaceGuid, Map<String, String> parameters)
+					throws ServiceInstanceExistsException, ServiceBrokerException {
 
 		if (serviceInstances.containsKey(serviceInstanceId)) {
 			throw new ServiceInstanceExistsException(serviceInstanceId, service.getId());
 		}
-		ServiceInstance serviceInstance = new ServiceInstance(serviceInstanceId, service.getId(), planId, organizationGuid,
-				spaceGuid);
+		ServiceInstance serviceInstance = new ServiceInstance(serviceInstanceId, service.getId(), planId,
+				organizationGuid, spaceGuid, new ConcurrentHashMap<String, String>(parameters));
 
 		ServiceInstanceCreationResult creationResult = provisionServiceInstance(serviceInstanceId, planId);
 		if (creationResult.getInternalId() != null)
@@ -52,16 +53,16 @@ public abstract class ServiceInstanceFactoryImplementation implements ServiceIns
 		return serviceInstance;
 	}
 
-	 /*
+	/*
 	 * (non-Javadoc)
 	 *
 	 * @see
 	 * de.evoila.cf.broker.service.ServiceInstanceService#getServiceInstance(
 	 * java.lang.String)
 	 */
-	 public ServiceInstance getServiceInstance(String id) {
-		 return this.serviceInstances.get(id); 
-	 }
+	public ServiceInstance getServiceInstance(String id) {
+		return this.serviceInstances.get(id);
+	}
 
 	protected abstract ServiceInstanceCreationResult provisionServiceInstance(String serviceInstanceId, String planId)
 			throws ServiceBrokerException;
@@ -83,7 +84,7 @@ public abstract class ServiceInstanceFactoryImplementation implements ServiceIns
 		ServiceInstance serviceInstance = getServiceInstance(instanceId);
 
 		deprovisionServiceInstance(serviceInstance.getInternalId());
-		
+
 		return serviceInstance;
 	}
 

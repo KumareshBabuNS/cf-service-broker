@@ -1,6 +1,8 @@
 package de.evoila.cf.broker.model;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
@@ -43,7 +45,7 @@ public class ServiceInstance {
 
 	@JsonSerialize
 	@JsonProperty("parameters")
-	private Map<String, String> parameters;
+	private ConcurrentMap<String, String> parameters = new ConcurrentHashMap<String, String>();
 
 	@JsonIgnore
 	private String internalId;
@@ -53,30 +55,38 @@ public class ServiceInstance {
 	}
 
 	public ServiceInstance(String id, String serviceDefinitionId, String planId, String organizationGuid,
-			String spaceGuid, String dashboardUrl) {
-		initialize(id, serviceDefinitionId, planId, organizationGuid, spaceGuid);
+			String spaceGuid, ConcurrentMap<String, String> parameters, String dashboardUrl) {
+		initialize(id, serviceDefinitionId, planId, organizationGuid, spaceGuid, parameters);
 		setDashboardUrl(dashboardUrl);
 	}
 
 	private void initialize(String id, String serviceDefinitionId, String planId, String organizationGuid,
-			String spaceGuid) {
+			String spaceGuid, ConcurrentMap<String, String> parameters) {
 		setId(id);
 		setServiceDefinitionId(serviceDefinitionId);
 		setPlanId(planId);
 		setOrganizationGuid(organizationGuid);
 		setSpaceGuid(spaceGuid);
+		setParameters(parameters);
 	}
 
 	public ServiceInstance(String serviceInstanceId, String serviceDefintionId, String planId, String organizationGuid,
-			String spaceGuid, String daschboardUrl, String internalId) {
-		initialize(id, serviceDefinitionId, planId, organizationGuid, spaceGuid);
+			String spaceGuid, ConcurrentMap<String, String> parameters, String dashboardUrl, String internalId) {
+		initialize(id, serviceDefinitionId, planId, organizationGuid, spaceGuid, parameters);
+		setInternalId(internalId);
+		setDashboardUrl(dashboardUrl);
+	}
+
+	public ServiceInstance(ServiceInstance serviceInstance, String dashboardUrl, String internalId) {
+		initialize(serviceInstance.id, serviceInstance.serviceDefinitionId, serviceInstance.planId,
+				serviceInstance.organizationGuid, serviceInstance.spaceGuid, serviceInstance.parameters);
 		setInternalId(internalId);
 		setDashboardUrl(dashboardUrl);
 	}
 
 	public ServiceInstance(String serviceInstanceId, String serviceDefinitionId, String planId, String organizationGuid,
-			String spaceGuid) {
-		initialize(serviceInstanceId, serviceDefinitionId, planId, organizationGuid, spaceGuid);
+			String spaceGuid, ConcurrentMap<String, String> parameters) {
+		initialize(serviceInstanceId, serviceDefinitionId, planId, organizationGuid, spaceGuid, parameters);
 	}
 
 	public String getId() {
@@ -131,7 +141,7 @@ public class ServiceInstance {
 		return parameters;
 	}
 
-	public void setParameters(Map<String, String> parameters) {
+	private void setParameters(ConcurrentMap<String, String> parameters) {
 		this.parameters = parameters;
 	}
 
@@ -139,7 +149,7 @@ public class ServiceInstance {
 		return internalId;
 	}
 
-	public void setInternalId(String internalId) {
+	private void setInternalId(String internalId) {
 		this.internalId = internalId;
 	}
 
