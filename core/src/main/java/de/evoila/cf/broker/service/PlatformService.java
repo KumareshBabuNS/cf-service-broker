@@ -3,6 +3,8 @@
  */
 package de.evoila.cf.broker.service;
 
+import de.evoila.cf.broker.exception.ServiceBrokerException;
+import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.ServiceInstance;
 
@@ -11,36 +13,20 @@ import de.evoila.cf.broker.model.ServiceInstance;
  *
  */
 public abstract interface PlatformService {
+	
 	/**
-	 * @param instance
-	 * @param plan
-	 * @return new ServiceInstance with updated fields
+	 * @return All known ServiceInstances
 	 */
-	public ServiceInstance createInstance(ServiceInstance instance, Plan plan);
-
+	// List<ServiceInstance> getAllServiceInstances();
 	/**
-	 * Same result as in PlatformService.createInstance(), but without creating
-	 * a ServiceInstance on the platform. Used to provide information during
-	 * asynchronous operations
-	 * 
-	 * @param instance
-	 * @param plan
-	 * @return
+	 * @param id
+	 * @return The ServiceInstance with the given id or null if one does not
+	 *         exist
 	 */
-	public ServiceInstance getCreateInstancePromiss(ServiceInstance instance, Plan plan);
-
-	/**
-	 * @param instance
-	 */
-	public void deleteInstance(ServiceInstance instance);
-
-	/**
-	 * @param instance
-	 * @param plan
-	 * @return new ServiceInstance with updated fields
-	 */
-	public ServiceInstance updateInstance(ServiceInstance instance, Plan plan);
-
+	// ServiceInstance getServiceInstance(String id);
+	
+	public void registerCustomPlatformServie();
+	
 	/**
 	 * @param plan
 	 * @return
@@ -58,4 +44,53 @@ public abstract interface PlatformService {
 	 * @return
 	 */
 	public boolean isSyncPossibleOnUpdate(ServiceInstance instance, Plan plan);
+	
+	/**
+	 * 
+	 * @param serviceInstance
+	 * @param plan
+	 * @return
+	 * @throws ServiceBrokerException
+	 */
+	public ServiceInstance postProvisioning(ServiceInstance serviceInstance, Plan plan)
+			throws ServiceBrokerException;
+	
+	/**
+	 * 
+	 * @param serviceInstance
+	 */
+	public void preDeprovisionServiceInstance(ServiceInstance serviceInstance);
+	
+	/**
+	 * @param instance
+	 * @param plan
+	 * @return new ServiceInstance with updated fields
+	 */
+	public ServiceInstance createInstance(ServiceInstance instance, Plan plan);
+
+	/**
+	 * Same result as in PlatformService.createInstance(), but without creating
+	 * a ServiceInstance on the platform. Used to provide information during
+	 * asynchronous operations
+	 * 
+	 * @param instance
+	 * @param plan
+	 * @return
+	 */
+	public ServiceInstance getCreateInstancePromise(ServiceInstance instance, Plan plan);
+
+	/**
+	 * @param instance
+	 * @throws ServiceInstanceDoesNotExistException 
+	 * @throws ServiceBrokerException 
+	 */
+	public void deleteServiceInstance(ServiceInstance serviceInstance) throws ServiceBrokerException, ServiceInstanceDoesNotExistException;
+
+	/**
+	 * @param instance
+	 * @param plan
+	 * @return new ServiceInstance with updated fields
+	 */
+	public ServiceInstance updateInstance(ServiceInstance instance, Plan plan);
+
 }

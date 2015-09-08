@@ -6,7 +6,6 @@ package de.evoila.cf.broker.model.fixture;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.evoila.cf.broker.model.Flavor;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.Platform;
 
@@ -25,11 +24,11 @@ public class PlanFixture {
 	}
 
 	public static Plan getPlanOne() {
-		return new Plan("plan-one-id", "Plan One", "Description for Plan One", Platform.DOCKER, 0, Flavor.SMALL, 0);
+		return new Plan("plan-one-id", "Plan One", "Description for Plan One", Platform.DOCKER, 0, "1", 0);
 	}
 
 	public static Plan getPlanTwo() {
-		return new Plan("plan-two-id", "Plan Two", "Description for Plan Two", Platform.DOCKER, 0, Flavor.SMALL, 0);
+		return new Plan("plan-two-id", "Plan Two", "Description for Plan Two", Platform.DOCKER, 0, "1", 0);
 	}
 
 }

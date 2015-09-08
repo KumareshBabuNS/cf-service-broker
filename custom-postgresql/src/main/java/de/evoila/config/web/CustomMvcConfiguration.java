@@ -24,12 +24,12 @@ import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceDefinition;
 
 /**
- * @author Johannes Hiemer, cloudscale.
+ * @author Johannes Hiemer.
  * 
  */
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = { "de.evoila.cf.cpi", "de.evoila.cf.broker" })
+@ComponentScan(basePackages = { "de.evoila.cf.broker", "de.evoila.cf.cpi" })
 public class CustomMvcConfiguration extends WebMvcConfigurerAdapter {
 
 	@Override
@@ -77,19 +77,17 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter {
 
 	@Bean
 	public ServiceDefinition serviceDefinition() {
-		Plan plan = new Plan("basic", "500 MB PostgreSQL DB Basic Instance",
+		Plan dockerPlan = new Plan("basic", "500 MB PostgreSQL DB Basic Instance",
 				"The most basic PostgreSQL plan currently available. Providing"
 						+ "500 MB of capcity in a PostgreSQL DB.", Platform.DOCKER, 25, null, 4);
+		Plan openstackPlan = new Plan("basic", "500 MB PostgreSQL DB Basic Instance",
+				"The most basic PostgreSQL plan currently available. Providing"
+						+ "500 MB of capcity in a PostgreSQL DB.", Platform.OPENSTACK, 25, "3", 10);
 
 		ServiceDefinition serviceDefinition = new ServiceDefinition("postgres", "postgres", "PostgreSQL Instances",
-				true, Arrays.asList(plan));
+				true, Arrays.asList(dockerPlan, openstackPlan));
 
 		return serviceDefinition;
 	}
-
-	// @Bean
-	// public DockerServiceFactory service() {
-	// return new PostgresService();
-	// }
 
 }

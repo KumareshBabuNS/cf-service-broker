@@ -4,12 +4,13 @@
 package de.evoila.cf.cpi.openstack;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
@@ -19,12 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
-import org.springframework.core.io.Resource;
 import org.springframework.util.Assert;
 
+import de.evoila.cf.broker.service.PlatformService;
 import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
-import de.evoila.cf.broker.service.impl.AbstractDeploymentServiceImpl;
 import de.evoila.cf.cpi.openstack.fluent.HeatFluent;
 import de.evoila.cf.cpi.openstack.fluent.NovaFluent;
 import de.evoila.cf.cpi.openstack.fluent.connection.OpenstackConnectionFactory;
@@ -33,8 +32,10 @@ import de.evoila.cf.cpi.openstack.fluent.connection.OpenstackConnectionFactory;
  * @author Johannes Hiemer.
  *
  */
-public abstract class OpenstackServiceFactory extends AbstractDeploymentServiceImpl {
+public abstract class OpenstackServiceFactory implements PlatformService {
 	
+	private static final String CREATE_IN_PROGRESS = "CREATE_IN_PROGRESS";
+
 	private Logger log = LoggerFactory.getLogger(getClass());
 	
 	@Autowired
@@ -43,9 +44,6 @@ public abstract class OpenstackServiceFactory extends AbstractDeploymentServiceI
 	@Autowired
 	private NovaFluent novaFluent;
 	
-	@Autowired
-	private ApplicationContext applicationContext;
-
 	@Value("${openstack.endpoint}")
 	private String endpoint;
 
@@ -94,28 +92,28 @@ public abstract class OpenstackServiceFactory extends AbstractDeploymentServiceI
 		
 		log.debug("Reading heat template definition for openstack");
 		
-		Resource resource = applicationContext.getResource("template.yml");
+		URL url = this.getClass().getResource("/openstack/template.yml");
 		
 		try {
-			heatTemplate = this.readTemplateFile(resource);
-		} catch (IOException e) {
+			heatTemplate = this.readTemplateFile(url);
+		} catch (IOException | URISyntaxException e) {
 			log.info("Failed to load heat template", e);
 		}
 		
-		Assert.notNull(resource, "Heat template definition must be provided.");
+		Assert.notNull(url, "Heat template definition must be provided.");
 	}
 	
-	private String readTemplateFile(Resource resource) throws IOException {
-		byte[] encoded = Files.readAllBytes(Paths.get(resource.getURI()));
+	private String readTemplateFile(URL url) throws IOException, URISyntaxException {
+		byte[] encoded = Files.readAllBytes(Paths.get(url.toURI()));
 		return new String(encoded, DEFAULT_ENCODING);
 	}
 	
-	public void create(Map<String, String> customParameters) throws InterruptedException {
+	protected Stack create(String instanceId, Map<String, String> customParameters) throws InterruptedException {
 		Map<String, String> completeParameters = new HashMap<String, String>();
 		completeParameters.putAll(defaultParameters());
 		completeParameters.putAll(customParameters);
 		
-		String name = uniqueName();
+		String name = uniqueName(instanceId);
 		
 		Stack stack = heatFluent.create(name, 
 				heatTemplate, 
@@ -126,23 +124,38 @@ public abstract class OpenstackServiceFactory extends AbstractDeploymentServiceI
 		Thread.sleep(5000);
 		
 		stack = heatFluent.get(name);
-		while (stack.getStatus().equals("CREATE_IN_PROGRESS")) {
+		while (stack.getStatus().equals(CREATE_IN_PROGRESS)) {
 			stack = heatFluent.get(name);
 			
 			Thread.sleep(5000);
 		}
 		
-		List<Server> servers = heatFluent.servers(name, stack.getId(), HeatFluent.NOVA_INSTANCE_TYPE);
+		return stack;
+	}
+	
+	protected void delete(String instanceId) {
+		Stack stack = heatFluent.get(uniqueName(instanceId));
+		
+		heatFluent.delete(stack.getName(), stack.getId());
+	}
+	
+	protected boolean verifyServiceAvailability(String instanceId) {
+		boolean available = false;
+		Stack stack = heatFluent.get(uniqueName(instanceId));
+		
+		List<Server> servers = heatFluent.servers(stack.getName(), stack.getId(), HeatFluent.NOVA_INSTANCE_TYPE);
 		
 		for (Server server : servers) {
-			boolean available = ServicePortAvailabilityVerifier.execute(novaFluent.ip(server, subnet), 51111);
+			available = ServicePortAvailabilityVerifier.execute(novaFluent.ip(server, subnet), 51111);
 			
 			log.info("Service Port availability: " + available);
 		}
+		
+		return available;
 	}
 	
-	private String uniqueName() {
-		return "s" + UUID.randomUUID().toString();
+	protected String uniqueName(String instanceId) {
+		return "s" + instanceId;
 	}
 	
 	private Map<String, String> defaultParameters() {

@@ -28,13 +28,10 @@ import de.evoila.cf.broker.model.ErrorMessage;
 import de.evoila.cf.broker.model.JobProgress;
 import de.evoila.cf.broker.model.ServiceDefinition;
 import de.evoila.cf.broker.service.CatalogService;
-import de.evoila.cf.broker.service.DeploymentService;
+import de.evoila.cf.broker.service.impl.DeploymentServiceImpl;
 
 /**
- * See: http://docs.cloudfoundry.com/docs/running/architecture/services/writing-
- * service.html
  * 
- * @author sgreenberg@gopivotal.com
  * @author Johannes Hiemer.
  * @author Christian Brinker, evoila.
  */
@@ -47,33 +44,11 @@ public class ServiceInstanceController extends BaseController {
 	public static final String SERVICE_INSTANCE_BASE_PATH = "/v2/service_instances";
 
 	@Autowired
-	private DeploymentService deploymentService;
+	private DeploymentServiceImpl deploymentService;
 
 	@Autowired
 	private CatalogService catalogService;
 
-	// @RequestMapping(value = "/get", method = RequestMethod.GET)
-	// public ResponseEntity<String> get() {
-	// return new ResponseEntity<String>(HttpStatus.OK);
-	// }
-
-	// @RequestMapping(value = "/service_instances", method = RequestMethod.GET)
-	// public @ResponseBody List<ServiceInstance> getServiceInstances() {
-	// logger.debug("GET: " + SERVICE_INSTANCE_BASE_PATH + ",
-	// getServiceInstances()");
-	// return service.getAllServiceInstances();
-	// }
-
-	/**
-	 * TODO: Add Response Type Accepted 202 for long running process
-	 * 
-	 * @param serviceInstanceId
-	 * @param request
-	 * @return
-	 * @throws ServiceDefinitionDoesNotExistException
-	 * @throws ServiceInstanceExistsException
-	 * @throws ServiceBrokerException
-	 */
 	@RequestMapping(value = "/service_instances/{instanceId}", method = RequestMethod.PUT)
 	public ResponseEntity<CreateServiceInstanceResponse> createServiceInstance(
 			@PathVariable("instanceId") String serviceInstanceId,

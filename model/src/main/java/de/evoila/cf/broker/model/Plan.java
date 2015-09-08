@@ -37,7 +37,7 @@ public class Plan {
 	
 	private Platform platform;
 	
-	private String flavor;
+	private String flavorId;
 	
 	private int connections;
 	
@@ -49,25 +49,25 @@ public class Plan {
 		return platform;
 	}
 
-	public String getFlavor() {
-		return flavor;
+	public String getFlavorId() {
+		return flavorId;
 	}
 
 	public int getConnections() {
 		return connections;
 	}
 
-	public Plan(String id, String name, String description, Platform platform, int volumeSize, Flavor flavor, int connections) {
+	public Plan(String id, String name, String description, Platform platform, int volumeSize, String flavorId, int connections) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
 		this.platform = platform;
 		this.volumeSize = volumeSize;
-		this.flavor = this.flavor;
+		this.flavorId = flavorId;
 		this.connections = connections;
 	}
 
-	public Plan(String id, String name, String description, Map<String,Object> metadata, Platform platform, int volumeSize, Flavor flavor, int connections) {
+	public Plan(String id, String name, String description, Map<String,Object> metadata, Platform platform, int volumeSize, String flavor, int connections) {
 		this(id, name, description, platform, volumeSize, flavor, connections);
 		setMetadata(metadata);
 	}

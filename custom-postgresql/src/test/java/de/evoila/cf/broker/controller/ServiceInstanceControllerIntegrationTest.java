@@ -45,7 +45,7 @@ public class ServiceInstanceControllerIntegrationTest {
 	private ServiceInstanceController controller;
 
 	@Mock
-	private DeploymentService serviceInstanceService;
+	private DeploymentService deploymentService;
 
 	@Mock
 	private CatalogService catalogService;
@@ -149,7 +149,7 @@ public class ServiceInstanceControllerIntegrationTest {
 		CreateServiceInstanceResponse response = CreateServiceInstanceResponseFixture
 				.getCreateServiceInstanceResponse();
 
-		when(serviceInstanceService.createServiceInstance(any(String.class), any(String.class), any(String.class),
+		when(deploymentService.createServiceInstance(any(String.class), any(String.class), any(String.class),
 				any(String.class), any(String.class), anyMapOf(String.class, String.class))).thenReturn(response);
 
 		when(catalogService.getServiceDefinition(any(String.class))).thenReturn(ServiceFixture.getService());
@@ -169,7 +169,7 @@ public class ServiceInstanceControllerIntegrationTest {
 		CreateServiceInstanceResponse response = CreateServiceInstanceResponseFixture
 				.getCreateServiceInstanceResponse();
 
-		when(serviceInstanceService.createServiceInstance(any(String.class), any(String.class), any(String.class),
+		when(deploymentService.createServiceInstance(any(String.class), any(String.class), any(String.class),
 				any(String.class), any(String.class), anyMapOf(String.class, String.class))).thenReturn(response);
 
 		when(catalogService.getServiceDefinition(any(String.class))).thenReturn(ServiceFixture.getService());
@@ -190,7 +190,7 @@ public class ServiceInstanceControllerIntegrationTest {
 	public void serviceInstanceIsDeletedSuccessfully() throws Exception {
 		ServiceInstance instance = ServiceInstanceFixture.getServiceInstance();
 
-		serviceInstanceService.deleteServiceInstance(any(String.class));
+		deploymentService.deleteServiceInstance(any(String.class));
 
 		String url = ServiceInstanceController.SERVICE_INSTANCE_BASE_PATH + "/" + instance.getId() + "?service_id="
 				+ instance.getServiceDefinitionId() + "&plan_id=" + instance.getPlanId();
@@ -204,7 +204,7 @@ public class ServiceInstanceControllerIntegrationTest {
 	public void deleteUnknownServiceInstanceFails() throws Exception {
 		ServiceInstance instance = ServiceInstanceFixture.getServiceInstance();
 
-		serviceInstanceService.deleteServiceInstance(any(String.class));
+		deploymentService.deleteServiceInstance(any(String.class));
 
 		String url = ServiceInstanceController.SERVICE_INSTANCE_BASE_PATH + "/" + instance.getId() + "?service_id="
 				+ instance.getServiceDefinitionId() + "&plan_id=" + instance.getPlanId();

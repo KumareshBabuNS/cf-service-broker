@@ -36,14 +36,13 @@ import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
 import de.evoila.cf.broker.model.ServiceInstanceCreationResult;
 import de.evoila.cf.broker.service.PlatformService;
-import de.evoila.cf.broker.service.impl.AbstractDeploymentServiceImpl;
 
 /**
  * 
  * @author Dennis Mueller, evoila GmbH, Aug 26, 2015
  *
  */
-public abstract class DockerServiceFactory extends AbstractDeploymentServiceImpl {
+public abstract class DockerServiceFactory implements PlatformService {
 
 	private static final int PORT = 2345;
 

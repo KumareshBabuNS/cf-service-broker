@@ -49,6 +49,10 @@ public class HeatFluent {
 				
 		return stack;
 	}
+	
+	public void delete(String stackName, String stackId) {
+		client().heat().stacks().delete(stackName, stackId);
+	}
 
 	public Stack get(String name) {
 		return client().heat().stacks().getStackByName(name);

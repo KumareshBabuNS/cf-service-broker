@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
  * @author Dennis Müller.
  *
  */
-@Service("service")
 public class PostgresService extends DockerServiceFactory {	
 
 	@Override
