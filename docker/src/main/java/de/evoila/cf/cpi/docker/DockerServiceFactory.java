@@ -36,13 +36,14 @@ import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
 import de.evoila.cf.broker.model.ServiceInstanceCreationResult;
 import de.evoila.cf.broker.service.PlatformService;
+import de.evoila.cf.broker.service.impl.AbstractDeploymentServiceImpl;
 
 /**
  * 
  * @author Dennis Mueller, evoila GmbH, Aug 26, 2015
  *
  */
-public abstract class DockerServiceFactory implements PlatformService {
+public abstract class DockerServiceFactory extends AbstractDeploymentServiceImpl {
 
 	private static final int PORT = 2345;
 
@@ -128,22 +129,13 @@ public abstract class DockerServiceFactory implements PlatformService {
 	protected void deprovisionServiceInstance(String internalId) {
 	};
 
-	public ServiceInstanceBindingResponse bindService(String insternalId) throws ServiceBrokerException {
-		ServiceInstanceBindingResponse bindingResponse = new ServiceInstanceBindingResponse();
 
-		bindingResponse.setCredentials(this.containerCredentialMap.get(insternalId));
-		bindingResponse.setSyslogDrainUrl(null);
-		return bindingResponse;
-	}
-
-	public void deleteBinding(String internalId) throws ServiceBrokerException {
-	}
 	
 	public List<ServiceInstance> getAllServiceInstances() {
 		throw new NotImplementedException("Currently not supported");
 	}
 	
-	@Override
+	
 	public ServiceInstance createInstance(ServiceInstance instance, Plan plan) {
 		Properties volume = this.createDockerVolume(plan.getVolumeSize() + getOffset());
 		String mountPoint = volume.getProperty("mountPoint");
@@ -179,16 +171,14 @@ public abstract class DockerServiceFactory implements PlatformService {
 		creationResult.setInternalId(containerId);
 		return new ServiceInstance(instance, null, containerId);
 	}
+
 	
-	@Override
-	public void deleteInstance(ServiceInstance instance) {
-		// TODO Auto-generated method stub
-		
+	public ServiceInstanceBindingResponse bindService(String insternalId) throws ServiceBrokerException {
+		ServiceInstanceBindingResponse bindingResponse = new ServiceInstanceBindingResponse();
+
+		bindingResponse.setCredentials(this.containerCredentialMap.get(insternalId));
+		bindingResponse.setSyslogDrainUrl(null);
+		return bindingResponse;
 	}
-	
-	@Override
-	public ServiceInstance updateInstance(ServiceInstance instance, Plan plan) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+
 }

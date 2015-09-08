@@ -24,12 +24,13 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import de.evoila.cf.broker.model.ServiceDefinition;
+import de.evoila.cf.broker.model.CreateServiceInstanceResponse;
 import de.evoila.cf.broker.model.ServiceInstance;
+import de.evoila.cf.broker.model.fixture.CreateServiceInstanceResponseFixture;
 import de.evoila.cf.broker.model.fixture.ServiceFixture;
 import de.evoila.cf.broker.model.fixture.ServiceInstanceFixture;
 import de.evoila.cf.broker.service.CatalogService;
-import de.evoila.cf.broker.service.ServiceInstanceFactory;
+import de.evoila.cf.broker.service.DeploymentService;
 
 /**
  * 
@@ -44,7 +45,7 @@ public class ServiceInstanceControllerIntegrationTest {
 	private ServiceInstanceController controller;
 
 	@Mock
-	private ServiceInstanceFactory serviceInstanceService;
+	private DeploymentService serviceInstanceService;
 
 	@Mock
 	private CatalogService catalogService;
@@ -145,10 +146,11 @@ public class ServiceInstanceControllerIntegrationTest {
 	@Test
 	public void badJsonServiceInstanceCreationFails() throws Exception {
 		ServiceInstance instance = ServiceInstanceFixture.getServiceInstance();
+		CreateServiceInstanceResponse response = CreateServiceInstanceResponseFixture
+				.getCreateServiceInstanceResponse();
 
-		when(serviceInstanceService.createServiceInstance(any(ServiceDefinition.class), any(String.class),
-				any(String.class), any(String.class), any(String.class), anyMapOf(String.class, String.class)))
-						.thenReturn(instance);
+		when(serviceInstanceService.createServiceInstance(any(String.class), any(String.class), any(String.class),
+				any(String.class), any(String.class), anyMapOf(String.class, String.class))).thenReturn(response);
 
 		when(catalogService.getServiceDefinition(any(String.class))).thenReturn(ServiceFixture.getService());
 
@@ -164,10 +166,11 @@ public class ServiceInstanceControllerIntegrationTest {
 	@Test
 	public void badJsonServiceInstanceCreationFailsMissingFields() throws Exception {
 		ServiceInstance instance = ServiceInstanceFixture.getServiceInstance();
+		CreateServiceInstanceResponse response = CreateServiceInstanceResponseFixture
+				.getCreateServiceInstanceResponse();
 
-		when(serviceInstanceService.createServiceInstance(any(ServiceDefinition.class), any(String.class),
-				any(String.class), any(String.class), any(String.class), anyMapOf(String.class, String.class)))
-						.thenReturn(instance);
+		when(serviceInstanceService.createServiceInstance(any(String.class), any(String.class), any(String.class),
+				any(String.class), any(String.class), anyMapOf(String.class, String.class))).thenReturn(response);
 
 		when(catalogService.getServiceDefinition(any(String.class))).thenReturn(ServiceFixture.getService());
 
@@ -187,7 +190,7 @@ public class ServiceInstanceControllerIntegrationTest {
 	public void serviceInstanceIsDeletedSuccessfully() throws Exception {
 		ServiceInstance instance = ServiceInstanceFixture.getServiceInstance();
 
-		when(serviceInstanceService.deleteServiceInstance(any(String.class))).thenReturn(instance);
+		serviceInstanceService.deleteServiceInstance(any(String.class));
 
 		String url = ServiceInstanceController.SERVICE_INSTANCE_BASE_PATH + "/" + instance.getId() + "?service_id="
 				+ instance.getServiceDefinitionId() + "&plan_id=" + instance.getPlanId();
@@ -201,7 +204,7 @@ public class ServiceInstanceControllerIntegrationTest {
 	public void deleteUnknownServiceInstanceFails() throws Exception {
 		ServiceInstance instance = ServiceInstanceFixture.getServiceInstance();
 
-		when(serviceInstanceService.deleteServiceInstance(any(String.class))).thenReturn(null);
+		serviceInstanceService.deleteServiceInstance(any(String.class));
 
 		String url = ServiceInstanceController.SERVICE_INSTANCE_BASE_PATH + "/" + instance.getId() + "?service_id="
 				+ instance.getServiceDefinitionId() + "&plan_id=" + instance.getPlanId();

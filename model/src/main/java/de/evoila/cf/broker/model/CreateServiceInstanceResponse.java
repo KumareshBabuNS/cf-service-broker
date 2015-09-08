@@ -17,11 +17,12 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public class CreateServiceInstanceResponse {
 
 	private String dashboardUrl;
+	private boolean isAsync;
 
 	public CreateServiceInstanceResponse() {
 	}
-	
-	public CreateServiceInstanceResponse(ServiceInstance serviceInstance) {
+
+	public CreateServiceInstanceResponse(ServiceInstance serviceInstance, boolean isAsync) {
 		this.dashboardUrl = serviceInstance.getDashboardUrl();
 	}
 
@@ -35,4 +36,7 @@ public class CreateServiceInstanceResponse {
 		return dashboardUrl;
 	}
 
+	public boolean isAsync() {
+		return isAsync;
+	}
 }

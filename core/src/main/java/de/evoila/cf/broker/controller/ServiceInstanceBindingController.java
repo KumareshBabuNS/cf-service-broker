@@ -19,12 +19,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import de.evoila.cf.broker.exception.ServerviceInstanceBindingDoesNotExistsException;
 import de.evoila.cf.broker.exception.ServiceBrokerException;
+import de.evoila.cf.broker.exception.ServiceDefinitionDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceBindingExistsException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.model.ErrorMessage;
 import de.evoila.cf.broker.model.ServiceInstanceBindingRequest;
 import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
-import de.evoila.cf.broker.service.ServiceInstanceFactory;
+import de.evoila.cf.broker.service.DeploymentService;
 
 /**
  * See: Source:
@@ -43,19 +44,20 @@ public class ServiceInstanceBindingController extends BaseController {
 	public static final String SERVICE_INSTANCE_BINDING_BASE_PATH = "/v2/service_instances/{instanceId}/service_bindings";
 
 	@Autowired
-	private ServiceInstanceFactory serviceInstanceService;
+	private DeploymentService deploymentService;
 
 	@RequestMapping(value = "/{instanceId}/service_bindings/{bindingId}", method = RequestMethod.PUT)
 	public ResponseEntity<ServiceInstanceBindingResponse> bindServiceInstance(
 			@PathVariable("instanceId") String instanceId, @PathVariable("bindingId") String bindingId,
-			@Valid @RequestBody ServiceInstanceBindingRequest request) throws ServiceInstanceDoesNotExistException,
-					ServiceInstanceBindingExistsException, ServiceBrokerException {
+			@Valid @RequestBody ServiceInstanceBindingRequest request)
+					throws ServiceInstanceDoesNotExistException, ServiceInstanceBindingExistsException,
+					ServiceBrokerException, ServiceDefinitionDoesNotExistException {
 
 		logger.debug("PUT: " + SERVICE_INSTANCE_BINDING_BASE_PATH + "/{bindingId}"
 				+ ", bindServiceInstance(), serviceInstance.id = " + instanceId + ", bindingId = " + bindingId);
 
-		ServiceInstanceBindingResponse response = serviceInstanceService.createServiceInstanceBinding(bindingId,
-				instanceId, request.getServiceDefinitionId(), request.getPlanId(), request.getAppGuid());
+		ServiceInstanceBindingResponse response = deploymentService.createServiceInstanceBinding(bindingId, instanceId,
+				request.getServiceDefinitionId(), request.getPlanId(), request.getAppGuid());
 
 		logger.debug("ServiceInstanceBinding Created: " + bindingId);
 
@@ -72,7 +74,7 @@ public class ServiceInstanceBindingController extends BaseController {
 				+ ", serviceId = " + serviceId + ", planId = " + planId);
 
 		try {
-			serviceInstanceService.deleteServiceInstanceBinding(bindingId);
+			deploymentService.deleteServiceInstanceBinding(bindingId);
 		} catch (ServerviceInstanceBindingDoesNotExistsException e) {
 			return new ResponseEntity<String>("{}", HttpStatus.NOT_FOUND);
 		}

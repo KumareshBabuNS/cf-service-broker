@@ -1,7 +1,5 @@
 package de.evoila.cf.broker.controller;
 
-import java.util.List;
-
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -24,14 +22,13 @@ import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.exception.ServiceDefinitionDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceExistsException;
-import de.evoila.cf.broker.model.CreateServiceInstanceProcessingResponse;
 import de.evoila.cf.broker.model.CreateServiceInstanceRequest;
 import de.evoila.cf.broker.model.CreateServiceInstanceResponse;
 import de.evoila.cf.broker.model.ErrorMessage;
+import de.evoila.cf.broker.model.JobProgress;
 import de.evoila.cf.broker.model.ServiceDefinition;
-import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.service.CatalogService;
-import de.evoila.cf.broker.service.ServiceInstanceFactory;
+import de.evoila.cf.broker.service.DeploymentService;
 
 /**
  * See: http://docs.cloudfoundry.com/docs/running/architecture/services/writing-
@@ -50,21 +47,22 @@ public class ServiceInstanceController extends BaseController {
 	public static final String SERVICE_INSTANCE_BASE_PATH = "/v2/service_instances";
 
 	@Autowired
-	private ServiceInstanceFactory service;
+	private DeploymentService deploymentService;
 
 	@Autowired
 	private CatalogService catalogService;
 
-	@RequestMapping(value = "/get", method = RequestMethod.GET)
-	public ResponseEntity<String> get() {
-		return new ResponseEntity<String>(HttpStatus.OK);
-	}
+	// @RequestMapping(value = "/get", method = RequestMethod.GET)
+	// public ResponseEntity<String> get() {
+	// return new ResponseEntity<String>(HttpStatus.OK);
+	// }
 
-	@RequestMapping(value = "/service_instances", method = RequestMethod.GET)
-	public @ResponseBody List<ServiceInstance> getServiceInstances() {
-		logger.debug("GET: " + SERVICE_INSTANCE_BASE_PATH + ", getServiceInstances()");
-		return service.getAllServiceInstances();
-	}
+	// @RequestMapping(value = "/service_instances", method = RequestMethod.GET)
+	// public @ResponseBody List<ServiceInstance> getServiceInstances() {
+	// logger.debug("GET: " + SERVICE_INSTANCE_BASE_PATH + ",
+	// getServiceInstances()");
+	// return service.getAllServiceInstances();
+	// }
 
 	/**
 	 * TODO: Add Response Type Accepted 202 for long running process
@@ -79,9 +77,13 @@ public class ServiceInstanceController extends BaseController {
 	@RequestMapping(value = "/service_instances/{instanceId}", method = RequestMethod.PUT)
 	public ResponseEntity<CreateServiceInstanceResponse> createServiceInstance(
 			@PathVariable("instanceId") String serviceInstanceId,
-			@RequestParam("accepts_incomplete") boolean acceptsIncomplete,
+			@RequestParam("accepts_incomplete") Boolean acceptsIncomplete,
 			@Valid @RequestBody CreateServiceInstanceRequest request) throws ServiceDefinitionDoesNotExistException,
 					ServiceInstanceExistsException, ServiceBrokerException, AsyncRequiredException {
+
+		if (acceptsIncomplete == null) {
+			throw new AsyncRequiredException();
+		}
 
 		logger.debug("PUT: " + SERVICE_INSTANCE_BASE_PATH + "/{instanceId}"
 				+ ", createServiceInstance(), serviceInstanceId = " + serviceInstanceId);
@@ -92,54 +94,48 @@ public class ServiceInstanceController extends BaseController {
 			throw new ServiceDefinitionDoesNotExistException(request.getServiceDefinitionId());
 		}
 
-		ServiceInstance serviceInstance = service.createServiceInstance(svc, serviceInstanceId, request.getPlanId(),
-				request.getOrganizationGuid(), request.getSpaceGuid(), request.getParameters());
+		CreateServiceInstanceResponse response = deploymentService.createServiceInstance(serviceInstanceId,
+				request.getServiceDefinitionId(), request.getPlanId(), request.getOrganizationGuid(),
+				request.getSpaceGuid(), request.getParameters());
 
-		logger.debug("ServiceInstance Created: " + serviceInstance.getInternalId());
+		logger.debug("ServiceInstance Created: " + serviceInstanceId);
 
-		if (acceptsIncomplete)
-			return new ResponseEntity<CreateServiceInstanceResponse>(new CreateServiceInstanceResponse(serviceInstance),
-					HttpStatus.ACCEPTED);
+		if (response.isAsync())
+			return new ResponseEntity<CreateServiceInstanceResponse>(response, HttpStatus.ACCEPTED);
 		else
-			return new ResponseEntity<CreateServiceInstanceResponse>(new CreateServiceInstanceResponse(serviceInstance),
-					HttpStatus.CREATED);
+			return new ResponseEntity<CreateServiceInstanceResponse>(response, HttpStatus.CREATED);
 	}
 
-	@RequestMapping(value = "/service_instances/{instanceId}/last_operation", method = RequestMethod.PUT)
-	public ResponseEntity<CreateServiceInstanceProcessingResponse> lastOperation(
-			@PathVariable("instanceId") String serviceInstanceId) throws ServiceDefinitionDoesNotExistException,
-					ServiceInstanceExistsException, ServiceBrokerException {
+	@RequestMapping(value = "/service_instances/{instanceId}/last_operation", method = RequestMethod.GET)
+	public ResponseEntity<JobProgress> lastOperation(@PathVariable("instanceId") String serviceInstanceId)
+			throws ServiceDefinitionDoesNotExistException, ServiceInstanceExistsException, ServiceBrokerException,
+			ServiceInstanceDoesNotExistException {
 
-		CreateServiceInstanceProcessingResponse createServiceInstanceProcessingResponse = new CreateServiceInstanceProcessingResponse(
-				"sample", "This is a sample response");
+		JobProgress serviceInstanceProcessingResponse = deploymentService.getLastOperation(serviceInstanceId);
 
-		return new ResponseEntity<CreateServiceInstanceProcessingResponse>(createServiceInstanceProcessingResponse,
-				HttpStatus.ACCEPTED);
+		return new ResponseEntity<JobProgress>(serviceInstanceProcessingResponse, HttpStatus.ACCEPTED);
 	}
 
 	@RequestMapping(value = "/service_instances/{instanceId}", method = RequestMethod.DELETE)
 	public ResponseEntity<String> deleteServiceInstance(@PathVariable("instanceId") String instanceId,
 			@RequestParam("service_id") String serviceId, @RequestParam("plan_id") String planId)
-					throws ServiceBrokerException, AsyncRequiredException {
+					throws ServiceBrokerException, AsyncRequiredException, ServiceInstanceDoesNotExistException {
 
 		logger.debug("DELETE: " + SERVICE_INSTANCE_BASE_PATH + "/{instanceId}"
 				+ ", deleteServiceInstanceBinding(), serviceInstanceId = " + instanceId + ", serviceId = " + serviceId
 				+ ", planId = " + planId);
 
-		try {
-			service.deleteServiceInstance(instanceId);
-		} catch (ServiceInstanceDoesNotExistException e) {
-			return new ResponseEntity<String>("{}", HttpStatus.GONE);
-		}
+		deploymentService.deleteServiceInstance(instanceId);
+
 		logger.debug("ServiceInstance Deleted: " + instanceId);
 
 		return new ResponseEntity<String>("{}", HttpStatus.OK);
 	}
 
-	@ExceptionHandler(ServiceDefinitionDoesNotExistException.class)
+	@Override
+	@ExceptionHandler({ ServiceDefinitionDoesNotExistException.class, AsyncRequiredException.class })
 	@ResponseBody
-	public ResponseEntity<ErrorMessage> handleException(ServiceDefinitionDoesNotExistException ex,
-			HttpServletResponse response) {
+	public ResponseEntity<ErrorMessage> handleException(Exception ex, HttpServletResponse response) {
 		return getErrorResponse(ex.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
 	}
 
@@ -149,12 +145,11 @@ public class ServiceInstanceController extends BaseController {
 			HttpServletResponse response) {
 		return getErrorResponse(ex.getMessage(), HttpStatus.CONFLICT);
 	}
-	
-	@ExceptionHandler(AsyncRequiredException.class)
-	@ResponseBody
-	public ResponseEntity<ErrorMessage> handleException(AsyncRequiredException ex,
-			HttpServletResponse response) {
-		return getErrorResponse(ex.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
-	}
 
+	@ExceptionHandler(ServiceInstanceDoesNotExistException.class)
+	@ResponseBody
+	public ResponseEntity<ErrorMessage> handleException(ServiceInstanceDoesNotExistException ex,
+			HttpServletResponse response) {
+		return getErrorResponse("{}", HttpStatus.GONE);
+	}
 }

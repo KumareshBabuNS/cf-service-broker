@@ -13,28 +13,24 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  * 
  */
 @JsonAutoDetect(getterVisibility = Visibility.NONE)
-public class CreateServiceInstanceProcessingResponse {
-	
+public class JobProgress {
+
 	/**
-	 * Allowed values are:
-	 *  "in progress"
-	 *  "succeeded"
-	 *  "failed"
+	 * Allowed values are: "in progress" "succeeded" "failed"
 	 */
 	@JsonSerialize
 	@JsonProperty("state")
 	private String state;
-	
+
 	@JsonSerialize
 	@JsonProperty("description")
 	private String description;
-	
-	public CreateServiceInstanceProcessingResponse() {
+
+	public JobProgress() {
 		super();
 	}
 
-	public CreateServiceInstanceProcessingResponse(String state,
-			String description) {
+	public JobProgress(String state, String description) {
 		super();
 		this.state = state;
 		this.description = description;
@@ -44,16 +40,7 @@ public class CreateServiceInstanceProcessingResponse {
 		return state;
 	}
 
-	public void setState(String state) {
-		this.state = state;
-	}
-
 	public String getDescription() {
 		return description;
 	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-	
 }
