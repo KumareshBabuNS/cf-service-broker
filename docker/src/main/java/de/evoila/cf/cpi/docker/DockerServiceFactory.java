@@ -31,24 +31,22 @@ import com.github.dockerjava.core.LocalDirectorySSLConfig;
 import com.github.dockerjava.core.SSLConfig;
 
 import de.evoila.cf.broker.exception.ServiceBrokerException;
+import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
 import de.evoila.cf.broker.model.ServiceInstanceCreationResult;
-import de.evoila.cf.broker.service.impl.ServiceInstanceFactoryImplementation;
+import de.evoila.cf.broker.service.PlatformService;
 
 /**
  * 
  * @author Dennis Mueller, evoila GmbH, Aug 26, 2015
  *
  */
-public abstract class DockerServiceFactory extends ServiceInstanceFactoryImplementation {
+public abstract class DockerServiceFactory implements PlatformService {
 
 	private static final int PORT = 2345;
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
-
-	private static int SMALL_SIZE = 25;
-	private static int MEDIUM_SIZE = 2048;
 
 	protected abstract String getType();
 
@@ -126,23 +124,28 @@ public abstract class DockerServiceFactory extends ServiceInstanceFactoryImpleme
 		}
 		return container.getId();
 	}
+	
+	protected void deprovisionServiceInstance(String internalId) {
+	};
 
+	public ServiceInstanceBindingResponse bindService(String insternalId) throws ServiceBrokerException {
+		ServiceInstanceBindingResponse bindingResponse = new ServiceInstanceBindingResponse();
+
+		bindingResponse.setCredentials(this.containerCredentialMap.get(insternalId));
+		bindingResponse.setSyslogDrainUrl(null);
+		return bindingResponse;
+	}
+
+	public void deleteBinding(String internalId) throws ServiceBrokerException {
+	}
+	
+	public List<ServiceInstance> getAllServiceInstances() {
+		throw new NotImplementedException("Currently not supported");
+	}
+	
 	@Override
-	public ServiceInstanceCreationResult provisionServiceInstance(String serviceInstanceId, String planId)
-			throws ServiceBrokerException {
-
-		Properties volume;
-		switch (planId.toUpperCase()) {
-		case "S":
-			volume = this.createDockerVolume(SMALL_SIZE + getOffset());
-			break;
-		case "M":
-			volume = this.createDockerVolume(MEDIUM_SIZE + getOffset());
-			break;
-		default:
-			volume = this.createDockerVolume(SMALL_SIZE + getOffset());
-			break;
-		}
+	public ServiceInstance createInstance(ServiceInstance instance, Plan plan) {
+		Properties volume = this.createDockerVolume(plan.getVolumeSize() + getOffset());
 		String mountPoint = volume.getProperty("mountPoint");
 		
 		@SuppressWarnings("unused")
@@ -174,29 +177,18 @@ public abstract class DockerServiceFactory extends ServiceInstanceFactoryImpleme
 
 		creationResult.setDaschboardUrl(null);
 		creationResult.setInternalId(containerId);
-		return creationResult;
+		return new ServiceInstance(instance, null, containerId);
 	}
 	
 	@Override
-	protected void deprovisionServiceInstance(String internalId) {
-	};
-
-	@Override
-	public ServiceInstanceBindingResponse bindService(String insternalId) throws ServiceBrokerException {
-		ServiceInstanceBindingResponse bindingResponse = new ServiceInstanceBindingResponse();
-
-		bindingResponse.setCredentials(this.containerCredentialMap.get(insternalId));
-		bindingResponse.setSyslogDrainUrl(null);
-		return bindingResponse;
-	}
-
-	@Override
-	public void deleteBinding(String internalId) throws ServiceBrokerException {
+	public void deleteInstance(ServiceInstance instance) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	@Override
-	public List<ServiceInstance> getAllServiceInstances() {
-		throw new NotImplementedException("Currently not supported");
+	public ServiceInstance updateInstance(ServiceInstance instance, Plan plan) {
+		// TODO Auto-generated method stub
+		return null;
 	}
-
 }
