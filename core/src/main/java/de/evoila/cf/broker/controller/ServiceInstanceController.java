@@ -52,7 +52,7 @@ public class ServiceInstanceController extends BaseController {
 	@RequestMapping(value = "/service_instances/{instanceId}", method = RequestMethod.PUT)
 	public ResponseEntity<CreateServiceInstanceResponse> createServiceInstance(
 			@PathVariable("instanceId") String serviceInstanceId,
-			@RequestParam("accepts_incomplete") Boolean acceptsIncomplete,
+			@RequestParam(value="accepts_incomplete", required=false) Boolean acceptsIncomplete,
 			@Valid @RequestBody CreateServiceInstanceRequest request) throws ServiceDefinitionDoesNotExistException,
 					ServiceInstanceExistsException, ServiceBrokerException, AsyncRequiredException {
 

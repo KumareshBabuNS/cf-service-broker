@@ -2,22 +2,16 @@ package de.evoila.cf.cpi.docker;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.annotation.PostConstruct;
-
-import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
-import org.springframework.core.io.Resource;
 import org.springframework.web.client.RestTemplate;
 
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.ExposedPort;
@@ -30,11 +24,6 @@ import com.github.dockerjava.core.DockerClientConfig.DockerClientConfigBuilder;
 import com.github.dockerjava.core.LocalDirectorySSLConfig;
 import com.github.dockerjava.core.SSLConfig;
 
-import de.evoila.cf.broker.exception.ServiceBrokerException;
-import de.evoila.cf.broker.model.Plan;
-import de.evoila.cf.broker.model.ServiceInstance;
-import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
-import de.evoila.cf.broker.model.ServiceInstanceCreationResult;
 import de.evoila.cf.broker.service.PlatformService;
 
 /**
@@ -48,27 +37,30 @@ public abstract class DockerServiceFactory implements PlatformService {
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
-	protected abstract String getType();
+	@Value("${docker.offset}")
+	private int offset;
 
-	protected abstract int getOffset();
+	@Value("${docker.imageName}")
+	private String imageName;
 
-	protected abstract String getImageName();
+	@Value("${docker.containerPort}")
+	private int containerPort;
 
-	protected abstract int getSevicePort();
+	@Value("${docker.containerVolume}")
+	private String containerVolume;
 
-	protected abstract String getContainerEnviornment();
+	@Value("${docker.passwordEnv}")
+	private String passwordEnv;
 
-	protected abstract String getContainerVolume();
+	@Value("${docker.usernameEnv}")
+	private String usernameEnv;
 
-	protected abstract String getPassword();
-
-	protected abstract String getUsername();
-
-	protected abstract String getVhost();
+	@Value("${docker.vhostEnv}")
+	private String vHostEnv;
 
 	private Map<String, Map<String, Object>> containerCredentialMap = new HashMap<String, Map<String, Object>>();
 
-	//@Value("${docker.certpath}")
+	@Value("${docker.certpath}")
 	private String dockerCertPath;
 
 	@Value("${docker.host}")
@@ -79,42 +71,50 @@ public abstract class DockerServiceFactory implements PlatformService {
 
 	@Value("${docker.volume.service.port}")
 	private String dockerVolumePort;
-	
-	@Autowired
-	private ApplicationContext context;
-	
-	@PostConstruct
-	public void init() throws IOException {
-		Resource resource = context.getResource("classpath*:key.pem");
-		dockerCertPath = resource.getFile().getPath();
-	}
 
 	private DockerClient createDockerClientInstance() {
-		
+
 		SSLConfig sslConfig = new LocalDirectorySSLConfig(dockerCertPath);
-		DockerClientConfig dockerClientConfig = new DockerClientConfigBuilder().withSSLConfig(sslConfig)
+		DockerClientConfig dockerClientConfig = new DockerClientConfigBuilder()
+				.withSSLConfig(sslConfig)
 				.withUri("https://" + dockerHost + ":" + dockerPort).build();
 		return DockerClientBuilder.getInstance(dockerClientConfig).build();
 	}
 
 	private Properties createDockerVolume(int volumeSize) {
 		RestTemplate restTemplate = new RestTemplate();
-		return restTemplate.getForObject(
-				"http://" + dockerHost + ":" + dockerVolumePort + "/create/volume/" + volumeSize, Properties.class);
+		return restTemplate.getForObject("http://" + dockerHost + ":"
+				+ dockerVolumePort + "/create/volume/" + volumeSize,
+				Properties.class);
 	}
 
-	private String createDockerContainer(String imageName, int servicePort, String volumePath, String mountPoint,
-			String env) {
+	private String getEnviornment(String key, String value) {
+		return key + "='" + value + "'";
+	}
+
+	private CreateContainerResponse createDockerContainer(String mountPoint, String vhost,
+			String username, String password) {
 		DockerClient dockerClient = this.createDockerClientInstance();
 		// XXX: port mapping
 		Binding binding = new Binding(PORT);
-		ExposedPort exposedPort = new ExposedPort(servicePort);
+		ExposedPort exposedPort = new ExposedPort(this.containerPort);
 		PortBinding portBinding = new PortBinding(binding, exposedPort);
-		Volume volume = new Volume(volumePath);
-		Bind bind = new Bind(mountPoint, volume);
-		CreateContainerResponse container = dockerClient.createContainerCmd(imageName).withPortBindings(portBinding)
-				.withVolumes(volume).withBinds(bind).withEnv(env)// ("POSTGRES_PASSWORD=123456")
-				.exec();
+		Volume volume = new Volume(this.containerVolume);
+		Bind bind = new Bind(mountPoint + "/_data", volume);
+		CreateContainerCmd containerCmd = dockerClient
+				.createContainerCmd(imageName).withPortBindings(portBinding)
+				.withVolumes(volume).withBinds(bind);
+		if (usernameEnv != null) {
+			containerCmd.withEnv(getEnviornment(usernameEnv, username));
+		}
+		if (passwordEnv != null) {
+			containerCmd.withEnv(getEnviornment(passwordEnv, password));
+		}
+		if (vHostEnv != null) {
+			containerCmd.withEnv(getEnviornment(vHostEnv, vhost));
+		}
+		logger.trace(containerCmd.toString());
+		CreateContainerResponse container = containerCmd.exec();
 		dockerClient.startContainerCmd(container.getId()).exec();
 		try {
 			dockerClient.close();
@@ -122,62 +122,43 @@ public abstract class DockerServiceFactory implements PlatformService {
 			logger.error("On docker client close: " + e.getMessage());
 			e.printStackTrace();
 		}
-		return container.getId();
+		return container;
 	}
-	
-	protected void deprovisionServiceInstance(String internalId) {
-	};
 
-
-	
-	public List<ServiceInstance> getAllServiceInstances() {
-		throw new NotImplementedException("Currently not supported");
-	}
-	
-	
-	public ServiceInstance createInstance(ServiceInstance instance, Plan plan) {
-		Properties volume = this.createDockerVolume(plan.getVolumeSize() + getOffset());
+	public CreateContainerResponse createDockerContainer(String instanceId, int voluneSize, String vhost, String username, String password) {
+		Properties volume = this.createDockerVolume(voluneSize
+				+ this.offset);
 		String mountPoint = volume.getProperty("mountPoint");
-		
+
 		@SuppressWarnings("unused")
 		String volumeName = volume.getProperty("name");
-		
-		String containerId;
+
+		CreateContainerResponse container;
 		try {
-			containerId = this.createDockerContainer(getImageName(), getSevicePort(), getContainerVolume(), mountPoint,
-					getContainerEnviornment());
+			container = this.createDockerContainer(mountPoint, vhost,
+					username, password);
 		} catch (Exception e) {
 			logger.error("Cannot create docker container");
-			return null;
+			throw e;
 		}
-		logger.trace("Docker container '" + containerId + "' created with: -p " + getSevicePort() + ":" + "PORT"
-				+ " -v " + mountPoint + ":" + getContainerVolume() + " -e " + getContainerEnviornment() + " "
-				+ getImageName());
-		ServiceInstanceCreationResult creationResult = new ServiceInstanceCreationResult();
+		logger.trace("Docker container '" + container.getId() + "' created with: -p "
+				+ this.containerPort + ":" + "PORT" + " -v " + mountPoint + ":"
+				+ this.containerVolume + " -e " + this.vHostEnv + "='" + vhost
+				+ "' -e " + this.usernameEnv + "='" + username + "' -e "
+				+ this.passwordEnv + "='" + password + this.imageName);
 
 		Map<String, Object> credentials = new HashMap<String, Object>();
 		// credentials.put("uri", getUri());
 		credentials.put("hostname", dockerHost);
 		credentials.put("port", DockerServiceFactory.PORT);
-		credentials.put("name", containerId);
-		credentials.put("vhost", getVhost());
-		credentials.put("username", getUsername());
-		credentials.put("password", getPassword());
+		credentials.put("name", container.getId());
+		credentials.put("vhost", vhost);
+		credentials.put("username", username);
+		credentials.put("password", password);
 
-		containerCredentialMap.put(containerId, credentials);
+		containerCredentialMap.put(container.getId(), credentials);
 
-		creationResult.setDaschboardUrl(null);
-		creationResult.setInternalId(containerId);
-		return new ServiceInstance(instance, null, containerId);
-	}
-
-	
-	public ServiceInstanceBindingResponse bindService(String insternalId) throws ServiceBrokerException {
-		ServiceInstanceBindingResponse bindingResponse = new ServiceInstanceBindingResponse();
-
-		bindingResponse.setCredentials(this.containerCredentialMap.get(insternalId));
-		bindingResponse.setSyslogDrainUrl(null);
-		return bindingResponse;
+		return container;
 	}
 
 }

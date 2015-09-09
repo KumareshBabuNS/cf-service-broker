@@ -6,6 +6,8 @@ package de.evoila.cf.cpi.openstack.custom;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,7 +17,6 @@ import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceInstance;
-import de.evoila.cf.broker.service.PlatformService;
 import de.evoila.cf.broker.service.impl.DeploymentServiceImpl;
 import de.evoila.cf.cpi.openstack.OpenstackServiceFactory;
 
@@ -25,11 +26,12 @@ import de.evoila.cf.cpi.openstack.OpenstackServiceFactory;
  *
  */
 @Service
-public class OpenstackPlatformService extends OpenstackServiceFactory implements PlatformService {
+public class OpenstackPlatformService extends OpenstackServiceFactory {
 	
 	@Autowired
 	private DeploymentServiceImpl deploymentServiceImpl;
 	
+	@PostConstruct
 	@Override
 	public void registerCustomPlatformServie() {
 		deploymentServiceImpl.addPlatformService(Platform.OPENSTACK, this);
@@ -53,7 +55,7 @@ public class OpenstackPlatformService extends OpenstackServiceFactory implements
 	@Override
 	public ServiceInstance postProvisioning(ServiceInstance serviceInstance,
 			Plan plan) throws ServiceBrokerException {
-		return null;
+		return new ServiceInstance(serviceInstance, null, null);
 	}
 
 	

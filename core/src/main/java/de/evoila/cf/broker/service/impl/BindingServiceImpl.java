@@ -3,6 +3,7 @@
  */
 package de.evoila.cf.broker.service.impl;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.evoila.cf.broker.exception.ServerviceInstanceBindingDoesNotExistsException;
@@ -20,13 +21,16 @@ import de.evoila.cf.broker.service.BindingService;
  *
  */
 @Service
-public abstract class BindingServiceImpl extends BaseServiceImpl implements BindingService {
+public abstract class BindingServiceImpl implements BindingService {
+	
+	@Autowired
+	private StorageService storageService;
 	
 	protected abstract ServiceInstanceBindingResponse bindService(ServiceInstance instance, Plan plan)
 			throws ServiceBrokerException;
 	
 	protected abstract void deleteBinding(ServiceInstance serviceInstance) throws ServiceBrokerException;
-
+	
 	@Override
 	public ServiceInstanceBindingResponse createServiceInstanceBinding(
 			String bindingId, String instanceId, String serviceId, String planId, String appGuid)
@@ -35,13 +39,13 @@ public abstract class BindingServiceImpl extends BaseServiceImpl implements Bind
 		
 		validateBindingNotExists(bindingId, instanceId);
 
-		ServiceInstance serviceInstance = getServiceInstance(instanceId);
+		ServiceInstance serviceInstance = storageService.getServiceInstance(instanceId);
 
-		Plan plan = getPlan(serviceDefinition, planId);
+		Plan plan = storageService.getPlan(planId);
 
 		ServiceInstanceBindingResponse response = bindService(serviceInstance, plan);
 
-		internalBindingIdMapping.put(bindingId, serviceInstance.getId());
+		storageService.addInternalBinding(bindingId, serviceInstance.getId());
 
 		return response;
 	}
@@ -56,17 +60,17 @@ public abstract class BindingServiceImpl extends BaseServiceImpl implements Bind
 	
 	private void validateBindingNotExists(String bindingId, String instanceId)
 			throws ServiceInstanceBindingExistsException {
-		if (internalBindingIdMapping.containsKey(bindingId)) {
+		if (storageService.containsInternalBindingId(bindingId)) {
 			throw new ServiceInstanceBindingExistsException(bindingId, instanceId);
 		}
 	}
 
 	private ServiceInstance getBinding(String bindingId) throws ServerviceInstanceBindingDoesNotExistsException {
-		String serviceInstanceId = internalBindingIdMapping.get(bindingId);
+		String serviceInstanceId = storageService.getInternalBindingId(bindingId);
 		if (serviceInstanceId == null) {
 			throw new ServerviceInstanceBindingDoesNotExistsException(bindingId);
 		}
-		return getServiceInstance(serviceInstanceId);
+		return storageService.getServiceInstance(serviceInstanceId);
 	}
 
 }

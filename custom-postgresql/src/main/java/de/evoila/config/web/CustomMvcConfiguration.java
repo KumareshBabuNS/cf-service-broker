@@ -1,6 +1,7 @@
 package de.evoila.config.web;
 
 import java.util.Arrays;
+import java.util.concurrent.Executor;
 
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
@@ -8,6 +9,9 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -29,19 +33,31 @@ import de.evoila.cf.broker.model.ServiceDefinition;
  */
 @Configuration
 @EnableWebMvc
+@EnableAsync
 @ComponentScan(basePackages = { "de.evoila.cf.broker", "de.evoila.cf.cpi" })
-public class CustomMvcConfiguration extends WebMvcConfigurerAdapter {
+public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements AsyncConfigurer {
 
 	@Override
 	public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
 		configurer.enable();
 	}
 
+	@Override
+	public Executor getAsyncExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(7);
+        executor.setMaxPoolSize(42);
+        executor.setQueueCapacity(11);
+        executor.setThreadNamePrefix("MyExecutor-");
+        executor.initialize();
+        return executor;
+	}
+
 	@Bean
 	public PropertyPlaceholderConfigurer properties() {
 		PropertyPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertyPlaceholderConfigurer();
 		Resource[] resources = new ClassPathResource[] { new ClassPathResource("application-mvc.properties"),
-				new ClassPathResource("application.properties") };
+				new ClassPathResource("application.properties"), new ClassPathResource("container.properites") };
 		propertyPlaceholderConfigurer.setLocations(resources);
 		propertyPlaceholderConfigurer.setIgnoreUnresolvablePlaceholders(true);
 		return propertyPlaceholderConfigurer;
@@ -77,17 +93,17 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter {
 
 	@Bean
 	public ServiceDefinition serviceDefinition() {
-		Plan dockerPlan = new Plan("basic", "500 MB PostgreSQL DB Basic Instance",
+		Plan dockerPlan = new Plan("docker", "25 MB PostgreSQL DB Docker Instance",
 				"The most basic PostgreSQL plan currently available. Providing"
-						+ "500 MB of capcity in a PostgreSQL DB.", Platform.DOCKER, 25, null, 4);
-		Plan openstackPlan = new Plan("basic", "500 MB PostgreSQL DB Basic Instance",
+						+ "25 MB of capcity in a PostgreSQL DB.", Platform.DOCKER, 25, null, 4);
+		Plan openstackPlan = new Plan("openstack", "500 MB PostgreSQL DB Openstack Instance",
 				"The most basic PostgreSQL plan currently available. Providing"
-						+ "500 MB of capcity in a PostgreSQL DB.", Platform.OPENSTACK, 25, "3", 10);
+						+ "500 MB of capcity in a PostgreSQL DB.", Platform.OPENSTACK, 500, "3", 10);
 
 		ServiceDefinition serviceDefinition = new ServiceDefinition("postgres", "postgres", "PostgreSQL Instances",
 				true, Arrays.asList(dockerPlan, openstackPlan));
 
 		return serviceDefinition;
 	}
-
+	
 }
