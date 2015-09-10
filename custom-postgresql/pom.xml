@@ -40,6 +40,13 @@
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
 		</dependency>
+		
+		<!-- Postgres -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>9.4-1201-jdbc41</version>
+		</dependency>
 
 		<!-- Java Validation JSR 303 -->
 		<dependency>
@@ -64,7 +71,6 @@
 			<groupId>com.jayway.jsonpath</groupId>
 			<artifactId>json-path</artifactId>
 		</dependency>
-
 
 		<!-- Logging -->
 		<dependency>
@@ -109,6 +115,14 @@
 			<groupId>de.evoila.cf.broker</groupId>
 			<artifactId>openstack</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>de.evoila.cf.broker</groupId>
+			<artifactId>model</artifactId>
+			<type>test-jar</type>
+			<version>0.0.1-SNAPSHOT</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 

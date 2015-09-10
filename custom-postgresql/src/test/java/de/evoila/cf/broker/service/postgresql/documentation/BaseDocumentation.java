@@ -1,9 +1,9 @@
 /**
  * 
  */
-package de.evoila.cf.broker.postgresql.documentation;
+package de.evoila.cf.broker.service.postgresql.documentation;
 
-import de.evoila.cf.broker.postresql.MockMvcTest;
+import de.evoila.cf.broker.service.MockMvcTest;
 
 /**
  * @author Johannes Hiemer.

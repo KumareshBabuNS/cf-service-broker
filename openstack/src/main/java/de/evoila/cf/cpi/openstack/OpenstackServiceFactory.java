@@ -74,6 +74,9 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 	@Value("${openstack.cinder.az}")
 	private String availabilityZone;
 	
+	@Value("${backend.default.port}")
+	protected int defaultPort;
+	
 	private String heatTemplate;
 	
 	private static String DEFAULT_ENCODING = "UTF-8";
@@ -139,19 +142,35 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 		heatFluent.delete(stack.getName(), stack.getId());
 	}
 	
+	protected Server details(String instanceId) {
+		List<Server> servers = servers(instanceId);
+		
+		if (servers.size() == 1) 
+			return servers.get(0);
+		else
+			return null;
+	}
+	
 	protected boolean verifyServiceAvailability(String instanceId) {
 		boolean available = false;
-		Stack stack = heatFluent.get(uniqueName(instanceId));
 		
-		List<Server> servers = heatFluent.servers(stack.getName(), stack.getId(), HeatFluent.NOVA_INSTANCE_TYPE);
-		
-		for (Server server : servers) {
+		for (Server server : servers(instanceId)) {
 			available = ServicePortAvailabilityVerifier.execute(novaFluent.ip(server, subnet), 51111);
 			
 			log.info("Service Port availability: " + available);
 		}
 		
 		return available;
+	}
+	
+	private List<Server> servers(String instanceId) {
+		Stack stack = heatFluent.get(uniqueName(instanceId));
+		
+		return heatFluent.servers(stack.getName(), stack.getId(), HeatFluent.NOVA_INSTANCE_TYPE);
+	}
+	
+	protected String primaryIp(String instanceId) {
+		return novaFluent.ip(this.details(instanceId), instanceId);
 	}
 	
 	protected String uniqueName(String instanceId) {

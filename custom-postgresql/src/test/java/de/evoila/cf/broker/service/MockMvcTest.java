@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.evoila.cf.broker.postresql;
+package de.evoila.cf.broker.service;
 
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
@@ -16,6 +16,9 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 
+import de.evoila.cf.config.security.CustomSecurityConfiguration;
+import de.evoila.config.web.CustomMvcConfiguration;
+
 /**
  * @author Johannes Hiemer.
  *
@@ -23,7 +26,8 @@ import org.springframework.web.context.WebApplicationContext;
 @RunWith(SpringJUnit4ClassRunner.class)
 @TransactionConfiguration
 @WebAppConfiguration
-@ContextConfiguration(classes = { })
+@ContextConfiguration(classes = { CustomSecurityConfiguration.class,
+		CustomMvcConfiguration.class })
 public abstract class MockMvcTest {
 	
 	protected MockMvc mockMvc;

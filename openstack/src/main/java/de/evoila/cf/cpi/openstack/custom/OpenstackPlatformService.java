@@ -77,7 +77,8 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 			e.printStackTrace();
 		}
 		
-		return new ServiceInstance(serviceInstance, "http://currently.not/available", this.uniqueName(instanceId));
+		return new ServiceInstance(serviceInstance, "http://currently.not/available", this.uniqueName(instanceId),
+			this.primaryIp(instanceId), this.defaultPort);
 	}
 
 	@Override

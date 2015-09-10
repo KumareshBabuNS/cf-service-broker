@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.evoila.cf.broker.postresql;
+package de.evoila.cf.broker.service;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;

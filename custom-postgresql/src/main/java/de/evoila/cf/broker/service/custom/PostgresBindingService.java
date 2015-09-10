@@ -19,8 +19,8 @@ import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.ServiceInstanceBinding;
 import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
 import de.evoila.cf.broker.service.impl.BindingServiceImpl;
-import de.evoila.cf.broker.service.postgres.PostgresSqlImplementation;
-import de.evoila.cf.broker.service.postgres.PostgresSqlRoleImplementation;
+import de.evoila.cf.broker.service.postgres.PostgresCustomImplementation;
+import de.evoila.cf.broker.service.postgres.jdbc.JdbcService;
 
 /**
  * @author Johannes Hiemer.
@@ -32,30 +32,58 @@ public class PostgresBindingService extends BindingServiceImpl {
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
-	private PostgresSqlImplementation postgresSqlImplementation;
+	private JdbcService jdbcService;
 
 	@Autowired
-	private PostgresSqlRoleImplementation postgresSqlRoleImplementation;
+	private PostgresCustomImplementation postgresCustomImplementation;
+	
+	private boolean connection(ServiceInstance serviceInstance) throws SQLException {
+		if (jdbcService.isConnected())
+			return true;
+		else {
+			jdbcService.createConnection(serviceInstance.getId(), 
+					serviceInstance.getHost(), serviceInstance.getPort());
+		}
+		return true;
+	}
 
-	public void create(String instanceId, Plan plan) throws SQLException {
-		postgresSqlImplementation.executeUpdate("CREATE DATABASE \"" + instanceId + "\" ENCODING 'UTF8'");
-		postgresSqlImplementation.executeUpdate("REVOKE all on database \"" + instanceId + "\" from public");
-
+	public void create(ServiceInstance serviceInstance, Plan plan) throws SQLException {
+		connection(serviceInstance);
+		
+		String instanceId = serviceInstance.getId();
+		
+		jdbcService.executeUpdate("CREATE DATABASE \"" + instanceId + "\" ENCODING 'UTF8'");
+		jdbcService.executeUpdate("REVOKE all on database \"" + instanceId + "\" from public");
+	}
+	
+	public void delete(ServiceInstance serviceInstance, Plan plan) throws SQLException {
+		connection(serviceInstance);
+		
+		String instanceId = serviceInstance.getId();
+		
+		jdbcService.executeUpdate("REVOKE all on database \"" + instanceId + "\" from public");
+		jdbcService.executeUpdate("DROP DATABASE \"" + instanceId + "\"");
 	}
 
 	@Override
-	protected ServiceInstanceBindingResponse bindService(
-			ServiceInstance serviceInstance, Plan plan) throws ServiceBrokerException {
-		String passwd = "";
-
+	protected ServiceInstanceBindingResponse bindService(ServiceInstance serviceInstance, 
+			Plan plan) throws ServiceBrokerException {
+		
 		try {
-			passwd = postgresSqlRoleImplementation.bindRoleToDatabase(serviceInstance.getId());
+			connection(serviceInstance);
+		} catch (SQLException e1) {
+			throw new ServiceBrokerException("Could not connect to database");
+		}
+		
+		String password = "";
+		try {
+			password = postgresCustomImplementation.bindRoleToDatabase(serviceInstance.getId());
 		} catch (SQLException e) {
 			log.error(e.toString());
 		}
 
-		String dbURL = String.format("postgres://%s:%s@%s:%d/%s", serviceInstance.getId(), passwd,
-				postgresSqlImplementation.getHost(), postgresSqlImplementation.getPort(), serviceInstance.getId());
+		String dbURL = String.format("postgres://%s:%s@%s:%d/%s", serviceInstance.getId(), password,
+				jdbcService.getHost(), jdbcService.getPort(), serviceInstance.getId());
 
 		Map<String, Object> credentials = new HashMap<String, Object>();
 		credentials.put("uri", dbURL);
@@ -64,10 +92,15 @@ public class PostgresBindingService extends BindingServiceImpl {
 	}
 
 	@Override
-	protected void deleteBinding(ServiceInstance serviceInstance)
-			throws ServiceBrokerException {
+	protected void deleteBinding(ServiceInstance serviceInstance) throws ServiceBrokerException {
 		try {
-			postgresSqlRoleImplementation.unBindRoleFromDatabase(serviceInstance.getId());
+			connection(serviceInstance);
+		} catch (SQLException e1) {
+			throw new ServiceBrokerException("Could not connect to database");
+		}
+		
+		try {
+			postgresCustomImplementation.unBindRoleFromDatabase(serviceInstance.getId());
 		} catch (SQLException e) {
 			log.error(e.toString());
 		}

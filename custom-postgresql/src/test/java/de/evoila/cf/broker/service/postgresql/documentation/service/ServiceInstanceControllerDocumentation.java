@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.evoila.cf.broker.postgresql.documentation.service;
+package de.evoila.cf.broker.service.postgresql.documentation.service;
 
 import static org.springframework.restdocs.RestDocumentation.document;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -12,8 +12,8 @@ import java.io.IOException;
 import org.junit.Test;
 import org.springframework.http.MediaType;
 
-import de.evoila.cf.broker.postresql.MockMvcTest;
-import de.evoila.cf.broker.postresql.ObjectMappingConverter;
+import de.evoila.cf.broker.service.MockMvcTest;
+import de.evoila.cf.broker.service.ObjectMappingConverter;
 
 /**
  * 

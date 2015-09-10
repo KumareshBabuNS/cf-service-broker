@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.evoila.cf.broker.controller;
+package de.evoila.cf.broker.service.controller;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -24,6 +24,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import de.evoila.cf.broker.controller.ServiceInstanceController;
 import de.evoila.cf.broker.model.CreateServiceInstanceResponse;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.fixture.CreateServiceInstanceResponseFixture;

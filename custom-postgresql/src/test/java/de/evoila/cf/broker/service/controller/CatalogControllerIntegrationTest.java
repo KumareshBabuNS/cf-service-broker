@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.evoila.cf.broker.controller;
+package de.evoila.cf.broker.service.controller;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;

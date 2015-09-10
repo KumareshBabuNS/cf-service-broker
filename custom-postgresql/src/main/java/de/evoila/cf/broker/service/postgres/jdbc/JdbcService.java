@@ -1,10 +1,10 @@
 /**
  * 
  */
-package de.evoila.cf.broker.service.postgres;
+package de.evoila.cf.broker.service.postgres.jdbc;
 
-import java.net.URI;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class PostgresSqlImplementation {
+public class JdbcService {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -33,17 +33,18 @@ public class PostgresSqlImplementation {
 
     private int port;
     
-    public void createConnection(String host, String port) throws SQLException {
+    public void createConnection(String instanceId, String host, int port) {
     	try {
-            String jdbcUrl = connection.getMetaData().getURL();
-            String cleanJdbcUrl = jdbcUrl.replace("jdbc:", "");
-
-            URI uri = new URI(cleanJdbcUrl);
-            this.host = uri.getHost();
-            this.port = (uri.getPort() == -1 ? 5432 : uri.getPort());
-        } catch (Exception e) {
-            throw new SQLException("Unable to get databaseHost and/or databasePort from Connection", e);
+          Class.forName("org.postgresql.Driver");
+          String url = "jdbc:postgresql://"+ host + ":" + port + "/" + instanceId;
+          connection = DriverManager.getConnection(url, instanceId, instanceId);
+        } catch (ClassNotFoundException | SQLException e) {
+        	log.info("Could not establish connection", e);
         }
+    }
+    
+    public boolean isConnected() throws SQLException {
+    	return connection != null && !connection.isClosed();
     }
 
     public void checkValidUUID(String instanceId) throws SQLException{

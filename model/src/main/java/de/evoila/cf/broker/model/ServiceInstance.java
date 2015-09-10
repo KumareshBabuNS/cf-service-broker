@@ -49,6 +49,12 @@ public class ServiceInstance {
 
 	@JsonIgnore
 	private String internalId;
+	
+	@JsonIgnore
+	private int port;
+	
+	@JsonIgnore
+	private String host;
 
 	@SuppressWarnings("unused")
 	private ServiceInstance() {
@@ -82,6 +88,16 @@ public class ServiceInstance {
 				serviceInstance.organizationGuid, serviceInstance.spaceGuid, serviceInstance.parameters);
 		setInternalId(internalId);
 		setDashboardUrl(dashboardUrl);
+	}
+	
+	public ServiceInstance(ServiceInstance serviceInstance, String dashboardUrl, String internalId,
+			String host, int port) {
+		initialize(serviceInstance.id, serviceInstance.serviceDefinitionId, serviceInstance.planId,
+				serviceInstance.organizationGuid, serviceInstance.spaceGuid, serviceInstance.parameters);
+		setInternalId(internalId);
+		setDashboardUrl(dashboardUrl);
+		setHost(host);
+		setPort(port);
 	}
 
 	public ServiceInstance(String serviceInstanceId, String serviceDefinitionId, String planId, String organizationGuid,
@@ -151,6 +167,22 @@ public class ServiceInstance {
 
 	private void setInternalId(String internalId) {
 		this.internalId = internalId;
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
+	}
+
+	public String getHost() {
+		return host;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
 	}
 
 }
