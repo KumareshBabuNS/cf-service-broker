@@ -36,7 +36,7 @@ public class JdbcService {
     public void createConnection(String instanceId, String host, int port) {
     	try {
           Class.forName("org.postgresql.Driver");
-          String url = "jdbc:postgresql://"+ host + ":" + port + "/" + instanceId;
+          String url = "jdbc:postgresql://"+ host + ":" + port + "/postgres";
           connection = DriverManager.getConnection(url, instanceId, instanceId);
         } catch (ClassNotFoundException | SQLException e) {
         	log.info("Could not establish connection", e);

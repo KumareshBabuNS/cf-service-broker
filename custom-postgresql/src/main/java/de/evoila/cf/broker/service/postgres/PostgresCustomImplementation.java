@@ -38,12 +38,13 @@ public class PostgresCustomImplementation {
 
         SecureRandom random = new SecureRandom();
         String passwd = new BigInteger(130, random).toString(32);
-
+        
+        jdbcService.executeUpdate("CREATE ROLE \"" + dbInstanceId + "\"");
         jdbcService.executeUpdate("ALTER ROLE \"" + dbInstanceId + "\" LOGIN password '" + passwd + "'");
         return passwd;
     }
 
-    public void unBindRoleFromDatabase(String dbInstanceId) throws SQLException{
+    public void unbindRoleFromDatabase(String dbInstanceId) throws SQLException{
         jdbcService.checkValidUUID(dbInstanceId);
         jdbcService.executeUpdate("ALTER ROLE \"" + dbInstanceId + "\" NOLOGIN");
     }

@@ -66,7 +66,7 @@ public class PostgresBindingService extends BindingServiceImpl {
 	}
 
 	@Override
-	protected ServiceInstanceBindingResponse bindService(ServiceInstance serviceInstance, 
+	protected ServiceInstanceBindingResponse bindService(String bindingId, ServiceInstance serviceInstance, 
 			Plan plan) throws ServiceBrokerException {
 		
 		try {
@@ -77,7 +77,7 @@ public class PostgresBindingService extends BindingServiceImpl {
 		
 		String password = "";
 		try {
-			password = postgresCustomImplementation.bindRoleToDatabase(serviceInstance.getId());
+			password = postgresCustomImplementation.bindRoleToDatabase(bindingId);
 		} catch (SQLException e) {
 			log.error(e.toString());
 		}
@@ -92,7 +92,7 @@ public class PostgresBindingService extends BindingServiceImpl {
 	}
 
 	@Override
-	protected void deleteBinding(ServiceInstance serviceInstance) throws ServiceBrokerException {
+	protected void deleteBinding(String bindingId, ServiceInstance serviceInstance) throws ServiceBrokerException {
 		try {
 			connection(serviceInstance);
 		} catch (SQLException e1) {
@@ -100,7 +100,7 @@ public class PostgresBindingService extends BindingServiceImpl {
 		}
 		
 		try {
-			postgresCustomImplementation.unBindRoleFromDatabase(serviceInstance.getId());
+			postgresCustomImplementation.unbindRoleFromDatabase(bindingId);
 		} catch (SQLException e) {
 			log.error(e.toString());
 		}

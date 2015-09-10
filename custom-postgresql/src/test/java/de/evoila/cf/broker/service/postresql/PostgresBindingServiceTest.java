@@ -6,6 +6,8 @@ package de.evoila.cf.broker.service.postresql;
 import java.sql.SQLException;
 import java.util.UUID;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,8 @@ import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.data.ServiceInstanceData;
 import de.evoila.cf.broker.service.MockMvcTest;
 import de.evoila.cf.broker.service.custom.PostgresBindingService;
+import de.evoila.cf.broker.service.impl.StorageService;
+import de.evoila.cf.broker.service.postgres.jdbc.JdbcService;
 
 /**
  * @author Johannes Hiemer.
@@ -34,12 +38,29 @@ public class PostgresBindingServiceTest extends MockMvcTest {
 	@Autowired
 	private PostgresBindingService postgresBindingService;
 	
+	@Autowired
+	private StorageService storageService;
+	
+	@Autowired
+	private JdbcService jdbcService;
+	
 	@BeforeClass
 	public static void beforeClass() {
 		serviceInstance = ServiceInstanceData.createOpenstackData();
 		serviceInstance.setHost("172.16.248.144");
 		serviceInstance.setPort(5432);
 		plan = ServiceInstanceData.createOpenstackPlanData();
+	}
+	
+	@Before
+	public void before() throws SQLException {
+		jdbcService.createConnection("postgres", serviceInstance.getHost(), serviceInstance.getPort());
+		jdbcService.executeUpdate("CREATE ROLE \"" + serviceInstance.getId() + "\" LOGIN password '" + serviceInstance.getId() + "'");
+	}
+	
+	@After
+	public void after() throws SQLException {
+		jdbcService.executeUpdate("DROP ROLE IF EXISTS \"" + serviceInstance.getId() + "\"");
 	}
 	
 	@Test
@@ -51,6 +72,8 @@ public class PostgresBindingServiceTest extends MockMvcTest {
 	@Test
 	public void testBinding() throws SQLException, ServiceInstanceBindingExistsException, ServiceBrokerException, 
 		ServiceInstanceDoesNotExistException, ServiceDefinitionDoesNotExistException, ServerviceInstanceBindingDoesNotExistsException {
+		storageService.addServiceInstance(serviceInstance.getId(), serviceInstance);
+		
 		postgresBindingService.create(serviceInstance, plan);
 		String bindingId = UUID.randomUUID().toString();
 		String appGuid = UUID.randomUUID().toString();
@@ -62,7 +85,5 @@ public class PostgresBindingServiceTest extends MockMvcTest {
 		postgresBindingService.delete(serviceInstance, plan);
 		
 	}
-	
-	
 
 }
