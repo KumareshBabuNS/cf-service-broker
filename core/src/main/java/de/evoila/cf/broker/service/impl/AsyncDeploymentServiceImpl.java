@@ -26,7 +26,7 @@ public class AsyncDeploymentServiceImpl implements AsyncDeploymentService {
 	private Map<String, String> jobProgress = new ConcurrentHashMap<String, String>();
 	
 	@Autowired
-	private DeploymentServiceImpl deplymentSerive;
+	private DeploymentServiceImpl deploymentService;
 	
 	@Async
 	@Override
@@ -34,7 +34,7 @@ public class AsyncDeploymentServiceImpl implements AsyncDeploymentService {
 		jobProgress.put(serviceInstance.getId(), IN_PROGRESS);
 
 		try {
-			deplymentSerive.syncCreateInstance(serviceInstance, plan, platformService);
+			deploymentService.syncCreateInstance(serviceInstance, plan, platformService);
 		} catch (ServiceBrokerException e) {
 			jobProgress.put(serviceInstance.getId(), FAILED);
 			e.printStackTrace();
@@ -51,7 +51,7 @@ public class AsyncDeploymentServiceImpl implements AsyncDeploymentService {
 		jobProgress.put(instanceId, IN_PROGRESS);
 
 		try {
-			deplymentSerive.syncDeleteInstance(serviceInstance, platformService);
+			deploymentService.syncDeleteInstance(serviceInstance, platformService);
 		} catch (ServiceBrokerException e) {
 			jobProgress.put(instanceId, FAILED);
 			e.printStackTrace();
