@@ -14,19 +14,19 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  * @author Christian Brinker, evoila.
  */
 @JsonAutoDetect(getterVisibility = Visibility.NONE)
-public class CreateServiceInstanceResponse {
+public class ServiceInstanceResponse {
 
 	private String dashboardUrl;
 	private boolean isAsync;
 
-	public CreateServiceInstanceResponse() {
+	public ServiceInstanceResponse() {
 	}
 
-	public CreateServiceInstanceResponse(ServiceInstance serviceInstance, boolean isAsync) {
+	public ServiceInstanceResponse(ServiceInstance serviceInstance, boolean isAsync) {
 		this.dashboardUrl = serviceInstance.getDashboardUrl();
 	}
 
-	public CreateServiceInstanceResponse(String dashboardUrl) {
+	public ServiceInstanceResponse(String dashboardUrl) {
 		this.dashboardUrl = dashboardUrl;
 	}
 

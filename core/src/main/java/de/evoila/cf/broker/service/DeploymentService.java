@@ -9,7 +9,7 @@ import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.exception.ServiceDefinitionDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceExistsException;
-import de.evoila.cf.broker.model.CreateServiceInstanceResponse;
+import de.evoila.cf.broker.model.ServiceInstanceResponse;
 import de.evoila.cf.broker.model.JobProgress;
 
 /**
@@ -44,7 +44,7 @@ public abstract interface DeploymentService {
 	 * @param plan
 	 * @return new ServiceInstance with updated fields
 	 */
-	public CreateServiceInstanceResponse createServiceInstance(String serviceInstanceId, String serviceDefinitionId,
+	public ServiceInstanceResponse createServiceInstance(String serviceInstanceId, String serviceDefinitionId,
 			String planId, String organizationGuid, String spaceGuid, Map<String, String> parameters)
 					throws ServiceInstanceExistsException, ServiceBrokerException,
 					ServiceDefinitionDoesNotExistException;

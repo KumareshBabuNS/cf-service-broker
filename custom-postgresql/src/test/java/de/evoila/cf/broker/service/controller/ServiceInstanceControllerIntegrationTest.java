@@ -25,7 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import de.evoila.cf.broker.controller.ServiceInstanceController;
-import de.evoila.cf.broker.model.CreateServiceInstanceResponse;
+import de.evoila.cf.broker.model.ServiceInstanceResponse;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.fixture.CreateServiceInstanceResponseFixture;
 import de.evoila.cf.broker.model.fixture.ServiceFixture;
@@ -147,7 +147,7 @@ public class ServiceInstanceControllerIntegrationTest {
 	@Test
 	public void badJsonServiceInstanceCreationFails() throws Exception {
 		ServiceInstance instance = ServiceInstanceFixture.getServiceInstance();
-		CreateServiceInstanceResponse response = CreateServiceInstanceResponseFixture
+		ServiceInstanceResponse response = CreateServiceInstanceResponseFixture
 				.getCreateServiceInstanceResponse();
 
 		when(deploymentService.createServiceInstance(any(String.class), any(String.class), any(String.class),
@@ -167,7 +167,7 @@ public class ServiceInstanceControllerIntegrationTest {
 	@Test
 	public void badJsonServiceInstanceCreationFailsMissingFields() throws Exception {
 		ServiceInstance instance = ServiceInstanceFixture.getServiceInstance();
-		CreateServiceInstanceResponse response = CreateServiceInstanceResponseFixture
+		ServiceInstanceResponse response = CreateServiceInstanceResponseFixture
 				.getCreateServiceInstanceResponse();
 
 		when(deploymentService.createServiceInstance(any(String.class), any(String.class), any(String.class),

@@ -3,7 +3,7 @@
  */
 package de.evoila.cf.broker.model.fixture;
 
-import de.evoila.cf.broker.model.CreateServiceInstanceResponse;
+import de.evoila.cf.broker.model.ServiceInstanceResponse;
 
 /**
  * @author Christian Brinker, evoila.
@@ -11,8 +11,8 @@ import de.evoila.cf.broker.model.CreateServiceInstanceResponse;
  */
 public class CreateServiceInstanceResponseFixture {
 
-	public static CreateServiceInstanceResponse getCreateServiceInstanceResponse() {
-		return new CreateServiceInstanceResponse();
+	public static ServiceInstanceResponse getCreateServiceInstanceResponse() {
+		return new ServiceInstanceResponse();
 	}
 
 }

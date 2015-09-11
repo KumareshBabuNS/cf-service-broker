@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  * @author Johannes Hiemer.
  */
 @JsonAutoDetect(getterVisibility = Visibility.NONE)
-public class CreateServiceInstanceRequest {
+public class ServiceInstanceRequest {
 
 	@NotEmpty
 	@JsonSerialize
@@ -43,9 +43,9 @@ public class CreateServiceInstanceRequest {
 	@JsonProperty("parameters")
 	private Map<String, String> parameters;
 	
-	public CreateServiceInstanceRequest() {}
+	public ServiceInstanceRequest() {}
 	
-	public CreateServiceInstanceRequest(String serviceDefinitionId, String planId, String organizationGuid, String spaceGuid) {
+	public ServiceInstanceRequest(String serviceDefinitionId, String planId, String organizationGuid, String spaceGuid) {
 		this.serviceDefinitionId = serviceDefinitionId;
 		this.planId = planId;
 		this.organizationGuid = organizationGuid;

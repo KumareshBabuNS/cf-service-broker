@@ -22,8 +22,8 @@ import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.exception.ServiceDefinitionDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceExistsException;
-import de.evoila.cf.broker.model.CreateServiceInstanceRequest;
-import de.evoila.cf.broker.model.CreateServiceInstanceResponse;
+import de.evoila.cf.broker.model.ServiceInstanceRequest;
+import de.evoila.cf.broker.model.ServiceInstanceResponse;
 import de.evoila.cf.broker.model.ErrorMessage;
 import de.evoila.cf.broker.model.JobProgress;
 import de.evoila.cf.broker.model.ServiceDefinition;
@@ -50,10 +50,10 @@ public class ServiceInstanceController extends BaseController {
 	private CatalogService catalogService;
 
 	@RequestMapping(value = "/service_instances/{instanceId}", method = RequestMethod.PUT)
-	public ResponseEntity<CreateServiceInstanceResponse> createServiceInstance(
+	public ResponseEntity<ServiceInstanceResponse> createServiceInstance(
 			@PathVariable("instanceId") String serviceInstanceId,
 			@RequestParam(value="accepts_incomplete", required=false) Boolean acceptsIncomplete,
-			@Valid @RequestBody CreateServiceInstanceRequest request) throws ServiceDefinitionDoesNotExistException,
+			@Valid @RequestBody ServiceInstanceRequest request) throws ServiceDefinitionDoesNotExistException,
 					ServiceInstanceExistsException, ServiceBrokerException, AsyncRequiredException {
 
 		if (acceptsIncomplete == null) {
@@ -69,16 +69,16 @@ public class ServiceInstanceController extends BaseController {
 			throw new ServiceDefinitionDoesNotExistException(request.getServiceDefinitionId());
 		}
 
-		CreateServiceInstanceResponse response = deploymentService.createServiceInstance(serviceInstanceId,
+		ServiceInstanceResponse response = deploymentService.createServiceInstance(serviceInstanceId,
 				request.getServiceDefinitionId(), request.getPlanId(), request.getOrganizationGuid(),
 				request.getSpaceGuid(), request.getParameters());
 
 		logger.debug("ServiceInstance Created: " + serviceInstanceId);
 
 		if (response.isAsync())
-			return new ResponseEntity<CreateServiceInstanceResponse>(response, HttpStatus.ACCEPTED);
+			return new ResponseEntity<ServiceInstanceResponse>(response, HttpStatus.ACCEPTED);
 		else
-			return new ResponseEntity<CreateServiceInstanceResponse>(response, HttpStatus.CREATED);
+			return new ResponseEntity<ServiceInstanceResponse>(response, HttpStatus.CREATED);
 	}
 
 	@RequestMapping(value = "/service_instances/{instanceId}/last_operation", method = RequestMethod.GET)

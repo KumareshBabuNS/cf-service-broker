@@ -11,8 +11,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
-import de.evoila.cf.broker.model.CreateServiceInstanceRequest;
-import de.evoila.cf.broker.model.CreateServiceInstanceResponse;
+import de.evoila.cf.broker.model.ServiceInstanceRequest;
+import de.evoila.cf.broker.model.ServiceInstanceResponse;
 import de.evoila.cf.broker.model.ServiceDefinition;
 import de.evoila.cf.broker.model.ServiceInstance;
 
@@ -46,9 +46,9 @@ public class ServiceInstanceFixture {
 		return "service-instance-id";
 	}
 
-	public static CreateServiceInstanceRequest getCreateServiceInstanceRequest() {
+	public static ServiceInstanceRequest getCreateServiceInstanceRequest() {
 		ServiceDefinition service = ServiceFixture.getService();
-		return new CreateServiceInstanceRequest(service.getId(), service.getPlans().get(0).getId(),
+		return new ServiceInstanceRequest(service.getId(), service.getPlans().get(0).getId(),
 				DataFixture.getOrgOneGuid(), DataFixture.getSpaceOneGuid());
 	}
 
@@ -57,8 +57,8 @@ public class ServiceInstanceFixture {
 		return DataFixture.toJson(getCreateServiceInstanceRequest());
 	}
 
-	public static CreateServiceInstanceResponse getCreateServiceInstanceResponse() {
-		return new CreateServiceInstanceResponse("service-instance-url");
+	public static ServiceInstanceResponse getCreateServiceInstanceResponse() {
+		return new ServiceInstanceResponse("service-instance-url");
 	}
 
 }

@@ -14,7 +14,7 @@ import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.exception.ServiceDefinitionDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceExistsException;
-import de.evoila.cf.broker.model.CreateServiceInstanceResponse;
+import de.evoila.cf.broker.model.ServiceInstanceResponse;
 import de.evoila.cf.broker.model.JobProgress;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.Platform;
@@ -54,7 +54,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 	}
 
 	@Override
-	public CreateServiceInstanceResponse createServiceInstance(String serviceInstanceId, String serviceDefinitionId,
+	public ServiceInstanceResponse createServiceInstance(String serviceInstanceId, String serviceDefinitionId,
 			String planId, String organizationGuid, String spaceGuid, Map<String, String> parameters)
 					throws ServiceInstanceExistsException, ServiceBrokerException,
 					ServiceDefinitionDoesNotExistException {
@@ -75,7 +75,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 			return syncCreateInstance(serviceInstance, plan, platformService);
 		} else {
 			ServiceInstance promise = platformService.getCreateInstancePromise(serviceInstance, plan);
-			CreateServiceInstanceResponse creationResult = new CreateServiceInstanceResponse(promise, true);
+			ServiceInstanceResponse creationResult = new ServiceInstanceResponse(promise, true);
 			storageService.addServiceInstance(promise.getId(), serviceInstance);
 
 			asyncDeploymentService.asyncCreateInstance(serviceInstance, plan, platformService);
@@ -84,7 +84,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 		}
 	}
 
-	CreateServiceInstanceResponse syncCreateInstance(ServiceInstance serviceInstance, Plan plan,
+	ServiceInstanceResponse syncCreateInstance(ServiceInstance serviceInstance, Plan plan,
 			PlatformService platformService) throws ServiceBrokerException {
 		ServiceInstance createdServiceInstance = platformService.createInstance(serviceInstance, plan);
 
@@ -95,7 +95,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 			throw new ServiceBrokerException(
 					"Internal error. Service instance was not created. ID was: " + serviceInstance.getId());
 		}
-		return new CreateServiceInstanceResponse(createdServiceInstance, false);
+		return new ServiceInstanceResponse(createdServiceInstance, false);
 	}
 
 	/**
