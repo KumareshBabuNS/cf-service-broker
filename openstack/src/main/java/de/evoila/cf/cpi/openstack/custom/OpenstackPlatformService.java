@@ -17,7 +17,7 @@ import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceInstance;
-import de.evoila.cf.broker.service.impl.DeploymentServiceImpl;
+import de.evoila.cf.broker.repository.PlattformRepository;
 import de.evoila.cf.cpi.openstack.OpenstackServiceFactory;
 
 /**
@@ -27,14 +27,14 @@ import de.evoila.cf.cpi.openstack.OpenstackServiceFactory;
  */
 @Service
 public class OpenstackPlatformService extends OpenstackServiceFactory {
-	
+
 	@Autowired
-	private DeploymentServiceImpl deploymentServiceImpl;
-	
+	private PlattformRepository plattformRepositroy;
+
 	@PostConstruct
 	@Override
 	public void registerCustomPlatformServie() {
-		deploymentServiceImpl.addPlatformService(Platform.OPENSTACK, this);
+		plattformRepositroy.addPlatform(Platform.OPENSTACK, this);
 	}
 
 	@Override
@@ -53,41 +53,40 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 	}
 
 	@Override
-	public ServiceInstance postProvisioning(ServiceInstance serviceInstance,
-			Plan plan) throws ServiceBrokerException {
+	public ServiceInstance postProvisioning(ServiceInstance serviceInstance, Plan plan) throws ServiceBrokerException {
 		return new ServiceInstance(serviceInstance, null, null);
 	}
 
-	
 	@Override
 	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan) {
 		Map<String, String> customParameters = new HashMap<String, String>();
 		customParameters.put("flavor", plan.getFlavorId());
 		customParameters.put("volume_size", String.valueOf(plan.getVolumeSize()));
-		
+
 		String instanceId = serviceInstance.getId();
-		
+
 		customParameters.put("database_name", instanceId);
 		customParameters.put("database_user", instanceId);
 		customParameters.put("database_password", instanceId);
-		
+
 		try {
 			this.create(instanceId, customParameters);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+
 		return new ServiceInstance(serviceInstance, "http://currently.not/available", this.uniqueName(instanceId),
-			this.primaryIp(instanceId), this.defaultPort);
+				this.primaryIp(instanceId), this.defaultPort);
 	}
 
 	@Override
-	public ServiceInstance getCreateInstancePromise(ServiceInstance instance, Plan plan) {		
+	public ServiceInstance getCreateInstancePromise(ServiceInstance instance, Plan plan) {
 		return null;
 	}
-	
+
 	@Override
-	public void preDeprovisionServiceInstance(ServiceInstance serviceInstance) {}
+	public void preDeprovisionServiceInstance(ServiceInstance serviceInstance) {
+	}
 
 	@Override
 	public void deleteServiceInstance(ServiceInstance serviceInstance)

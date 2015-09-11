@@ -20,9 +20,9 @@ import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.data.ServiceInstanceData;
+import de.evoila.cf.broker.repository.ServiceInstanceRepository;
 import de.evoila.cf.broker.service.MockMvcTest;
 import de.evoila.cf.broker.service.custom.PostgresBindingService;
-import de.evoila.cf.broker.service.impl.StorageService;
 import de.evoila.cf.broker.service.postgres.jdbc.JdbcService;
 
 /**
@@ -39,7 +39,7 @@ public class PostgresBindingServiceTest extends MockMvcTest {
 	private PostgresBindingService postgresBindingService;
 	
 	@Autowired
-	private StorageService storageService;
+	private ServiceInstanceRepository storageService;
 	
 	@Autowired
 	private JdbcService jdbcService;

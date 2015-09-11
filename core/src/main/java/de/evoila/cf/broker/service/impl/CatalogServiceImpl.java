@@ -1,7 +1,7 @@
 package de.evoila.cf.broker.service.impl;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,14 +15,14 @@ import de.evoila.cf.broker.service.CatalogService;
  * configure in spring config)
  * 
  * @author sgreenberg@gopivotal.com
- *
+ * @author Christian Brinker, evoila.
  */
 @Service
 public class CatalogServiceImpl implements CatalogService {
 
 	private Catalog catalog;
 
-	private Map<String, ServiceDefinition> serviceDefs = new HashMap<String, ServiceDefinition>();
+	private Map<String, ServiceDefinition> serviceDefs = new ConcurrentHashMap<String, ServiceDefinition>();
 
 	@Autowired
 	public CatalogServiceImpl(Catalog catalog) {

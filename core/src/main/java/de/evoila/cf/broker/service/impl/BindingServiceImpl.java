@@ -14,6 +14,9 @@ import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
+import de.evoila.cf.broker.repository.BindingRepository;
+import de.evoila.cf.broker.repository.ServiceDefinitionRepository;
+import de.evoila.cf.broker.repository.ServiceInstanceRepository;
 import de.evoila.cf.broker.service.BindingService;
 
 /**
@@ -22,55 +25,61 @@ import de.evoila.cf.broker.service.BindingService;
  */
 @Service
 public abstract class BindingServiceImpl implements BindingService {
-	
+
 	@Autowired
-	private StorageService storageService;
-	
+	private BindingRepository bindingRepository;
+
+	@Autowired
+	private ServiceDefinitionRepository serviceDefinitionRepository;
+
+	@Autowired
+	private ServiceInstanceRepository serviceInstanceRepository;
+
 	protected abstract ServiceInstanceBindingResponse bindService(String bindingId, ServiceInstance instance, Plan plan)
 			throws ServiceBrokerException;
-	
-	protected abstract void deleteBinding(String bindingId, ServiceInstance serviceInstance) throws ServiceBrokerException;
-	
+
+	protected abstract void deleteBinding(String bindingId, ServiceInstance serviceInstance)
+			throws ServiceBrokerException;
+
 	@Override
-	public ServiceInstanceBindingResponse createServiceInstanceBinding(
-			String bindingId, String instanceId, String serviceId, String planId, String appGuid)
-			throws ServiceInstanceBindingExistsException, ServiceBrokerException, ServiceInstanceDoesNotExistException,
-			ServiceDefinitionDoesNotExistException {
-		
+	public ServiceInstanceBindingResponse createServiceInstanceBinding(String bindingId, String instanceId,
+			String serviceId, String planId, String appGuid)
+					throws ServiceInstanceBindingExistsException, ServiceBrokerException,
+					ServiceInstanceDoesNotExistException, ServiceDefinitionDoesNotExistException {
+
 		validateBindingNotExists(bindingId, instanceId);
 
-		ServiceInstance serviceInstance = storageService.getServiceInstance(instanceId);
+		ServiceInstance serviceInstance = serviceInstanceRepository.getServiceInstance(instanceId);
 
-		Plan plan = storageService.getPlan(planId);
+		Plan plan = serviceDefinitionRepository.getPlan(planId);
 
 		ServiceInstanceBindingResponse response = bindService(bindingId, serviceInstance, plan);
 
-		storageService.addInternalBinding(bindingId, serviceInstance.getId());
+		bindingRepository.addInternalBinding(bindingId, serviceInstance.getId());
 
 		return response;
 	}
 
 	@Override
 	public void deleteServiceInstanceBinding(String bindingId)
-			throws ServiceBrokerException,
-			ServerviceInstanceBindingDoesNotExistsException {
+			throws ServiceBrokerException, ServerviceInstanceBindingDoesNotExistsException {
 		ServiceInstance serviceInstance = getBinding(bindingId);
 		deleteBinding(bindingId, serviceInstance);
 	}
-	
+
 	private void validateBindingNotExists(String bindingId, String instanceId)
 			throws ServiceInstanceBindingExistsException {
-		if (storageService.containsInternalBindingId(bindingId)) {
+		if (bindingRepository.containsInternalBindingId(bindingId)) {
 			throw new ServiceInstanceBindingExistsException(bindingId, instanceId);
 		}
 	}
 
 	private ServiceInstance getBinding(String bindingId) throws ServerviceInstanceBindingDoesNotExistsException {
-		String serviceInstanceId = storageService.getInternalBindingId(bindingId);
+		String serviceInstanceId = bindingRepository.getInternalBindingId(bindingId);
 		if (serviceInstanceId == null) {
 			throw new ServerviceInstanceBindingDoesNotExistsException(bindingId);
 		}
-		return storageService.getServiceInstance(serviceInstanceId);
+		return serviceInstanceRepository.getServiceInstance(serviceInstanceId);
 	}
 
 }

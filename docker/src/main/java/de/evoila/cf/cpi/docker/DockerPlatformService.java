@@ -10,18 +10,18 @@ import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceInstance;
-import de.evoila.cf.broker.service.impl.DeploymentServiceImpl;
+import de.evoila.cf.broker.repository.PlattformRepository;
 
 @Service
 public class DockerPlatformService extends DockerServiceFactory {
 
 	@Autowired
-	private DeploymentServiceImpl deploymentServiceImpl;
+	private PlattformRepository plattformRepository;
 
 	@PostConstruct
 	@Override
 	public void registerCustomPlatformServie() {
-		deploymentServiceImpl.addPlatformService(Platform.DOCKER, this);
+		plattformRepository.addPlatform(Platform.DOCKER, this);
 	}
 
 	@Override

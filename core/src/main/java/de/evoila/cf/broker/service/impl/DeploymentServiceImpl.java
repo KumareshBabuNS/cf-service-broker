@@ -6,7 +6,6 @@ package de.evoila.cf.broker.service.impl;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,11 +13,13 @@ import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.exception.ServiceDefinitionDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceExistsException;
-import de.evoila.cf.broker.model.ServiceInstanceResponse;
 import de.evoila.cf.broker.model.JobProgress;
 import de.evoila.cf.broker.model.Plan;
-import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceInstance;
+import de.evoila.cf.broker.model.ServiceInstanceResponse;
+import de.evoila.cf.broker.repository.PlattformRepository;
+import de.evoila.cf.broker.repository.ServiceDefinitionRepository;
+import de.evoila.cf.broker.repository.ServiceInstanceRepository;
 import de.evoila.cf.broker.service.AsyncDeploymentService;
 import de.evoila.cf.broker.service.DeploymentService;
 import de.evoila.cf.broker.service.PlatformService;
@@ -31,23 +32,22 @@ import de.evoila.cf.broker.service.PlatformService;
 public class DeploymentServiceImpl implements DeploymentService {
 
 	@Autowired
-	private StorageService storageService;
-	
-	public void addPlatformService(Platform platform, PlatformService platformService) {
-		if (storageService.getPlatformService(platform) == null)
-			storageService.addPlatform(platform, platformService);
-		else 
-			throw new BeanCreationException("Cannot add multiple instances of platform service to AbstractDeploymentService");
-	}
-	
-	@Autowired(required=false)
+	private PlattformRepository plattformRepository;
+
+	@Autowired
+	private ServiceDefinitionRepository serviceDefinitionRepository;
+
+	@Autowired
+	private ServiceInstanceRepository serviceInstanceRepository;
+
+	@Autowired(required = false)
 	private AsyncDeploymentService asyncDeploymentService;
 
 	@Override
 	public JobProgress getLastOperation(String serviceInstanceId)
 			throws ServiceInstanceDoesNotExistException, ServiceBrokerException {
 		String progress = asyncDeploymentService.getProgress(serviceInstanceId);
-		if (progress == null || !storageService.containsServiceInstanceId(serviceInstanceId)) {
+		if (progress == null || !serviceInstanceRepository.containsServiceInstanceId(serviceInstanceId)) {
 			throw new ServiceInstanceDoesNotExistException(serviceInstanceId);
 		}
 		return new JobProgress(progress, "");
@@ -59,26 +59,28 @@ public class DeploymentServiceImpl implements DeploymentService {
 					throws ServiceInstanceExistsException, ServiceBrokerException,
 					ServiceDefinitionDoesNotExistException {
 
-		storageService.validateServiceId(serviceDefinitionId);
+		serviceDefinitionRepository.validateServiceId(serviceDefinitionId);
 
-		if (storageService.containsServiceInstanceId(serviceInstanceId)) {
-			throw new ServiceInstanceExistsException(serviceInstanceId, storageService.getServiceDefinition().getId());
+		if (serviceInstanceRepository.containsServiceInstanceId(serviceInstanceId)) {
+			throw new ServiceInstanceExistsException(serviceInstanceId,
+					serviceDefinitionRepository.getServiceDefinition().getId());
 		}
-		ServiceInstance serviceInstance = new ServiceInstance(serviceInstanceId, storageService.getServiceDefinition().getId(), planId,
-				organizationGuid, spaceGuid, parameters==null?null:new ConcurrentHashMap<String, String>(parameters));
+		ServiceInstance serviceInstance = new ServiceInstance(serviceInstanceId,
+				serviceDefinitionRepository.getServiceDefinition().getId(), planId, organizationGuid, spaceGuid,
+				parameters == null ? null : new ConcurrentHashMap<String, String>(parameters));
 
-		Plan plan = storageService.getPlan(planId);
+		Plan plan = serviceDefinitionRepository.getPlan(planId);
 
-		PlatformService platformService = storageService.getPlatformService(plan.getPlatform());
+		PlatformService platformService = plattformRepository.getPlatformService(plan.getPlatform());
 
-		if (platformService.isSyncPossibleOnCreate(plan) && platformService.isSyncPossibleOnCreate(plan)) {
+		if (platformService.isSyncPossibleOnCreate(plan)) {
 			return syncCreateInstance(serviceInstance, plan, platformService);
 		} else {
 			ServiceInstance promise = platformService.getCreateInstancePromise(serviceInstance, plan);
 			ServiceInstanceResponse creationResult = new ServiceInstanceResponse(promise, true);
-			storageService.addServiceInstance(promise.getId(), serviceInstance);
+			serviceInstanceRepository.addServiceInstance(promise.getId(), serviceInstance);
 
-			asyncDeploymentService.asyncCreateInstance(serviceInstance, plan, platformService);
+			asyncDeploymentService.asyncCreateInstance(this, serviceInstance, plan, platformService);
 
 			return creationResult;
 		}
@@ -90,7 +92,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 
 		createdServiceInstance = platformService.postProvisioning(createdServiceInstance, plan);
 		if (createdServiceInstance.getInternalId() != null)
-			storageService.addServiceInstance(createdServiceInstance.getId(), serviceInstance);
+			serviceInstanceRepository.addServiceInstance(createdServiceInstance.getId(), serviceInstance);
 		else {
 			throw new ServiceBrokerException(
 					"Internal error. Service instance was not created. ID was: " + serviceInstance.getId());
@@ -104,7 +106,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 	 * @return
 	 */
 	protected String getInternalId(String instanceId) {
-		return storageService.getServiceInstance(instanceId).getInternalId();
+		return serviceInstanceRepository.getServiceInstance(instanceId).getInternalId();
 	}
 
 	/*
@@ -117,20 +119,21 @@ public class DeploymentServiceImpl implements DeploymentService {
 	@Override
 	public void deleteServiceInstance(String instanceId)
 			throws ServiceBrokerException, ServiceInstanceDoesNotExistException {
-		ServiceInstance serviceInstance = storageService.getServiceInstance(instanceId);
+		ServiceInstance serviceInstance = serviceInstanceRepository.getServiceInstance(instanceId);
 
 		if (serviceInstance == null) {
 			throw new ServiceInstanceDoesNotExistException(instanceId);
 		}
 
-		Plan plan = storageService.getPlan(serviceInstance.getPlanId());
+		Plan plan = serviceDefinitionRepository.getPlan(serviceInstance.getPlanId());
 
-		PlatformService platformService = storageService.getPlatformService(plan.getPlatform());
+		PlatformService platformService = plattformRepository.getPlatformService(plan.getPlatform());
 
-		if (platformService.isSyncPossibleOnDelete(serviceInstance) && platformService.isSyncPossibleOnDelete(serviceInstance)) {
+		if (platformService.isSyncPossibleOnDelete(serviceInstance)
+				&& platformService.isSyncPossibleOnDelete(serviceInstance)) {
 			syncDeleteInstance(serviceInstance, platformService);
 		} else {
-			asyncDeploymentService.asyncDeleteInstance(instanceId, serviceInstance, platformService);
+			asyncDeploymentService.asyncDeleteInstance(this, instanceId, serviceInstance, platformService);
 		}
 
 	}

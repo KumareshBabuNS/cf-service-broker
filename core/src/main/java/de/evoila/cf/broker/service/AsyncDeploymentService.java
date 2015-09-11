@@ -3,6 +3,7 @@ package de.evoila.cf.broker.service;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.ServiceInstance;
+import de.evoila.cf.broker.service.impl.DeploymentServiceImpl;
 
 /**
  * 
@@ -12,10 +13,12 @@ import de.evoila.cf.broker.model.ServiceInstance;
 
 public interface AsyncDeploymentService {
 
-	void asyncCreateInstance(ServiceInstance serviceInstance, Plan plan, PlatformService platformService);
-	
-	void asyncDeleteInstance(String instanceId, ServiceInstance serviceInstance,
-			PlatformService platformService) throws ServiceInstanceDoesNotExistException;
+	void asyncCreateInstance(DeploymentServiceImpl deploymentService, ServiceInstance serviceInstance, Plan plan,
+			PlatformService platformService);
+
+	void asyncDeleteInstance(DeploymentServiceImpl deploymentService, String instanceId,
+			ServiceInstance serviceInstance, PlatformService platformService)
+					throws ServiceInstanceDoesNotExistException;
 
 	String getProgress(String serviceInstanceId);
 }
