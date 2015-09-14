@@ -153,10 +153,10 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 			return null;
 	}
 	
-	protected boolean verifyServiceAvailability(String instanceId) {
+	protected boolean verifyServiceAvailability(String instanceId, int port) {
 		boolean available = false;
 		
-		available = ServicePortAvailabilityVerifier.execute(this.primaryIp(instanceId), 51111);
+		available = ServicePortAvailabilityVerifier.execute(this.primaryIp(instanceId), port);
 			
 		log.info("Service Port availability: " + available);
 		

@@ -1,3 +1,7 @@
+docker.host					= 88.198.249.58
+docker.port					= 2376
+docker.volume.service.port	= 6732
+
 docker.offset			= 37
 docker.imageName		= postgres
 docker.containerPort	= 5432

@@ -22,6 +22,7 @@ import de.evoila.cf.broker.model.Catalog;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceDefinition;
+import de.evoila.cf.broker.model.VolumeUnit;
 
 /**
  * @author Johannes Hiemer, cloudscale.
@@ -78,7 +79,7 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter {
 	public ServiceDefinition serviceDefinition() {
 		Plan plan = new Plan("MongoDB Basic Plan", "500 MB MongoDB Basic Instance",
 				"The most basic MongoDB plan currently available. Providing" + "500 MB of capcity in MongoDB.",
-				Platform.DOCKER, 25, null, 3);
+				Platform.DOCKER, 25, VolumeUnit.M, null, 3);
 
 		ServiceDefinition serviceDefinition = new ServiceDefinition("mongoDB", "MongoDB", "MongoDB Instances", true,
 				Arrays.asList(plan));

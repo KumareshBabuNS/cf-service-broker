@@ -16,6 +16,7 @@ import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceInstance;
+import de.evoila.cf.broker.model.VolumeUnit;
 import de.evoila.cf.cpi.BaseIntegrationTest;
 import de.evoila.cf.cpi.openstack.custom.exception.OpenstackPlatformException;
 
@@ -36,7 +37,7 @@ public class OpenstackPlatformServiceTest extends BaseIntegrationTest {
 	public void before() {
 		plan = new Plan("basic", "500 MB PostgreSQL DB Basic Instance",
 				"The most basic PostgreSQL plan currently available. Providing"
-			+ "500 MB of capcity in a PostgreSQL DB.", Platform.OPENSTACK, 25, "3", 10);
+			+ "500 MB of capcity in a PostgreSQL DB.", Platform.OPENSTACK, 25, VolumeUnit.M, "3", 10);
 		
 		serviceInstance = new ServiceInstance(UUID.randomUUID().toString(), 
 				UUID.randomUUID().toString(), plan.getId(), 

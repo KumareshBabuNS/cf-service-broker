@@ -1,6 +1,7 @@
 package de.evoila.cf.cpi.docker;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -73,8 +74,9 @@ public abstract class DockerServiceFactory implements PlatformService {
 	private String dockerVolumePort;
 
 	private DockerClient createDockerClientInstance() {
-
-		SSLConfig sslConfig = new LocalDirectorySSLConfig(dockerCertPath);
+		URL url = this.getClass().getResource("/docker/");
+		
+		SSLConfig sslConfig = new LocalDirectorySSLConfig(url.getPath());
 		DockerClientConfig dockerClientConfig = new DockerClientConfigBuilder()
 				.withSSLConfig(sslConfig)
 				.withUri("https://" + dockerHost + ":" + dockerPort).build();

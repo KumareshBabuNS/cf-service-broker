@@ -16,6 +16,7 @@ import de.evoila.cf.broker.model.Catalog;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceDefinition;
+import de.evoila.cf.broker.model.VolumeUnit;
 
 /**
  * @author Johannes Hiemer.
@@ -43,12 +44,12 @@ public class IntegrationTestConfiguration {
 	
 	@Bean
 	public ServiceDefinition serviceDefinition() {
-		Plan dockerPlan = new Plan("docker", "25 MB PostgreSQL DB Docker Instance",
+		Plan dockerPlan = new Plan("docker", "PostgreSQL-Docker-25MB",
 				"The most basic PostgreSQL plan currently available. Providing"
-						+ "25 MB of capcity in a PostgreSQL DB.", Platform.DOCKER, 25, null, 4);
-		Plan openstackPlan = new Plan("openstack", "500 MB PostgreSQL DB Openstack Instance",
+						+ "25 MB of capcity in a PostgreSQL DB.", Platform.DOCKER, 25, VolumeUnit.M, null, 4);
+		Plan openstackPlan = new Plan("openstack", "PostgreSQL-VM-500MB",
 				"The most basic PostgreSQL plan currently available. Providing"
-						+ "500 MB of capcity in a PostgreSQL DB.", Platform.OPENSTACK, 500, "3", 10);
+						+ "500 MB of capcity in a PostgreSQL DB.", Platform.OPENSTACK, 500, VolumeUnit.M, "3", 10);
 
 		ServiceDefinition serviceDefinition = new ServiceDefinition("postgres", "postgres", "PostgreSQL Instances",
 				true, Arrays.asList(dockerPlan, openstackPlan));

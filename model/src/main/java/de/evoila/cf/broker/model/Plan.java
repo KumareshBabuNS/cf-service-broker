@@ -35,6 +35,8 @@ public class Plan {
 	
 	private int volumeSize;
 	
+	private VolumeUnit volumeUnit;
+	
 	private Platform platform;
 	
 	private String flavorId;
@@ -43,6 +45,10 @@ public class Plan {
 	
 	public int getVolumeSize() {
 		return volumeSize;
+	}
+	
+	public VolumeUnit getVolumeUnit() {
+		return volumeUnit;
 	}
 
 	public Platform getPlatform() {
@@ -57,7 +63,7 @@ public class Plan {
 		return connections;
 	}
 
-	public Plan(String id, String name, String description, Platform platform, int volumeSize, String flavorId, int connections) {
+	public Plan(String id, String name, String description, Platform platform, int volumeSize, VolumeUnit volumeUnit, String flavorId, int connections) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
@@ -65,10 +71,12 @@ public class Plan {
 		this.volumeSize = volumeSize;
 		this.flavorId = flavorId;
 		this.connections = connections;
+		this.volumeUnit = volumeUnit;
 	}
 
-	public Plan(String id, String name, String description, Map<String,Object> metadata, Platform platform, int volumeSize, String flavor, int connections) {
-		this(id, name, description, platform, volumeSize, flavor, connections);
+	public Plan(String id, String name, String description, Map<String,Object> metadata, Platform platform, int volumeSize, VolumeUnit volumeUnit,
+			String flavor, int connections) {
+		this(id, name, description, platform, volumeSize, volumeUnit, flavor, connections);
 		setMetadata(metadata);
 	}
 	
