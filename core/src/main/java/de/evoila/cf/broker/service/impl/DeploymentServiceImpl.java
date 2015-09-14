@@ -17,7 +17,7 @@ import de.evoila.cf.broker.model.JobProgress;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.ServiceInstanceResponse;
-import de.evoila.cf.broker.repository.PlattformRepository;
+import de.evoila.cf.broker.repository.PlatformRepository;
 import de.evoila.cf.broker.repository.ServiceDefinitionRepository;
 import de.evoila.cf.broker.repository.ServiceInstanceRepository;
 import de.evoila.cf.broker.service.AsyncDeploymentService;
@@ -32,7 +32,7 @@ import de.evoila.cf.broker.service.PlatformService;
 public class DeploymentServiceImpl implements DeploymentService {
 
 	@Autowired
-	private PlattformRepository plattformRepository;
+	private PlatformRepository plattformRepository;
 
 	@Autowired
 	private ServiceDefinitionRepository serviceDefinitionRepository;
@@ -77,18 +77,24 @@ public class DeploymentServiceImpl implements DeploymentService {
 			return syncCreateInstance(serviceInstance, plan, platformService);
 		} else {
 			ServiceInstance promise = platformService.getCreateInstancePromise(serviceInstance, plan);
-			ServiceInstanceResponse creationResult = new ServiceInstanceResponse(promise, true);
+			ServiceInstanceResponse serviceInstanceResponse = new ServiceInstanceResponse(promise, true);
 			serviceInstanceRepository.addServiceInstance(promise.getId(), serviceInstance);
 
 			asyncDeploymentService.asyncCreateInstance(this, serviceInstance, plan, platformService);
 
-			return creationResult;
+			return serviceInstanceResponse;
 		}
 	}
 
 	ServiceInstanceResponse syncCreateInstance(ServiceInstance serviceInstance, Plan plan,
 			PlatformService platformService) throws ServiceBrokerException {
-		ServiceInstance createdServiceInstance = platformService.createInstance(serviceInstance, plan);
+		ServiceInstance createdServiceInstance;
+		try {
+			createdServiceInstance = platformService.createInstance(serviceInstance, plan);
+		} catch (Exception e) {
+			throw new ServiceBrokerException(
+					"Could not create instance due to: " + e.getMessage());
+		}
 
 		createdServiceInstance = platformService.postProvisioning(createdServiceInstance, plan);
 		if (createdServiceInstance.getInternalId() != null)

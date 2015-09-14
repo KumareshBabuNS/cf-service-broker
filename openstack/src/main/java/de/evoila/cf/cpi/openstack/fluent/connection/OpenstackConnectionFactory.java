@@ -25,6 +25,10 @@ public class OpenstackConnectionFactory {
 
 	private static String password;
 	
+	private static String authUrl;
+	
+	private static String tenant;
+	
 	private static String PROVIDER = "openstack-fluent--provider";
 	
 	private static OpenstackConnectionFactory instance = null;
@@ -43,6 +47,8 @@ public class OpenstackConnectionFactory {
 	}
 	
 	public OpenstackConnectionFactory authenticate(String authUrl, String tenant) {
+		OpenstackConnectionFactory.authUrl = authUrl;
+		OpenstackConnectionFactory.tenant = tenant;
 		Assert.notNull(username, "Username may not be empty, when initializing");
 		Assert.notNull(password, "Password may not be empty, when initializing");
 		
@@ -54,6 +60,14 @@ public class OpenstackConnectionFactory {
 						.tenantName(tenant)
 						.authenticate();
 		return instance;
+	}
+	
+	private static void authenticate() {
+		osClient = OSFactory.builder()
+				.endpoint(authUrl)
+				.credentials(username, password)
+				.tenantName(tenant)
+				.authenticate();
 	}
 	
 	public OpenstackConnectionFactory authenticateV3(String authUrl, String tenant) {
@@ -70,6 +84,7 @@ public class OpenstackConnectionFactory {
 	}
 	
 	public static OSClient connection() {
+		authenticate();
 		Assert.notNull(osClient, "Connection must be initialized before called any methods on it");
 		Assert.notNull(osClient.getToken(), "No token defined, connection details are invalid");
 		return osClient;

@@ -798,3 +798,6 @@ java.net.SocketTimeoutException: connect timed out
 	at org.eclipse.jdt.internal.junit.runner.RemoteTestRunner.main(RemoteTestRunner.java:192) [.cp/:na]
 2015-09-05 23:58:21,871 INFO [main] d.e.c.c.o.c.PostgresService [OpenstackServiceFactory.java:140] Service Port availability: false
 2015-09-08 21:38:11,687 INFO [main] d.e.c.c.o.f.c.OpenstackConnectionFactory [OpenstackConnectionFactory.java:49] Initializing Provider:openstack-fluent--provider
+2015-09-11 19:56:39,143 INFO [main] d.e.c.c.o.f.c.OpenstackConnectionFactory [OpenstackConnectionFactory.java:49] Initializing Provider:openstack-fluent--provider
+2015-09-11 19:57:20,042 INFO [main] d.e.c.c.o.f.c.OpenstackConnectionFactory [OpenstackConnectionFactory.java:49] Initializing Provider:openstack-fluent--provider
+2015-09-11 19:57:51,716 INFO [main] d.e.c.c.o.f.c.OpenstackConnectionFactory [OpenstackConnectionFactory.java:49] Initializing Provider:openstack-fluent--provider

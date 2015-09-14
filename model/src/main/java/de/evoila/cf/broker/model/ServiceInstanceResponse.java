@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 public class ServiceInstanceResponse {
 
 	private String dashboardUrl;
+	
 	private boolean isAsync;
 
 	public ServiceInstanceResponse() {
@@ -24,6 +25,7 @@ public class ServiceInstanceResponse {
 
 	public ServiceInstanceResponse(ServiceInstance serviceInstance, boolean isAsync) {
 		this.dashboardUrl = serviceInstance.getDashboardUrl();
+		this.isAsync = true;
 	}
 
 	public ServiceInstanceResponse(String dashboardUrl) {

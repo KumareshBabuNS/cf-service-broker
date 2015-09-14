@@ -17,6 +17,7 @@ import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.cpi.BaseIntegrationTest;
+import de.evoila.cf.cpi.openstack.custom.exception.OpenstackPlatformException;
 
 /**
  * @author Johannes Hiemer.
@@ -29,7 +30,7 @@ public class OpenstackPlatformServiceTest extends BaseIntegrationTest {
 	private ServiceInstance serviceInstance;
 	
 	@Autowired
-	private OpenstackPlatformService openstackPlatformTest;
+	private OpenstackPlatformService openstackPlatformService;
 	
 	@Before
 	public void before() {
@@ -45,41 +46,41 @@ public class OpenstackPlatformServiceTest extends BaseIntegrationTest {
 	
 	@Test
 	public void isSyncPossibleOnCreateTest() {
-		boolean result = openstackPlatformTest.isSyncPossibleOnCreate(plan);
+		boolean result = openstackPlatformService.isSyncPossibleOnCreate(plan);
 		
 		Assert.assertTrue(result == false);
 	}
 	
 	@Test
 	public void isSyncPossibleOnDeleteTest() {
-		boolean result = openstackPlatformTest.isSyncPossibleOnDelete(serviceInstance);
+		boolean result = openstackPlatformService.isSyncPossibleOnDelete(serviceInstance);
 		
 		Assert.assertTrue(result == false);
 	}
 	
 	@Test
 	public void isSyncPossibleOnUpdateTest() {
-		boolean result = openstackPlatformTest.isSyncPossibleOnUpdate(serviceInstance, plan);
+		boolean result = openstackPlatformService.isSyncPossibleOnUpdate(serviceInstance, plan);
 		
 		Assert.assertTrue(result == false);
 	}
 	
 	@Test
-	public void createInstanceTest() throws InterruptedException {
-		openstackPlatformTest.createInstance(serviceInstance, plan);
+	public void createInstanceTest() throws InterruptedException, OpenstackPlatformException {
+		openstackPlatformService.createInstance(serviceInstance, plan);
 	}
 	
 	@Test
 	public void deleteInstanceTest() throws ServiceBrokerException, 
-		ServiceInstanceDoesNotExistException {
-		openstackPlatformTest.createInstance(serviceInstance, plan);
+		ServiceInstanceDoesNotExistException, OpenstackPlatformException {
+		openstackPlatformService.createInstance(serviceInstance, plan);
 		
-		openstackPlatformTest.deleteServiceInstance(serviceInstance);
+		openstackPlatformService.deleteServiceInstance(serviceInstance);
 	}
 	
 	@Test(expected=NotImplementedException.class)
 	public void updateInstanceTest() {
-		openstackPlatformTest.updateInstance(serviceInstance, plan);
+		openstackPlatformService.updateInstance(serviceInstance, plan);
 	}
 
 

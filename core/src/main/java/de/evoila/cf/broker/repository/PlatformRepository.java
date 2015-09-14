@@ -7,7 +7,7 @@ import de.evoila.cf.broker.service.PlatformService;
  * @author Christian Brinker, evoila.
  *
  */
-public interface PlattformRepository {
+public interface PlatformRepository {
 
 	// Depl
 	public void addPlatform(Platform platform, PlatformService platformService);

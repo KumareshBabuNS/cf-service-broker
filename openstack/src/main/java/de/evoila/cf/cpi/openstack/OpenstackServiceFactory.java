@@ -16,6 +16,7 @@ import javax.annotation.PostConstruct;
 
 import org.openstack4j.model.compute.Server;
 import org.openstack4j.model.heat.Stack;
+import org.openstack4j.model.network.Subnet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ import org.springframework.util.Assert;
 import de.evoila.cf.broker.service.PlatformService;
 import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
 import de.evoila.cf.cpi.openstack.fluent.HeatFluent;
+import de.evoila.cf.cpi.openstack.fluent.NeutronFluent;
 import de.evoila.cf.cpi.openstack.fluent.NovaFluent;
 import de.evoila.cf.cpi.openstack.fluent.connection.OpenstackConnectionFactory;
 
@@ -44,6 +46,9 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 	@Autowired
 	private NovaFluent novaFluent;
 	
+	@Autowired
+	private NeutronFluent neutronFluent;
+	
 	@Value("${openstack.endpoint}")
 	private String endpoint;
 
@@ -61,9 +66,6 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 	
 	@Value("${openstack.subnetId}")
 	private String subnetId;
-	
-	@Value("${openstack.subnet}")
-	private String subnet;
 	
 	@Value("${openstack.imageId}")
 	private String imageId;
@@ -111,7 +113,7 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 		return new String(encoded, DEFAULT_ENCODING);
 	}
 	
-	protected Stack create(String instanceId, Map<String, String> customParameters) throws InterruptedException {
+	protected Stack create(String instanceId, Map<String, String> customParameters) throws Exception {
 		Map<String, String> completeParameters = new HashMap<String, String>();
 		completeParameters.putAll(defaultParameters());
 		completeParameters.putAll(customParameters);
@@ -154,11 +156,9 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 	protected boolean verifyServiceAvailability(String instanceId) {
 		boolean available = false;
 		
-		for (Server server : servers(instanceId)) {
-			available = ServicePortAvailabilityVerifier.execute(novaFluent.ip(server, subnet), 51111);
+		available = ServicePortAvailabilityVerifier.execute(this.primaryIp(instanceId), 51111);
 			
-			log.info("Service Port availability: " + available);
-		}
+		log.info("Service Port availability: " + available);
 		
 		return available;
 	}
@@ -170,7 +170,9 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 	}
 	
 	protected String primaryIp(String instanceId) {
-		return novaFluent.ip(this.details(instanceId), instanceId);
+		Subnet subnet = neutronFluent.subnet(networkId, subnetId);
+		 
+		return novaFluent.ip(this.details(instanceId), subnet.getCidr());
 	}
 	
 	protected String uniqueName(String instanceId) {

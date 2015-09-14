@@ -34,13 +34,29 @@ public class ServiceInstanceControllerDocumentation extends MockMvcTest {
 	private ServiceDefinition serviceDefinition;
 
 	@Test
-	public void testLogin() throws IOException, Exception {
+	public void testInstanceCreationSync() throws IOException, Exception {
 		serviceInstanceRequest = ServiceInstanceRequestData.createServiceInstanceRequest(
 				serviceDefinition.getId(), this.getPlanByPlatfromType(serviceDefinition, 
 						"openstack", Platform.OPENSTACK).getId());
 		
 		mockMvc
 			.perform(put("/service_instances/" + UUID.randomUUID().toString())
+					.header("Authorization", "Basic " + this.basicAuth("admin", "cloudfoundry"))
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(ObjectMappingConverter.convertObjectToJsonBytes(serviceInstanceRequest))
+			).andExpect(status().isAccepted())
+			.andDo(document("create-service-instance-example"));
+	}
+	
+	@Test
+	public void testInstanceCreationAsync() throws IOException, Exception {
+		serviceInstanceRequest = ServiceInstanceRequestData.createServiceInstanceRequest(
+				serviceDefinition.getId(), this.getPlanByPlatfromType(serviceDefinition, 
+						"openstack", Platform.OPENSTACK).getId());
+		
+		mockMvc
+			.perform(put("/service_instances/" + UUID.randomUUID().toString())
+					.param("accepts_incomplete", "true")
 					.header("Authorization", "Basic " + this.basicAuth("admin", "cloudfoundry"))
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(ObjectMappingConverter.convertObjectToJsonBytes(serviceInstanceRequest))

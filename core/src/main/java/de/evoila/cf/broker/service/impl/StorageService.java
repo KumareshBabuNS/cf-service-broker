@@ -17,7 +17,7 @@ import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceDefinition;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.repository.BindingRepository;
-import de.evoila.cf.broker.repository.PlattformRepository;
+import de.evoila.cf.broker.repository.PlatformRepository;
 import de.evoila.cf.broker.repository.ServiceDefinitionRepository;
 import de.evoila.cf.broker.repository.ServiceInstanceRepository;
 import de.evoila.cf.broker.service.PlatformService;
@@ -29,7 +29,7 @@ import de.evoila.cf.broker.service.PlatformService;
  */
 @Service
 public class StorageService
-		implements BindingRepository, PlattformRepository, ServiceInstanceRepository, ServiceDefinitionRepository {
+		implements BindingRepository, PlatformRepository, ServiceInstanceRepository, ServiceDefinitionRepository {
 
 	// Service Definition
 

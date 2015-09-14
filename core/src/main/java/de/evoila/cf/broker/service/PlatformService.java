@@ -65,8 +65,9 @@ public abstract interface PlatformService {
 	 * @param instance
 	 * @param plan
 	 * @return new ServiceInstance with updated fields
+	 * @throws Exception 
 	 */
-	public ServiceInstance createInstance(ServiceInstance instance, Plan plan);
+	public ServiceInstance createInstance(ServiceInstance instance, Plan plan) throws Exception;
 
 	/**
 	 * Same result as in PlatformService.createInstance(), but without creating

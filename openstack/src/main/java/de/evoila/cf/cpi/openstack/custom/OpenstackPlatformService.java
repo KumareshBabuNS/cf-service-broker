@@ -17,8 +17,9 @@ import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceInstance;
-import de.evoila.cf.broker.repository.PlattformRepository;
+import de.evoila.cf.broker.repository.PlatformRepository;
 import de.evoila.cf.cpi.openstack.OpenstackServiceFactory;
+import de.evoila.cf.cpi.openstack.custom.exception.OpenstackPlatformException;
 
 /**
  * 
@@ -29,12 +30,12 @@ import de.evoila.cf.cpi.openstack.OpenstackServiceFactory;
 public class OpenstackPlatformService extends OpenstackServiceFactory {
 
 	@Autowired
-	private PlattformRepository plattformRepositroy;
+	private PlatformRepository platformRepositroy;
 
 	@PostConstruct
 	@Override
 	public void registerCustomPlatformServie() {
-		plattformRepositroy.addPlatform(Platform.OPENSTACK, this);
+		platformRepositroy.addPlatform(Platform.OPENSTACK, this);
 	}
 
 	@Override
@@ -54,11 +55,11 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 
 	@Override
 	public ServiceInstance postProvisioning(ServiceInstance serviceInstance, Plan plan) throws ServiceBrokerException {
-		return new ServiceInstance(serviceInstance, null, null);
+		return serviceInstance;
 	}
 
 	@Override
-	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan) {
+	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan) throws OpenstackPlatformException {
 		Map<String, String> customParameters = new HashMap<String, String>();
 		customParameters.put("flavor", plan.getFlavorId());
 		customParameters.put("volume_size", String.valueOf(plan.getVolumeSize()));
@@ -71,8 +72,8 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 
 		try {
 			this.create(instanceId, customParameters);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			throw new OpenstackPlatformException(e);
 		}
 
 		return new ServiceInstance(serviceInstance, "http://currently.not/available", this.uniqueName(instanceId),
@@ -81,7 +82,7 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 
 	@Override
 	public ServiceInstance getCreateInstancePromise(ServiceInstance instance, Plan plan) {
-		return null;
+		return new ServiceInstance(instance, null, null);
 	}
 
 	@Override
