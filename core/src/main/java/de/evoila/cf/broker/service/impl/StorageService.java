@@ -142,7 +142,7 @@ public class StorageService
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.evoila.cf.broker.service.impl.PlattformRepositroy#addPlatform(de.
+	 * @see de.evoila.cf.broker.service.impl.PlatformRepositroy#addPlatform(de.
 	 * evoila.cf.broker.model.Platform,
 	 * de.evoila.cf.broker.service.PlatformService)
 	 */
@@ -151,14 +151,14 @@ public class StorageService
 		if (platformServices.get(platform) == null)
 			platformServices.put(platform, platformService);
 		else
-			throw new BeanCreationException("Cannot add multiple instances of platform service to PlattformRepository");
+			throw new BeanCreationException("Cannot add multiple instances of platform service to PlatformRepository");
 	}
 
 	// Depl
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.evoila.cf.broker.service.impl.PlattformRepositroy#getPlatform(de.
+	 * @see de.evoila.cf.broker.service.impl.PlatformRepositroy#getPlatform(de.
 	 * evoila.cf.broker.model.Platform)
 	 */
 	@Override

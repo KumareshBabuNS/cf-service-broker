@@ -32,7 +32,7 @@ import de.evoila.cf.broker.service.PlatformService;
 public class DeploymentServiceImpl implements DeploymentService {
 
 	@Autowired
-	private PlatformRepository plattformRepository;
+	private PlatformRepository platformRepository;
 
 	@Autowired
 	private ServiceDefinitionRepository serviceDefinitionRepository;
@@ -71,7 +71,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 
 		Plan plan = serviceDefinitionRepository.getPlan(planId);
 
-		PlatformService platformService = plattformRepository.getPlatformService(plan.getPlatform());
+		PlatformService platformService = platformRepository.getPlatformService(plan.getPlatform());
 
 		if (platformService.isSyncPossibleOnCreate(plan)) {
 			return syncCreateInstance(serviceInstance, plan, platformService);
@@ -133,7 +133,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 
 		Plan plan = serviceDefinitionRepository.getPlan(serviceInstance.getPlanId());
 
-		PlatformService platformService = plattformRepository.getPlatformService(plan.getPlatform());
+		PlatformService platformService = platformRepository.getPlatformService(plan.getPlatform());
 
 		if (platformService.isSyncPossibleOnDelete(serviceInstance)
 				&& platformService.isSyncPossibleOnDelete(serviceInstance)) {
