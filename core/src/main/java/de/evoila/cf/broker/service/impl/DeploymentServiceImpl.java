@@ -32,7 +32,7 @@ import de.evoila.cf.broker.service.PlatformService;
 public class DeploymentServiceImpl implements DeploymentService {
 
 	@Autowired
-	private PlatformRepository plattformRepository;
+	private PlatformRepository platformRepository;
 
 	@Autowired
 	private ServiceDefinitionRepository serviceDefinitionRepository;
@@ -67,11 +67,12 @@ public class DeploymentServiceImpl implements DeploymentService {
 		}
 		ServiceInstance serviceInstance = new ServiceInstance(serviceInstanceId,
 				serviceDefinitionRepository.getServiceDefinition().getId(), planId, organizationGuid, spaceGuid,
-				parameters == null ? null : new ConcurrentHashMap<String, String>(parameters));
+				parameters == null ? new ConcurrentHashMap<String, String>()
+						: new ConcurrentHashMap<String, String>(parameters));
 
 		Plan plan = serviceDefinitionRepository.getPlan(planId);
 
-		PlatformService platformService = plattformRepository.getPlatformService(plan.getPlatform());
+		PlatformService platformService = platformRepository.getPlatformService(plan.getPlatform());
 
 		if (platformService.isSyncPossibleOnCreate(plan)) {
 			return syncCreateInstance(serviceInstance, plan, platformService);
@@ -92,8 +93,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 		try {
 			createdServiceInstance = platformService.createInstance(serviceInstance, plan);
 		} catch (Exception e) {
-			throw new ServiceBrokerException(
-					"Could not create instance due to: " + e.getMessage());
+			throw new ServiceBrokerException("Could not create instance due to: " + e.getMessage());
 		}
 
 		createdServiceInstance = platformService.postProvisioning(createdServiceInstance, plan);
@@ -133,7 +133,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 
 		Plan plan = serviceDefinitionRepository.getPlan(serviceInstance.getPlanId());
 
-		PlatformService platformService = plattformRepository.getPlatformService(plan.getPlatform());
+		PlatformService platformService = platformRepository.getPlatformService(plan.getPlatform());
 
 		if (platformService.isSyncPossibleOnDelete(serviceInstance)
 				&& platformService.isSyncPossibleOnDelete(serviceInstance)) {

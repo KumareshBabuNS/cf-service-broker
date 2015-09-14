@@ -16,12 +16,12 @@ import de.evoila.cf.broker.repository.PlatformRepository;
 public class DockerPlatformService extends DockerServiceFactory {
 
 	@Autowired
-	private PlatformRepository plattformRepository;
+	private PlatformRepository platformRepository;
 
 	@PostConstruct
 	@Override
 	public void registerCustomPlatformServie() {
-		plattformRepository.addPlatform(Platform.DOCKER, this);
+		platformRepository.addPlatform(Platform.DOCKER, this);
 	}
 
 	@Override
