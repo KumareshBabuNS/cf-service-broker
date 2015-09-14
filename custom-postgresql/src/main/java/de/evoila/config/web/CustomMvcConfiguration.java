@@ -44,20 +44,21 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 
 	@Override
 	public Executor getAsyncExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(7);
-        executor.setMaxPoolSize(42);
-        executor.setQueueCapacity(11);
-        executor.setThreadNamePrefix("MyExecutor-");
-        executor.initialize();
-        return executor;
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setCorePoolSize(7);
+		executor.setMaxPoolSize(42);
+		executor.setQueueCapacity(11);
+		executor.setThreadNamePrefix("MyExecutor-");
+		executor.initialize();
+		return executor;
 	}
 
 	@Bean
 	public PropertyPlaceholderConfigurer properties() {
 		PropertyPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertyPlaceholderConfigurer();
 		Resource[] resources = new ClassPathResource[] { new ClassPathResource("application-mvc.properties"),
-				new ClassPathResource("openstack.properties"), new ClassPathResource("container.properites") };
+				new ClassPathResource("openstack.properties"), new ClassPathResource("container.properites"),
+				new ClassPathResource("persistence.properties") };
 		propertyPlaceholderConfigurer.setLocations(resources);
 		propertyPlaceholderConfigurer.setIgnoreUnresolvablePlaceholders(true);
 		return propertyPlaceholderConfigurer;
@@ -95,15 +96,17 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 	public ServiceDefinition serviceDefinition() {
 		Plan dockerPlan = new Plan("docker", "25 MB PostgreSQL DB Docker Instance",
 				"The most basic PostgreSQL plan currently available. Providing"
-						+ "25 MB of capcity in a PostgreSQL DB.", Platform.DOCKER, 25, null, 4);
+						+ "25 MB of capcity in a PostgreSQL DB.",
+				Platform.DOCKER, 25, null, 4);
 		Plan openstackPlan = new Plan("openstack", "500 MB PostgreSQL DB Openstack Instance",
 				"The most basic PostgreSQL plan currently available. Providing"
-						+ "500 MB of capcity in a PostgreSQL DB.", Platform.OPENSTACK, 500, "3", 10);
+						+ "500 MB of capcity in a PostgreSQL DB.",
+				Platform.OPENSTACK, 500, "3", 10);
 
 		ServiceDefinition serviceDefinition = new ServiceDefinition("postgres", "postgres", "PostgreSQL Instances",
 				true, Arrays.asList(dockerPlan, openstackPlan));
 
 		return serviceDefinition;
 	}
-	
+
 }

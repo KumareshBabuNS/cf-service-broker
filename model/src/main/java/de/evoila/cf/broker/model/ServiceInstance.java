@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  *
  */
 @JsonAutoDetect(getterVisibility = Visibility.NONE)
-public class ServiceInstance {
+public class ServiceInstance implements BaseEntity<String> {
 
 	@JsonSerialize
 	@JsonProperty("service_instance_id")
@@ -49,10 +49,10 @@ public class ServiceInstance {
 
 	@JsonIgnore
 	private String internalId;
-	
+
 	@JsonIgnore
 	private int port;
-	
+
 	@JsonIgnore
 	private String host;
 
@@ -61,13 +61,13 @@ public class ServiceInstance {
 	}
 
 	public ServiceInstance(String id, String serviceDefinitionId, String planId, String organizationGuid,
-			String spaceGuid, ConcurrentMap<String, String> parameters, String dashboardUrl) {
+			String spaceGuid, Map<String, String> parameters, String dashboardUrl) {
 		initialize(id, serviceDefinitionId, planId, organizationGuid, spaceGuid, parameters);
 		setDashboardUrl(dashboardUrl);
 	}
 
 	private void initialize(String id, String serviceDefinitionId, String planId, String organizationGuid,
-			String spaceGuid, ConcurrentMap<String, String> parameters) {
+			String spaceGuid, Map<String, String> parameters) {
 		setId(id);
 		setServiceDefinitionId(serviceDefinitionId);
 		setPlanId(planId);
@@ -77,7 +77,7 @@ public class ServiceInstance {
 	}
 
 	public ServiceInstance(String serviceInstanceId, String serviceDefintionId, String planId, String organizationGuid,
-			String spaceGuid, ConcurrentMap<String, String> parameters, String dashboardUrl, String internalId) {
+			String spaceGuid, Map<String, String> parameters, String dashboardUrl, String internalId) {
 		initialize(id, serviceDefinitionId, planId, organizationGuid, spaceGuid, parameters);
 		setInternalId(internalId);
 		setDashboardUrl(dashboardUrl);
@@ -89,9 +89,9 @@ public class ServiceInstance {
 		setInternalId(internalId);
 		setDashboardUrl(dashboardUrl);
 	}
-	
-	public ServiceInstance(ServiceInstance serviceInstance, String dashboardUrl, String internalId,
-			String host, int port) {
+
+	public ServiceInstance(ServiceInstance serviceInstance, String dashboardUrl, String internalId, String host,
+			int port) {
 		initialize(serviceInstance.id, serviceInstance.serviceDefinitionId, serviceInstance.planId,
 				serviceInstance.organizationGuid, serviceInstance.spaceGuid, serviceInstance.parameters);
 		setInternalId(internalId);
@@ -101,10 +101,11 @@ public class ServiceInstance {
 	}
 
 	public ServiceInstance(String serviceInstanceId, String serviceDefinitionId, String planId, String organizationGuid,
-			String spaceGuid, ConcurrentMap<String, String> parameters) {
+			String spaceGuid, Map<String, String> parameters) {
 		initialize(serviceInstanceId, serviceDefinitionId, planId, organizationGuid, spaceGuid, parameters);
 	}
 
+	@Override
 	public String getId() {
 		return id;
 	}
@@ -157,8 +158,8 @@ public class ServiceInstance {
 		return parameters;
 	}
 
-	private void setParameters(ConcurrentMap<String, String> parameters) {
-		this.parameters = parameters;
+	private void setParameters(Map<String, String> parameters) {
+		this.parameters = new ConcurrentHashMap<>(parameters);
 	}
 
 	public String getInternalId() {
