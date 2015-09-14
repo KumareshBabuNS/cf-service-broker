@@ -38,38 +38,23 @@ public class RedisContextConfiguration {
 		jedisConnFactory.setHostName(hostname);
 		jedisConnFactory.setPort(port);
 		jedisConnFactory.setTimeout(Protocol.DEFAULT_TIMEOUT);
-		// jedisConnFactory.setPassword(password);
 
 		return jedisConnFactory;
 	}
 
 	/**
-	 * Sentinal Support
-	 */
-
-	// @Bean
-	// public RedisConnectionFactory redisConnectionFactory() {
-	// RedisSentinelConfiguration sentinelConfig = new
-	// RedisSentinelConfiguration().master("mymaster")
-	// .sentinel("127.0.0.1", 26379).sentinel("127.0.0.1", 26380);
-	// return new JedisConnectionFactory(sentinelConfig);
-	// }
-
-	/**
 	 * Serialization
 	 */
-
 	@Bean
 	public StringRedisSerializer stringRedisSerializer() {
 		StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
 		return stringRedisSerializer;
 	}
-
+	
 	@Bean
 	public JacksonJsonRedisSerializer<ServiceInstance> jacksonJsonRedisJsonSerializer() {
-		JacksonJsonRedisSerializer<ServiceInstance> jacksonJsonRedisJsonSerializer = new JacksonJsonRedisSerializer<>(
-				ServiceInstance.class);
-		return jacksonJsonRedisJsonSerializer;
+		return new JacksonJsonRedisSerializer<>(ServiceInstance.class);
+		
 	}
 
 	/**
@@ -79,7 +64,6 @@ public class RedisContextConfiguration {
 	 * @param stringRedisSerializer
 	 * @param jacksonJsonRedisJsonSerializer
 	 */
-
 	@Bean
 	@Autowired
 	public RedisTemplate<String, ? extends Object> redisTemplate(RedisConnectionFactory jedisConnFactory,
@@ -92,16 +76,4 @@ public class RedisContextConfiguration {
 		return redisTemplate;
 	}
 
-	/**
-	 * Code for Transaction Support
-	 */
-
-	// @Bean
-	// public PlatformTransactionManager transactionManager() throws
-	// SQLException {
-	// return new DataSourceTransactionManager(dataSource());
-	// }
-
-	// @Bean
-	// public DataSource dataSource() throws SQLException {...}
 }

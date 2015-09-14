@@ -68,7 +68,7 @@ public class ServiceInstanceController extends BaseController {
 		if (svc == null) {
 			throw new ServiceDefinitionDoesNotExistException(request.getServiceDefinitionId());
 		}
-
+		
 		ServiceInstanceResponse response = deploymentService.createServiceInstance(serviceInstanceId,
 				request.getServiceDefinitionId(), request.getPlanId(), request.getOrganizationGuid(),
 				request.getSpaceGuid(), request.getParameters());
@@ -88,7 +88,7 @@ public class ServiceInstanceController extends BaseController {
 
 		JobProgress serviceInstanceProcessingResponse = deploymentService.getLastOperation(serviceInstanceId);
 
-		return new ResponseEntity<JobProgress>(serviceInstanceProcessingResponse, HttpStatus.ACCEPTED);
+		return new ResponseEntity<JobProgress>(serviceInstanceProcessingResponse, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/service_instances/{instanceId}", method = RequestMethod.DELETE)

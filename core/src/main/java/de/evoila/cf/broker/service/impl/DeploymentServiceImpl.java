@@ -65,6 +65,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 			throw new ServiceInstanceExistsException(serviceInstanceId,
 					serviceDefinitionRepository.getServiceDefinition().getId());
 		}
+		
 		ServiceInstance serviceInstance = new ServiceInstance(serviceInstanceId,
 				serviceDefinitionRepository.getServiceDefinition().getId(), planId, organizationGuid, spaceGuid,
 				parameters == null ? new ConcurrentHashMap<String, String>()
@@ -77,10 +78,10 @@ public class DeploymentServiceImpl implements DeploymentService {
 		if (platformService.isSyncPossibleOnCreate(plan)) {
 			return syncCreateInstance(serviceInstance, plan, platformService);
 		} else {
-			ServiceInstance promise = platformService.getCreateInstancePromise(serviceInstance, plan);
-			ServiceInstanceResponse serviceInstanceResponse = new ServiceInstanceResponse(promise, true);
-			serviceInstanceRepository.addServiceInstance(promise.getId(), serviceInstance);
-
+			ServiceInstanceResponse serviceInstanceResponse = new ServiceInstanceResponse(serviceInstance, true);
+			
+			serviceInstanceRepository.addServiceInstance(serviceInstance.getId(), serviceInstance);
+			
 			asyncDeploymentService.asyncCreateInstance(this, serviceInstance, plan, platformService);
 
 			return serviceInstanceResponse;
@@ -98,7 +99,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 
 		createdServiceInstance = platformService.postProvisioning(createdServiceInstance, plan);
 		if (createdServiceInstance.getInternalId() != null)
-			serviceInstanceRepository.addServiceInstance(createdServiceInstance.getId(), serviceInstance);
+			serviceInstanceRepository.addServiceInstance(createdServiceInstance.getId(), createdServiceInstance);
 		else {
 			throw new ServiceBrokerException(
 					"Internal error. Service instance was not created. ID was: " + serviceInstance.getId());
@@ -149,5 +150,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 		platformService.preDeprovisionServiceInstance(serviceInstance);
 
 		platformService.deleteServiceInstance(serviceInstance);
+		
+		serviceInstanceRepository.deleteServiceInstance(serviceInstance.getId());
 	}
 }

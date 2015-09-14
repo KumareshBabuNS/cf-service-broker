@@ -47,13 +47,16 @@ public class ServiceInstance implements BaseEntity<String> {
 	@JsonProperty("parameters")
 	private ConcurrentMap<String, String> parameters = new ConcurrentHashMap<String, String>();
 
-	@JsonIgnore
+	@JsonSerialize
+	@JsonProperty("internal_id")
 	private String internalId;
 
-	@JsonIgnore
+	@JsonSerialize
+	@JsonProperty("port")
 	private int port;
 
-	@JsonIgnore
+	@JsonSerialize
+	@JsonProperty("host")
 	private String host;
 
 	@SuppressWarnings("unused")

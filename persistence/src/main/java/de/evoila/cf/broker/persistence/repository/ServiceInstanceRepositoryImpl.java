@@ -37,4 +37,9 @@ public class ServiceInstanceRepositoryImpl extends CrudRepositoryImpl<ServiceIns
 		save(serviceInstance);
 	}
 
+	@Override
+	public void deleteServiceInstance(String serviceInstanceId) {
+		delete(serviceInstanceId);
+	}
+
 }

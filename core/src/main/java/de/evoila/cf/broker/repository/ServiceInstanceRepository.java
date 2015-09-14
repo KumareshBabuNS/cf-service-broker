@@ -17,4 +17,6 @@ public interface ServiceInstanceRepository {
 	// Depl + PGBindingTest
 	void addServiceInstance(String id, ServiceInstance serviceInstance);
 
+	void deleteServiceInstance(String serviceInstanceId);
+
 }

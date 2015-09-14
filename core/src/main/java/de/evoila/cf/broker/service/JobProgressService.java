@@ -17,7 +17,7 @@ import de.evoila.cf.broker.model.ServiceInstance;
 @Service
 public class JobProgressService {
 
-	private static final String SUCCESS = "success";
+	private static final String SUCCESS = "succeeded";
 
 	private static final String FAILED = "failed";
 

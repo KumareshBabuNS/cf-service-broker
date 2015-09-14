@@ -54,7 +54,7 @@ resources:
             
             wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Postgres/docker-entrypoint.sh
             chmod +x docker-entrypoint.sh
-            ./docker-entrypoint.sh -d $db_name -u $db_user -p $db_password
+            ./docker-entrypoint.sh -d $db_name -u $db_user -p $db_password postgres
           params:
             $db_name: {get_param: database_name}
             $db_user: {get_param: database_user}
