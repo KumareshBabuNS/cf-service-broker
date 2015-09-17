@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import de.evoila.cf.broker.service.postgres.jdbc.JdbcService;
+import de.evoila.cf.broker.service.postgres.jdbc.MongoDbService;
 
 /**
  * @author Johannes Hiemer
@@ -20,7 +20,7 @@ import de.evoila.cf.broker.service.postgres.jdbc.JdbcService;
 public class PostgresCustomImplementation {
 	
 	@Autowired
-	private JdbcService jdbcService;
+	private MongoDbService jdbcService;
 
 	public void createRoleForInstance(String instanceId) throws SQLException {
         jdbcService.checkValidUUID(instanceId);
@@ -33,14 +33,15 @@ public class PostgresCustomImplementation {
         jdbcService.executeUpdate("DROP ROLE IF EXISTS \"" + instanceId + "\"");
     }
 
-    public String bindRoleToDatabase(String dbInstanceId) throws SQLException {
-        jdbcService.checkValidUUID(dbInstanceId);
+    public String bindRoleToDatabase(String serviceInstanceId, String bindingId) throws SQLException {
+        jdbcService.checkValidUUID(bindingId);
 
         SecureRandom random = new SecureRandom();
         String passwd = new BigInteger(130, random).toString(32);
         
-        jdbcService.executeUpdate("CREATE ROLE \"" + dbInstanceId + "\"");
-        jdbcService.executeUpdate("ALTER ROLE \"" + dbInstanceId + "\" LOGIN password '" + passwd + "'");
+        jdbcService.executeUpdate("CREATE ROLE \"" + bindingId + "\"");
+        jdbcService.executeUpdate("ALTER ROLE \"" + bindingId + "\" LOGIN password '" + passwd + "'");
+        jdbcService.executeUpdate("GRANT ALL PRIVILEGES ON DATABASE \"" + serviceInstanceId + "\" TO \"" + bindingId + "\"");
         return passwd;
     }
 

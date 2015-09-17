@@ -4,15 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.JacksonJsonRedisSerializer;
-import org.springframework.data.redis.serializer.RedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-import de.evoila.cf.broker.model.ServiceInstance;
 import redis.clients.jedis.Protocol;
+import de.evoila.cf.broker.model.ServiceInstance;
 
 /**
  * @author Christian Brinker, evoila.
@@ -41,22 +39,23 @@ public class RedisContextConfiguration {
 
 		return jedisConnFactory;
 	}
-
+	
 	/**
-	 * Serialization
+	 * Template
+	 * 
+	 * @param jedisConnFactory
+	 * @param stringRedisSerializer
+	 * @param jacksonJsonRedisJsonSerializer
 	 */
 	@Bean
-	public StringRedisSerializer stringRedisSerializer() {
-		StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
-		return stringRedisSerializer;
+	public RedisTemplate<String, ? extends Object> jacksonRedisTemplate() {
+		RedisTemplate<String, ? extends Object> redisTemplate = new RedisTemplate<>();
+		redisTemplate.setConnectionFactory(jedisConnFactory());
+		redisTemplate.setKeySerializer(new StringRedisSerializer());
+		redisTemplate.setValueSerializer(new JacksonJsonRedisSerializer<>(ServiceInstance.class));
+		return redisTemplate;
 	}
 	
-	@Bean
-	public JacksonJsonRedisSerializer<ServiceInstance> jacksonJsonRedisJsonSerializer() {
-		return new JacksonJsonRedisSerializer<>(ServiceInstance.class);
-		
-	}
-
 	/**
 	 * Template
 	 * 
@@ -66,13 +65,11 @@ public class RedisContextConfiguration {
 	 */
 	@Bean
 	@Autowired
-	public RedisTemplate<String, ? extends Object> redisTemplate(RedisConnectionFactory jedisConnFactory,
-			RedisSerializer<?> stringRedisSerializer, RedisSerializer<?> jacksonJsonRedisJsonSerializer) {
-		RedisTemplate<String, ? extends Object> redisTemplate = new RedisTemplate<>();
-		redisTemplate.setConnectionFactory(jedisConnFactory);
-		redisTemplate.setKeySerializer(stringRedisSerializer);
-		redisTemplate.setValueSerializer(jacksonJsonRedisJsonSerializer);
-		// redisTemplate.setEnableTransactionSupport(true);
+	public RedisTemplate<String, String> stringRedisTemplate() {
+		RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
+		redisTemplate.setConnectionFactory(jedisConnFactory());
+		redisTemplate.setKeySerializer(new StringRedisSerializer());
+		redisTemplate.setValueSerializer(new StringRedisSerializer());
 		return redisTemplate;
 	}
 

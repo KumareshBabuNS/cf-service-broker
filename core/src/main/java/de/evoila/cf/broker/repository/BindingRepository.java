@@ -10,7 +10,7 @@ public interface BindingRepository {
 	String getInternalBindingId(String bindingId);
 
 	// Bind
-	void addInternalBinding(String bindingId, String id);
+	void addInternalBinding(String bindingId, String serviceId);
 
 	// Bind
 	boolean containsInternalBindingId(String bindingId);

@@ -10,5 +10,11 @@ applications:
 ## Postgres Service Broker
 - name: postgres
   host: postgres
-  path: target/ssb-postgres.war
+  path: custom-postgresql/target/ssb-postgres.war
   buildpack: https://github.com/cloudfoundry/java-buildpack.git
+## MongoDB Service Broker
+- name: mongo
+  host: mongo
+  path: custom-mongodb/target/ssb-mongodb.war
+  buildpack: https://github.com/cloudfoundry/java-buildpack.git
+  

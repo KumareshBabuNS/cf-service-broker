@@ -59,6 +59,16 @@ public class ServiceDefinition {
 		this.bindable = bindable;
 		this.setPlans(plans);
 	}
+	
+	public ServiceDefinition(String id, String name, String description, boolean bindable, 
+			List<Plan> plans, List<String> requires) {
+		this.id = id;
+		this.name = name;
+		this.description = description;
+		this.bindable = bindable;
+		this.setPlans(plans);
+		this.setRequires(requires);
+	}
 
 	public ServiceDefinition(String id, String name, String description, boolean bindable, List<Plan> plans,
 			List<String> tags, Map<String, Object> metadata, List<String> requires) {

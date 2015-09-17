@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 
 /**
@@ -23,6 +24,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 public class StringCrudRepositoryImpl {
 
 	@Autowired
+	@Qualifier("stringRedisTemplate")
 	private RedisTemplate<String, String> redisTemplate;
 
 	public long count() {

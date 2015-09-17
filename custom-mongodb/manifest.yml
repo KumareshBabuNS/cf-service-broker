@@ -7,8 +7,8 @@ env:
   SPRING_PROFILES_ACTIVE: development
   JAVA_OPTS: -Djava.security.egd=file:/dev/urandom
 applications:
-## Postgres Service Broker
-- name: postgres
-  host: postgres
-  path: target/ssb-postgres.war
+## MongoDB Service Broker
+- name: mongo
+  host: mongo
+  path: target/ssb-mongodb.war
   buildpack: https://github.com/cloudfoundry/java-buildpack.git

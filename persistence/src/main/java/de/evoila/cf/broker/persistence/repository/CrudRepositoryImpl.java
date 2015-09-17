@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.repository.CrudRepository;
 
@@ -26,6 +27,7 @@ import de.evoila.cf.broker.model.BaseEntity;
 public class CrudRepositoryImpl<T extends BaseEntity<ID>, ID extends Serializable> implements CrudRepository<T, ID> {
 
 	@Autowired
+	@Qualifier("jacksonRedisTemplate")
 	private RedisTemplate<String, T> redisTemplate;
 
 	@Override

@@ -22,8 +22,8 @@ import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.data.ServiceInstanceData;
 import de.evoila.cf.broker.repository.ServiceInstanceRepository;
 import de.evoila.cf.broker.service.MockMvcTest;
-import de.evoila.cf.broker.service.custom.PostgresBindingService;
-import de.evoila.cf.broker.service.postgres.jdbc.JdbcService;
+import de.evoila.cf.broker.service.custom.PostgreSQLBindingService;
+import de.evoila.cf.broker.service.postgres.jdbc.MongoDbService;
 
 /**
  * @author Johannes Hiemer.
@@ -36,13 +36,13 @@ public class PostgresBindingServiceTest extends MockMvcTest {
 	private static ServiceInstance serviceInstance;
 	
 	@Autowired
-	private PostgresBindingService postgresBindingService;
+	private PostgreSQLBindingService postgresBindingService;
 	
 	@Autowired
 	private ServiceInstanceRepository storageService;
 	
 	@Autowired
-	private JdbcService jdbcService;
+	private MongoDbService jdbcService;
 	
 	@BeforeClass
 	public static void beforeClass() {

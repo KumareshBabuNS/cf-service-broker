@@ -94,15 +94,15 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 
 	@Bean
 	public ServiceDefinition serviceDefinition() {
-		Plan dockerPlan = new Plan("docker", "PostgreSQL-Docker-25MB",
+		Plan dockerPlan = new Plan("docker-postgresql-25mb", "PostgreSQL-Docker-25MB",
 				"The most basic PostgreSQL plan currently available. Providing"
 						+ "25 MB of capcity in a PostgreSQL DB.", Platform.DOCKER, 25, VolumeUnit.M, null, 4);
-		Plan openstackPlan = new Plan("openstack", "PostgreSQL-VM-500MB",
+		Plan openstackPlan = new Plan("openstack-postgresql-500mb", "PostgreSQL-VM-500MB",
 				"The most basic PostgreSQL plan currently available. Providing"
 						+ "500 MB of capcity in a PostgreSQL DB.", Platform.OPENSTACK, 1, VolumeUnit.G, "3", 10);
 
-		ServiceDefinition serviceDefinition = new ServiceDefinition("postgres", "postgres", "PostgreSQL Instances",
-				true, Arrays.asList(dockerPlan, openstackPlan));
+		ServiceDefinition serviceDefinition = new ServiceDefinition("postgres", "PostgreSQL", "PostgreSQL Instances",
+				true, Arrays.asList(dockerPlan, openstackPlan), Arrays.asList("syslog_drain"));
 
 		return serviceDefinition;
 	}

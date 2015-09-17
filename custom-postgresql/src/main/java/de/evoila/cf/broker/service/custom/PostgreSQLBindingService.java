@@ -20,19 +20,19 @@ import de.evoila.cf.broker.model.ServiceInstanceBinding;
 import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
 import de.evoila.cf.broker.service.impl.BindingServiceImpl;
 import de.evoila.cf.broker.service.postgres.PostgresCustomImplementation;
-import de.evoila.cf.broker.service.postgres.jdbc.JdbcService;
+import de.evoila.cf.broker.service.postgres.jdbc.MongoDbService;
 
 /**
  * @author Johannes Hiemer.
  *
  */
 @Service
-public class PostgresBindingService extends BindingServiceImpl {
+public class PostgreSQLBindingService extends BindingServiceImpl {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
-	private JdbcService jdbcService;
+	private MongoDbService jdbcService;
 
 	@Autowired
 	private PostgresCustomImplementation postgresCustomImplementation;
@@ -77,7 +77,7 @@ public class PostgresBindingService extends BindingServiceImpl {
 		
 		String password = "";
 		try {
-			password = postgresCustomImplementation.bindRoleToDatabase(bindingId);
+			password = postgresCustomImplementation.bindRoleToDatabase(serviceInstance.getId(), bindingId);
 		} catch (SQLException e) {
 			log.error(e.toString());
 		}

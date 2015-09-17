@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
-public class JdbcService {
+public class MongoDbService {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -34,6 +34,8 @@ public class JdbcService {
     private int port;
     
     public void createConnection(String instanceId, String host, int port) {
+    	this.host = host;
+    	this.port = port;
     	try {
           Class.forName("org.postgresql.Driver");
           String url = "jdbc:postgresql://"+ host + ":" + port + "/postgres";
