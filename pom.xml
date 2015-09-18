@@ -22,7 +22,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<org.springframework>4.0.1.RELEASE</org.springframework>
+		<org.springframework>4.2.1.RELEASE</org.springframework>
 		<org.springframework.security>3.2.0.RELEASE</org.springframework.security>
 		<org.springframework.mongodb>1.4.0.M1</org.springframework.mongodb>
 
@@ -50,10 +50,21 @@
 			</dependency>
 
 			<dependency>
+				<groupId>org.yaml</groupId>
+				<artifactId>snakeyaml</artifactId>
+				<version>1.16</version>
+			</dependency>
+
+			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-test</artifactId>
 				<version>${org.springframework}</version>
 				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-aop</artifactId>
+				<version>${org.springframework}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
@@ -143,10 +154,10 @@
 
 			<!-- Testing -->
 			<dependency>
-			    <groupId>org.springframework.restdocs</groupId>
-			    <artifactId>spring-restdocs</artifactId>
-			    <version>${org.springframework.rest.docs}</version>
-			    <scope>test</scope>
+				<groupId>org.springframework.restdocs</groupId>
+				<artifactId>spring-restdocs</artifactId>
+				<version>${org.springframework.rest.docs}</version>
+				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>

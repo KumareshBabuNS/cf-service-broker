@@ -52,6 +52,10 @@ public class ServiceDefinition {
 	@JsonProperty("requires")
 	private List<String> requires = new ArrayList<String>();
 
+	public ServiceDefinition() {
+		super();
+	};
+
 	public ServiceDefinition(String id, String name, String description, boolean bindable, List<Plan> plans) {
 		this.id = id;
 		this.name = name;
@@ -59,9 +63,9 @@ public class ServiceDefinition {
 		this.bindable = bindable;
 		this.setPlans(plans);
 	}
-	
-	public ServiceDefinition(String id, String name, String description, boolean bindable, 
-			List<Plan> plans, List<String> requires) {
+
+	public ServiceDefinition(String id, String name, String description, boolean bindable, List<Plan> plans,
+			List<String> requires) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
@@ -82,23 +86,39 @@ public class ServiceDefinition {
 		return id;
 	}
 
+	public void setId(String id) {
+		this.id = id;
+	}
+
 	public String getName() {
 		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public String getDescription() {
 		return description;
 	}
 
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 	public boolean isBindable() {
 		return bindable;
+	}
+
+	public void setBindable(boolean bindable) {
+		this.bindable = bindable;
 	}
 
 	public List<Plan> getPlans() {
 		return plans;
 	}
 
-	private void setPlans(List<Plan> plans) {
+	public void setPlans(List<Plan> plans) {
 		if (plans == null) {
 			// ensure serialization as an empty array and not null
 			this.plans = new ArrayList<Plan>();
@@ -111,7 +131,7 @@ public class ServiceDefinition {
 		return tags;
 	}
 
-	private void setTags(List<String> tags) {
+	public void setTags(List<String> tags) {
 		if (tags == null) {
 			this.tags = new ArrayList<String>();
 		} else {
@@ -123,7 +143,7 @@ public class ServiceDefinition {
 		return requires;
 	}
 
-	private void setRequires(List<String> requires) {
+	public void setRequires(List<String> requires) {
 		if (requires == null) {
 			this.requires = new ArrayList<String>();
 		} else {
@@ -135,7 +155,7 @@ public class ServiceDefinition {
 		return metadata;
 	}
 
-	private void setMetadata(Map<String, Object> metadata) {
+	public void setMetadata(Map<String, Object> metadata) {
 		if (metadata == null) {
 			this.metadata = new HashMap<String, Object>();
 		} else {

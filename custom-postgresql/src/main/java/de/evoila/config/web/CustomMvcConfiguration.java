@@ -1,12 +1,16 @@
 package de.evoila.config.web;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.Executor;
 
+import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
+import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
@@ -21,12 +25,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
+import org.yaml.snakeyaml.TypeDescription;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 
 import de.evoila.cf.broker.model.Catalog;
 import de.evoila.cf.broker.model.Plan;
-import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceDefinition;
-import de.evoila.cf.broker.model.VolumeUnit;
 
 /**
  * @author Johannes Hiemer.
@@ -45,23 +50,48 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 
 	@Override
 	public Executor getAsyncExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(7);
-        executor.setMaxPoolSize(42);
-        executor.setQueueCapacity(11);
-        executor.setThreadNamePrefix("MyExecutor-");
-        executor.initialize();
-        return executor;
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setCorePoolSize(7);
+		executor.setMaxPoolSize(42);
+		executor.setQueueCapacity(11);
+		executor.setThreadNamePrefix("MyExecutor-");
+		executor.initialize();
+		return executor;
+	}
+
+	@Override
+	public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+		return new SimpleAsyncUncaughtExceptionHandler();
 	}
 
 	@Bean
-	public PropertyPlaceholderConfigurer properties() {
-		PropertyPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertyPlaceholderConfigurer();
+	public PropertySourcesPlaceholderConfigurer standardProperties() {
+		PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertySourcesPlaceholderConfigurer();
 		Resource[] resources = new ClassPathResource[] { new ClassPathResource("persistence.properties"),
 				new ClassPathResource("openstack.properties"), new ClassPathResource("container.properites") };
+		propertyPlaceholderConfigurer.setOrder(PropertyPlaceholderConfigurer.HIGHEST_PRECEDENCE);
 		propertyPlaceholderConfigurer.setLocations(resources);
 		propertyPlaceholderConfigurer.setIgnoreUnresolvablePlaceholders(true);
 		return propertyPlaceholderConfigurer;
+	}
+
+	@Bean
+	public ServiceDefinition serviceDefinition() {
+		ClassPathResource classPathResource = new ClassPathResource("servicedefinition.yml");
+		Constructor constructor = new Constructor(ServiceDefinition.class);
+		TypeDescription serviceDefictionDescription = new TypeDescription(ServiceDefinition.class);
+		serviceDefictionDescription.putListPropertyType("plans", Plan.class);
+		constructor.addTypeDescription(serviceDefictionDescription);
+
+		Yaml yaml = new Yaml(constructor);
+
+		ServiceDefinition serviceDefinition = null;
+		try {
+			serviceDefinition = (ServiceDefinition) yaml.load(classPathResource.getInputStream());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return serviceDefinition;
 	}
 
 	@Override
@@ -92,19 +122,25 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 		return catalog;
 	}
 
-	@Bean
-	public ServiceDefinition serviceDefinition() {
-		Plan dockerPlan = new Plan("docker-postgresql-25mb", "PostgreSQL-Docker-25MB",
-				"The most basic PostgreSQL plan currently available. Providing"
-						+ "25 MB of capcity in a PostgreSQL DB.", Platform.DOCKER, 25, VolumeUnit.M, null, 4);
-		Plan openstackPlan = new Plan("openstack-postgresql-500mb", "PostgreSQL-VM-500MB",
-				"The most basic PostgreSQL plan currently available. Providing"
-						+ "500 MB of capcity in a PostgreSQL DB.", Platform.OPENSTACK, 1, VolumeUnit.G, "3", 10);
+	// @Bean
+	// public ServiceDefinition serviceDefinition() {
+	// Plan dockerPlan = new Plan("docker-postgresql-25mb",
+	// "PostgreSQL-Docker-25MB",
+	// "The most basic PostgreSQL plan currently available. Providing"
+	// + "25 MB of capcity in a PostgreSQL DB.",
+	// Platform.DOCKER, 25, VolumeUnit.M, null, 4);
+	// Plan openstackPlan = new Plan("openstack-postgresql-500mb",
+	// "PostgreSQL-VM-500MB",
+	// "The most basic PostgreSQL plan currently available. Providing"
+	// + "500 MB of capcity in a PostgreSQL DB.",
+	// Platform.OPENSTACK, 1, VolumeUnit.G, "3", 10);
+	//
+	// ServiceDefinition serviceDefinition = new ServiceDefinition("postgres",
+	// "PostgreSQL", "PostgreSQL Instances",
+	// true, Arrays.asList(dockerPlan, openstackPlan),
+	// Arrays.asList("syslog_drain"));
+	//
+	// return serviceDefinition;
+	// }
 
-		ServiceDefinition serviceDefinition = new ServiceDefinition("postgres", "PostgreSQL", "PostgreSQL Instances",
-				true, Arrays.asList(dockerPlan, openstackPlan), Arrays.asList("syslog_drain"));
-
-		return serviceDefinition;
-	}
-	
 }

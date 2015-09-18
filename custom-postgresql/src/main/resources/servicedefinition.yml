@@ -1,0 +1,28 @@
+id: postgres
+name: PostgreSQL
+description: PostgreSQL Instances
+bindable: true
+#tags:
+ # - syslog_drain
+#metadata: 
+  #guid : {id: testDef}
+plans:
+  - id: docker-postgresql-25mb
+    name: PostgreSQL-Docker-25MB
+    description: The most basic PostgreSQL plan currently available. Providing 25 MB of capcity in a PostgreSQL DB.
+    metadata: 
+      guid : {id: test}
+    volumeSize: 25
+    volumeUnit: M
+    platform: DOCKER
+    connections: 4
+  - id: openstack-postgresql-500mb
+    name: PostgreSQL-VM-500MB
+    description: The most basic PostgreSQL plan currently available. Providing 500 MB of capcity in a PostgreSQL DB.
+    metadata: 
+      guid : {id: test}
+    volumeSize: 1
+    volumeUnit: G
+    platform: OPENSTACK
+    flavorId: 3
+    connections: 10

@@ -3,6 +3,8 @@ package de.evoila.config.web;
 import java.util.Arrays;
 import java.util.concurrent.Executor;
 
+import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
+import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -45,13 +47,18 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 
 	@Override
 	public Executor getAsyncExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(7);
-        executor.setMaxPoolSize(42);
-        executor.setQueueCapacity(11);
-        executor.setThreadNamePrefix("MyExecutor-");
-        executor.initialize();
-        return executor;
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setCorePoolSize(7);
+		executor.setMaxPoolSize(42);
+		executor.setQueueCapacity(11);
+		executor.setThreadNamePrefix("MyExecutor-");
+		executor.initialize();
+		return executor;
+	}
+
+	@Override
+	public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+		return new SimpleAsyncUncaughtExceptionHandler();
 	}
 
 	@Bean
@@ -95,16 +102,16 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 	@Bean
 	public ServiceDefinition serviceDefinition() {
 		Plan dockerPlan = new Plan("docker-mongodb-25mb", "MongoDB-Docker-25MB",
-				"The most basic MongoDB plan currently available. Providing"
-						+ "25 MB of capcity in a MongoDB DB.", Platform.DOCKER, 25, VolumeUnit.M, null, 4);
+				"The most basic MongoDB plan currently available. Providing" + "25 MB of capcity in a MongoDB DB.",
+				Platform.DOCKER, 25, VolumeUnit.M, null, 4);
 		Plan openstackPlan = new Plan("openstack-mongodb-500mb", "MongoDB-VM-500MB",
-				"The most basic MongoDB plan currently available. Providing"
-						+ "500 MB of capcity in a MongoDB DB.", Platform.OPENSTACK, 1, VolumeUnit.G, "3", 10);
+				"The most basic MongoDB plan currently available. Providing" + "500 MB of capcity in a MongoDB DB.",
+				Platform.OPENSTACK, 1, VolumeUnit.G, "3", 10);
 
-		ServiceDefinition serviceDefinition = new ServiceDefinition("mongodb", "MongoDB", "MongoDB Instances",
-				true, Arrays.asList(dockerPlan, openstackPlan), Arrays.asList("syslog_drain"));
+		ServiceDefinition serviceDefinition = new ServiceDefinition("mongodb", "MongoDB", "MongoDB Instances", true,
+				Arrays.asList(dockerPlan, openstackPlan), Arrays.asList("syslog_drain"));
 
 		return serviceDefinition;
 	}
-	
+
 }
