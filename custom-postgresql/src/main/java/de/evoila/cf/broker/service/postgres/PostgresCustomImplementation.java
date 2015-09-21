@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import de.evoila.cf.broker.service.postgres.jdbc.MongoDbService;
+import de.evoila.cf.broker.service.postgres.jdbc.PostgresDbService;
 
 /**
  * @author Johannes Hiemer
@@ -20,7 +20,7 @@ import de.evoila.cf.broker.service.postgres.jdbc.MongoDbService;
 public class PostgresCustomImplementation {
 	
 	@Autowired
-	private MongoDbService jdbcService;
+	private PostgresDbService jdbcService;
 
 	public void createRoleForInstance(String instanceId) throws SQLException {
         jdbcService.checkValidUUID(instanceId);
