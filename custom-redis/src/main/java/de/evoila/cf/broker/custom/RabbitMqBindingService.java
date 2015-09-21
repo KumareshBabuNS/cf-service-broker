@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 import com.mongodb.BasicDBObject;
 
-import de.evoila.cf.broker.custom.mongodb.MongoDbService;
+import de.evoila.cf.broker.custom.mongodb.RabbitMqService;
 import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.ServiceInstance;
@@ -29,12 +29,12 @@ import de.evoila.cf.broker.service.impl.BindingServiceImpl;
  *
  */
 @Service
-public class MongoDbBindingService extends BindingServiceImpl {
+public class RabbitMqBindingService extends BindingServiceImpl {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
-	private MongoDbService mongoDbService;
+	private RabbitMqService mongoDbService;
 
 	private boolean connection(ServiceInstance serviceInstance) {
 		if (mongoDbService.isConnected())

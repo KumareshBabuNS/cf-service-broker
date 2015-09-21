@@ -15,8 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mongodb.BasicDBObject;
+import com.rabbitmq.client.Channel;
 
-import de.evoila.cf.broker.custom.mongodb.MongoDbService;
+import de.evoila.cf.broker.custom.mongodb.RabbitMqService;
 import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.ServiceInstance;
@@ -29,20 +30,20 @@ import de.evoila.cf.broker.service.impl.BindingServiceImpl;
  *
  */
 @Service
-public class MongoDbBindingService extends BindingServiceImpl {
+public class RabbitMqBindingService extends BindingServiceImpl {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
-	private MongoDbService mongoDbService;
+	private RabbitMqService rabbitMqService;
 
 	private boolean connection(ServiceInstance serviceInstance) {
-		if (mongoDbService.isConnected())
+		if (rabbitMqService.isConnected())
 			return true;
 		else {
 			log.info("Opening connection to " + serviceInstance.getHost() + 
 					":" + serviceInstance.getPort());
-			mongoDbService.createConnection(serviceInstance.getId(), 
+			rabbitMqService.createConnection(serviceInstance.getId(), 
 					serviceInstance.getHost(), serviceInstance.getPort());
 		}
 		return true;
@@ -53,7 +54,8 @@ public class MongoDbBindingService extends BindingServiceImpl {
 		
 		String instanceId = serviceInstance.getId();
 		
-		mongoDbService.mongoClient().getDatabase(instanceId);
+		Channel channel = rabbitMqService.rabbitmqClient().createChannel();
+		channel.queueDeclare(instanceId, true, false, false, null);
 	}
 	
 	public void delete(ServiceInstance serviceInstance, Plan plan) {
@@ -61,7 +63,8 @@ public class MongoDbBindingService extends BindingServiceImpl {
 		
 		String instanceId = serviceInstance.getId();
 		
-		mongoDbService.mongoClient().getDatabase(instanceId).drop();
+		Channel channel = rabbitMqService.rabbitmqClient().createChannel();
+		channel.queueDelete(instanceId);
 	}
 
 	@Override
@@ -73,19 +76,11 @@ public class MongoDbBindingService extends BindingServiceImpl {
 		SecureRandom random = new SecureRandom();
         String password = new BigInteger(130, random).toString(32);
 		
-        Map<String, Object> commandArguments = new BasicDBObject();
-	    commandArguments.put("createUser", bindingId);
-	    commandArguments.put("pwd", password);
-	    String[] roles = {"readWrite"};
-	    commandArguments.put("roles", roles);
-	    BasicDBObject command = new BasicDBObject(commandArguments);
-	    
-	    mongoDbService.mongoClient()
-	    	.getDatabase(serviceInstance.getId())
-	    	.runCommand(command);
+        Channel channel = rabbitMqService.rabbitmqClient().createChannel();
+		channel.queueDeclare(instanceId, true, false, false, null);
 
 		String dbURL = String.format("postgres://%s:%s@%s:%d/%s", serviceInstance.getId(), password,
-				mongoDbService.getHost(), mongoDbService.getPort(), serviceInstance.getId());
+				rabbitMqService.getHost(), rabbitMqService.getPort(), serviceInstance.getId());
 
 		Map<String, Object> credentials = new HashMap<String, Object>();
 		credentials.put("uri", dbURL);
@@ -97,7 +92,7 @@ public class MongoDbBindingService extends BindingServiceImpl {
 	protected void deleteBinding(String bindingId, ServiceInstance serviceInstance) throws ServiceBrokerException {
 		connection(serviceInstance);
 
-		mongoDbService.mongoClient()
+		rabbitMqService.rabbitmqClient()
 		 	.getDatabase(serviceInstance.getId())
 		 	.runCommand(new BasicDBObject("dropUser", bindingId));
 	}
