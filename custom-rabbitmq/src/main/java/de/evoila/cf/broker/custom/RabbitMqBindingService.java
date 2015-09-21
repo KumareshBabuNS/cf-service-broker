@@ -3,6 +3,7 @@
  */
 package de.evoila.cf.broker.custom;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.HashMap;
@@ -13,9 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.mongodb.BasicDBObject;
-import com.rabbitmq.client.Channel;
 
 import de.evoila.cf.broker.custom.mongodb.RabbitMqService;
 import de.evoila.cf.broker.exception.ServiceBrokerException;
@@ -37,7 +35,7 @@ public class RabbitMqBindingService extends BindingServiceImpl {
 	@Autowired
 	private RabbitMqService rabbitMqService;
 
-	private boolean connection(ServiceInstance serviceInstance) {
+	private boolean connection(ServiceInstance serviceInstance) throws IOException {
 		if (rabbitMqService.isConnected())
 			return true;
 		else {
@@ -49,36 +47,35 @@ public class RabbitMqBindingService extends BindingServiceImpl {
 		return true;
 	}
 
-	public void create(ServiceInstance serviceInstance, Plan plan) {
+	public void create(ServiceInstance serviceInstance, Plan plan) throws IOException {
 		connection(serviceInstance);
 		
 		String instanceId = serviceInstance.getId();
 		
-		Channel channel = rabbitMqService.rabbitmqClient().createChannel();
-		channel.queueDeclare(instanceId, true, false, false, null);
 	}
 	
-	public void delete(ServiceInstance serviceInstance, Plan plan) {
+	public void delete(ServiceInstance serviceInstance, Plan plan) throws IOException {
 		connection(serviceInstance);
 		
 		String instanceId = serviceInstance.getId();
 		
-		Channel channel = rabbitMqService.rabbitmqClient().createChannel();
-		channel.queueDelete(instanceId);
 	}
 
 	@Override
 	protected ServiceInstanceBindingResponse bindService(String bindingId, ServiceInstance serviceInstance, 
 			Plan plan) throws ServiceBrokerException {
 		
-		connection(serviceInstance);
+		try {
+			connection(serviceInstance);
+		} catch (IOException e) {
+			throw new ServiceBrokerException("Could not open RabbitMQ connection", e);
+		}
 		
 		SecureRandom random = new SecureRandom();
         String password = new BigInteger(130, random).toString(32);
 		
-        Channel channel = rabbitMqService.rabbitmqClient().createChannel();
-		channel.queueDeclare(instanceId, true, false, false, null);
-
+        // Use vHost and Create User vHost needs to be created by Thomas
+        
 		String dbURL = String.format("postgres://%s:%s@%s:%d/%s", serviceInstance.getId(), password,
 				rabbitMqService.getHost(), rabbitMqService.getPort(), serviceInstance.getId());
 
@@ -90,11 +87,13 @@ public class RabbitMqBindingService extends BindingServiceImpl {
 
 	@Override
 	protected void deleteBinding(String bindingId, ServiceInstance serviceInstance) throws ServiceBrokerException {
-		connection(serviceInstance);
+		try {
+			connection(serviceInstance);
+		} catch (IOException e) {
+			throw new ServiceBrokerException("Could not open RabbitMQ connection", e);
+		}
 
-		rabbitMqService.rabbitmqClient()
-		 	.getDatabase(serviceInstance.getId())
-		 	.runCommand(new BasicDBObject("dropUser", bindingId));
+		// Delete User from vHost
 	}
 
 	@Override
