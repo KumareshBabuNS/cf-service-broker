@@ -49,6 +49,10 @@ public class ServiceInstanceController extends BaseController {
 	@Autowired
 	private CatalogService catalogService;
 
+	public ServiceInstanceController() {
+		logger.info("was here");
+	}
+
 	@RequestMapping(value = "/service_instances/{instanceId}", method = RequestMethod.PUT)
 	public ResponseEntity<ServiceInstanceResponse> createServiceInstance(
 			@PathVariable("instanceId") String serviceInstanceId,

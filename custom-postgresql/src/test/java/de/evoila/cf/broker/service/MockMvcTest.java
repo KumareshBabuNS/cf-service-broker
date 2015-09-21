@@ -30,38 +30,36 @@ import de.evoila.config.web.CustomMvcConfiguration;
 @RunWith(SpringJUnit4ClassRunner.class)
 @TransactionConfiguration
 @WebAppConfiguration
-@ContextConfiguration(classes = { CustomSecurityConfiguration.class,
-		CustomMvcConfiguration.class })
+@ContextConfiguration(classes = { CustomSecurityConfiguration.class, CustomMvcConfiguration.class })
 public abstract class MockMvcTest {
-	
+
 	protected MockMvc mockMvc;
-	
+
 	@Autowired
 	private WebApplicationContext webApplicationContext;
-	
+
 	@Autowired
 	private FilterChainProxy filterChainProxy;
-	
+
 	@Before
-    public final void initMockMvc() throws Exception {
-        mockMvc = webAppContextSetup(webApplicationContext)
-        		.addFilter(filterChainProxy).build();
-    }
-	
-	protected Plan getPlanByPlatfromType(ServiceDefinition serviceDefinition, String planId, Platform platform) {
+	public final void initMockMvc() throws Exception {
+		mockMvc = webAppContextSetup(webApplicationContext).addFilter(filterChainProxy).build();
+	}
+
+	protected Plan getPlanByPlatfromType(ServiceDefinition serviceDefinition, Platform platform) {
 		for (Plan plan : serviceDefinition.getPlans()) {
-			if (plan.getId().equals(planId) && plan.getPlatform().equals(platform)) {
+			if (plan.getPlatform().equals(platform)) {
 				return plan;
 			}
 		}
 		return null;
 	}
-	
+
 	protected String basicAuth(String name, String password) {
 		String authString = name + ":" + password;
 
 		byte[] authEncBytes = Base64.encodeBase64(authString.getBytes());
-		
+
 		return new String(authEncBytes);
 	}
 

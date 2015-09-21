@@ -9,8 +9,8 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.JacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-import redis.clients.jedis.Protocol;
 import de.evoila.cf.broker.model.ServiceInstance;
+import redis.clients.jedis.Protocol;
 
 /**
  * @author Christian Brinker, evoila.
@@ -28,18 +28,22 @@ public class RedisContextConfiguration {
 	@Value("${redis.password:''}")
 	private String password;
 
+	@Value("${redis.database}")
+	private int database;
+
 	@Bean
 	public JedisConnectionFactory jedisConnFactory() {
 		JedisConnectionFactory jedisConnFactory = new JedisConnectionFactory();
 
 		jedisConnFactory.setUsePool(true);
 		jedisConnFactory.setHostName(hostname);
+		jedisConnFactory.setDatabase(database);
 		jedisConnFactory.setPort(port);
 		jedisConnFactory.setTimeout(Protocol.DEFAULT_TIMEOUT);
 
 		return jedisConnFactory;
 	}
-	
+
 	/**
 	 * Template
 	 * 
@@ -55,7 +59,7 @@ public class RedisContextConfiguration {
 		redisTemplate.setValueSerializer(new JacksonJsonRedisSerializer<>(ServiceInstance.class));
 		return redisTemplate;
 	}
-	
+
 	/**
 	 * Template
 	 * 
