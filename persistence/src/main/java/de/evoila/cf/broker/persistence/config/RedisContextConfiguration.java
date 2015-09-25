@@ -28,7 +28,7 @@ public class RedisContextConfiguration {
 	@Value("${redis.password:''}")
 	private String password;
 
-	@Value("${redis.database}")
+	@Value("${redis.database:0}")
 	private int database;
 
 	@Bean

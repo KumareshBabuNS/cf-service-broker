@@ -61,7 +61,8 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 	}
 
 	@Override
-	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan) throws OpenstackPlatformException {
+	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan)
+			throws OpenstackPlatformException {
 		Map<String, String> customParameters = new HashMap<String, String>();
 		customParameters.put("flavor", plan.getFlavorId());
 		customParameters.put("volume_size", volumeSize(plan.getVolumeSize(), plan.getVolumeUnit()));
@@ -71,6 +72,7 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 		customParameters.put("database_name", instanceId);
 		customParameters.put("database_user", instanceId);
 		customParameters.put("database_password", instanceId);
+		customParameters.put("database_number", Integer.toString(plan.getConnections()));
 
 		try {
 			this.create(instanceId, customParameters);
@@ -81,7 +83,7 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 		return new ServiceInstance(serviceInstance, "http://currently.not/available", this.uniqueName(instanceId),
 				this.primaryIp(instanceId), this.defaultPort);
 	}
-	
+
 	private String volumeSize(int volumeSize, VolumeUnit volumeUnit) {
 		if (volumeUnit.equals(VolumeUnit.M))
 			throw new NotAcceptableException("Volumes in openstack may not be smaller than 1 GB");

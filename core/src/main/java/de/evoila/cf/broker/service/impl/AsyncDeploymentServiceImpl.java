@@ -1,5 +1,7 @@
 package de.evoila.cf.broker.service.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,8 @@ import de.evoila.cf.broker.service.PlatformService;
 @Service
 public class AsyncDeploymentServiceImpl implements AsyncDeploymentService {
 
+	Logger log = LoggerFactory.getLogger(AsyncDeploymentServiceImpl.class);
+
 	@Autowired
 	private JobProgressService progressService;
 
@@ -26,9 +30,9 @@ public class AsyncDeploymentServiceImpl implements AsyncDeploymentService {
 
 		try {
 			deploymentService.syncCreateInstance(serviceInstance, plan, platformService);
-		} catch (ServiceBrokerException e) {
+		} catch (Exception e) {
 			progressService.failJob(serviceInstance);
-			e.printStackTrace();
+			log.error(e.getMessage());
 			return;
 		}
 		progressService.succeedProgress(serviceInstance);
