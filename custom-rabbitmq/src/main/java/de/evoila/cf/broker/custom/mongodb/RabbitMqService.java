@@ -16,25 +16,28 @@ import com.rabbitmq.client.ConnectionFactory;
  */
 @Service
 public class RabbitMqService {
-	
+
 	private String host;
-	
+
 	private int port;
-	
+
 	private Connection connection;
 
 	public boolean isConnected() {
+		if (connection == null)
+			return false;
 		return connection.isOpen();
 	}
 
-	public void createConnection(String id, String host, int port) throws IOException {
+	public void createConnection(String id, String host, int port, String vhostName, String userName, String password)
+			throws IOException {
 		ConnectionFactory connectionFactory = new ConnectionFactory();
 		connectionFactory.setHost(host);
 		connectionFactory.setPort(port);
 		connectionFactory.setVirtualHost(id);
 		connectionFactory.setUsername(id);
 		connectionFactory.setPassword(id);
-		
+
 		connection = connectionFactory.newConnection();
 	}
 
@@ -45,7 +48,7 @@ public class RabbitMqService {
 	public int getPort() {
 		return port;
 	}
-	
+
 	public Connection rabbitmqClient() {
 		return connection;
 	}

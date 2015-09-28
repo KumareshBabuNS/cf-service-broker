@@ -1,6 +1,8 @@
 package de.evoila.config.web;
 
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
@@ -23,13 +25,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
+import org.yaml.snakeyaml.TypeDescription;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 
 import de.evoila.cf.broker.model.Catalog;
 import de.evoila.cf.broker.model.Plan;
-import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceDefinition;
-import de.evoila.cf.broker.model.VolumeUnit;
-import de.evoila.cf.cpi.openstack.custom.props.DefaultDatabaseCustomPropertyHandler;
+import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.cpi.openstack.custom.props.DomainBasedCustomPropertyHandler;
 
 /**
@@ -103,22 +106,51 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 
 	@Bean
 	public ServiceDefinition serviceDefinition() {
-		Plan dockerPlan = new Plan("docker-mongodb-25mb", "MongoDB-Docker-25MB",
-				"The most basic MongoDB plan currently available. Providing" + "25 MB of capcity in a MongoDB DB.",
-				Platform.DOCKER, 25, VolumeUnit.M, null, 4);
-		Plan openstackPlan = new Plan("openstack-mongodb-500mb", "MongoDB-VM-500MB",
-				"The most basic MongoDB plan currently available. Providing" + "500 MB of capcity in a MongoDB DB.",
-				Platform.OPENSTACK, 1, VolumeUnit.G, "3", 10);
+		ClassPathResource classPathResource = new ClassPathResource("servicedefinition.yml");
+		Constructor constructor = new Constructor(ServiceDefinition.class);
+		TypeDescription serviceDefictionDescription = new TypeDescription(ServiceDefinition.class);
+		serviceDefictionDescription.putListPropertyType("plans", Plan.class);
+		constructor.addTypeDescription(serviceDefictionDescription);
 
-		ServiceDefinition serviceDefinition = new ServiceDefinition("mongodb", "MongoDB", "MongoDB Instances", true,
-				Arrays.asList(dockerPlan, openstackPlan), Arrays.asList("syslog_drain"));
+		Yaml yaml = new Yaml(constructor);
 
+		ServiceDefinition serviceDefinition = null;
+		try {
+			serviceDefinition = (ServiceDefinition) yaml.load(classPathResource.getInputStream());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		return serviceDefinition;
 	}
 
 	@Bean
 	public DomainBasedCustomPropertyHandler domainPropertyHandler() {
-		return new DefaultDatabaseCustomPropertyHandler();
+		return new DomainBasedCustomPropertyHandler() {
+
+			@Override
+			public void addDomainBasedCustomProperties(Plan plan, Map<String, String> customParameters,
+					ServiceInstance serviceInstance) {
+			}
+		};
 	}
+
+	// @Bean
+	// public ServiceDefinition serviceDefinition() {
+	// Plan dockerPlan = new Plan("docker-mongodb-25mb", "MongoDB-Docker-25MB",
+	// "The most basic MongoDB plan currently available. Providing" + "25 MB of
+	// capcity in a MongoDB DB.",
+	// Platform.DOCKER, 25, VolumeUnit.M, null, 4);
+	// Plan openstackPlan = new Plan("openstack-mongodb-500mb",
+	// "MongoDB-VM-500MB",
+	// "The most basic MongoDB plan currently available. Providing" + "500 MB of
+	// capcity in a MongoDB DB.",
+	// Platform.OPENSTACK, 1, VolumeUnit.G, "3", 10);
+	//
+	// ServiceDefinition serviceDefinition = new ServiceDefinition("mongodb",
+	// "MongoDB", "MongoDB Instances", true,
+	// Arrays.asList(dockerPlan, openstackPlan), Arrays.asList("syslog_drain"));
+	//
+	// return serviceDefinition;
+	// }
 
 }

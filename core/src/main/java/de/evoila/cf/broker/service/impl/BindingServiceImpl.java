@@ -27,13 +27,13 @@ import de.evoila.cf.broker.service.BindingService;
 public abstract class BindingServiceImpl implements BindingService {
 
 	@Autowired
-	private BindingRepository bindingRepository;
+	protected BindingRepository bindingRepository;
 
 	@Autowired
-	private ServiceDefinitionRepository serviceDefinitionRepository;
+	protected ServiceDefinitionRepository serviceDefinitionRepository;
 
 	@Autowired
-	private ServiceInstanceRepository serviceInstanceRepository;
+	protected ServiceInstanceRepository serviceInstanceRepository;
 
 	protected abstract ServiceInstanceBindingResponse bindService(String bindingId, ServiceInstance instance, Plan plan)
 			throws ServiceBrokerException;

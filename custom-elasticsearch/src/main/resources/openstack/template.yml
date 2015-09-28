@@ -1,5 +1,5 @@
 heat_template_version: 2013-05-23
-description: Deployment Description for PostgreSQL
+description: Deployment Description for Elasticsearch
 parameters:
   image_id:
     type: string
@@ -22,15 +22,18 @@ parameters:
   availability_zone:
     type: string
     description: The Availability Zone to launch the instance.
-  rabbit_vhost:
-    type: string
-    description: Database name
-  rabbit_user:
-    type: string
-    description: Database user
-  rabbit_passw:
-    type: string
-    description: Database password
+#  database_name:
+#    type: string
+#    description: Database Name
+#  database_number:
+#    type: string
+#    description: Number of databases
+#  database_user:
+#    type: string
+#    description: Database user
+#  database_password:
+#    type: string
+#    description: Database password
 resources:
   nova_instance:
     type: OS::Nova::Server
@@ -44,20 +47,21 @@ resources:
         str_replace:
           template: |
             #!/bin/bash -v
-            export RABBITMQ_VERSION=3.5.4-1
-            export PATH=/usr/lib/rabbitmq/bin:$PATH
+            export ELASTICSEARCH_MAJOR=1.7
+            export ELASTICSEARCH_VERSION=1.7.1
+            export PATH=/usr/share/elasticsearch/bin:$PATH
             
-            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Rabbitmq/rabbitmq-install.sh
-            chmod +x rabbitmq-install.sh
-            ./rabbitmq-install.sh
+            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Elasticsearch/elasticsearch-install.sh
+            chmod +x elasticsearch-install.sh
+            ./elasticsearch-install.sh
             
-            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Rabbitmq/docker-entrypoint.sh
+            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Elasticsearch/docker-entrypoint.sh
             chmod +x docker-entrypoint.sh
-            ./docker-entrypoint.sh -d $amqp_vhost -u $amqp_user -p $amqp_passw rabbitmq-server            
+            ./docker-entrypoint.sh elasticsearch   
           params:
-            $amqp_vhost: {get_param: rabbit_vhost}
-            $amqp_user: {get_param: rabbit_user}
-            $amqp_passw: {get_param: rabbit_passw}
+            $db_number: {get_param: database_number}
+            $db_user: {get_param: database_user}
+            $db_password: {get_param: database_password}
   cinder_volume:
     type: OS::Cinder::Volume
     properties:

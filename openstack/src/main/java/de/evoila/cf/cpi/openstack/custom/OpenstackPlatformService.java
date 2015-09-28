@@ -22,6 +22,7 @@ import de.evoila.cf.broker.model.VolumeUnit;
 import de.evoila.cf.broker.repository.PlatformRepository;
 import de.evoila.cf.cpi.openstack.OpenstackServiceFactory;
 import de.evoila.cf.cpi.openstack.custom.exception.OpenstackPlatformException;
+import de.evoila.cf.cpi.openstack.custom.props.DomainBasedCustomPropertyHandler;
 
 /**
  * 
@@ -33,6 +34,9 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 
 	@Autowired
 	private PlatformRepository platformRepositroy;
+
+	@Autowired
+	private DomainBasedCustomPropertyHandler domainPropertyHandler;
 
 	@PostConstruct
 	@Override
@@ -69,10 +73,7 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 
 		String instanceId = serviceInstance.getId();
 
-		customParameters.put("database_name", instanceId);
-		customParameters.put("database_user", instanceId);
-		customParameters.put("database_password", instanceId);
-		customParameters.put("database_number", Integer.toString(plan.getConnections()));
+		domainPropertyHandler.addDomainBasedCustomProperties(plan, customParameters, serviceInstance);
 
 		try {
 			this.create(instanceId, customParameters);
