@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.evoila.cf.broker.custom;
+package de.evoila.cf.broker.custom.elasticsearch;
 
 import java.util.HashMap;
 import java.util.Map;
