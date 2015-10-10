@@ -48,7 +48,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 			throws ServiceInstanceDoesNotExistException, ServiceBrokerException {
 		String progress = asyncDeploymentService.getProgress(serviceInstanceId);
 		if (progress == null || !serviceInstanceRepository.containsServiceInstanceId(serviceInstanceId)) {
-			throw new ServiceInstanceDoesNotExistException(serviceInstanceId);
+			throw new ServiceInstanceDoesNotExistException("Service instance not found " + serviceInstanceId);
 		}
 		return new JobProgress(progress, "");
 	}

@@ -28,6 +28,9 @@ parameters:
   database_user:
     type: string
     description: Database user
+  database_number:
+    type: string
+    description: Database number
   database_password:
     type: string
     description: Database password

@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.ServiceInstance;
@@ -32,7 +31,7 @@ public class AsyncDeploymentServiceImpl implements AsyncDeploymentService {
 			deploymentService.syncCreateInstance(serviceInstance, plan, platformService);
 		} catch (Exception e) {
 			progressService.failJob(serviceInstance);
-			log.error(e.getMessage());
+			log.error("Exception during Instance creation", e);
 			return;
 		}
 		progressService.succeedProgress(serviceInstance);
@@ -47,9 +46,9 @@ public class AsyncDeploymentServiceImpl implements AsyncDeploymentService {
 
 		try {
 			deploymentService.syncDeleteInstance(serviceInstance, platformService);
-		} catch (ServiceBrokerException e) {
+		} catch (Exception e) {
 			progressService.failJob(serviceInstance);
-			e.printStackTrace();
+			log.error("Exception during Instance deletion", e);
 			return;
 		}
 		progressService.succeedProgress(serviceInstance);
@@ -57,7 +56,12 @@ public class AsyncDeploymentServiceImpl implements AsyncDeploymentService {
 
 	@Override
 	public String getProgress(String serviceInstanceId) {
-		return progressService.getProgress(serviceInstanceId);
+		try {
+			return progressService.getProgress(serviceInstanceId);
+		} catch (Exception e) {
+			log.error("Exception during Instance deletion", e);
+			return "";
+		}
 	}
 
 }

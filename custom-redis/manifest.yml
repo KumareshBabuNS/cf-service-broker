@@ -7,8 +7,9 @@ env:
   SPRING_PROFILES_ACTIVE: development
   JAVA_OPTS: -Djava.security.egd=file:/dev/urandom
 applications:
-## MongoDB Service Broker
 - name: redis
   host: redis
   path: target/ssb-redis.war
   buildpack: https://github.com/cloudfoundry/java-buildpack.git
+  memory: 512M
+  domain: 88.198.249.59.xip.io

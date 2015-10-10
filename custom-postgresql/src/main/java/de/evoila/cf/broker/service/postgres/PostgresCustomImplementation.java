@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.service.postgres.jdbc.PostgresDbService;
 
 /**
@@ -22,10 +23,20 @@ public class PostgresCustomImplementation {
 	@Autowired
 	private PostgresDbService jdbcService;
 
-	public void createRoleForInstance(String instanceId) throws SQLException {
-		jdbcService.checkValidUUID(instanceId);
-		jdbcService.executeUpdate("CREATE ROLE \"" + instanceId + "\"");
-		jdbcService.executeUpdate("ALTER DATABASE \"" + instanceId + "\" OWNER TO \"" + instanceId + "\"");
+	public void initServiceInstance(ServiceInstance serviceInstance, String[] databases) throws SQLException {
+		String serviceInstanceId = serviceInstance.getId();
+		if (!jdbcService.isConnected()) {
+			jdbcService.createConnection(serviceInstanceId, serviceInstance.getHost(), serviceInstance.getPort());
+		}
+		// jdbcService.checkValidUUID(instanceId);
+		jdbcService.executeUpdate("CREATE ROLE \"" + serviceInstanceId + "\"");
+		for (String database : databases) {
+			jdbcService.executeUpdate("CREATE DATABASE \"" + database + "\" OWNER \"" + serviceInstanceId + "\"");
+		}
+		// for (String database : databases) {
+		// jdbcService.executeUpdate("ALTER DATABASE \"" + database + "\" OWNER
+		// TO \"" + instanceId + "\"");
+		// }
 	}
 
 	public void deleteRole(String instanceId) throws SQLException {
@@ -42,12 +53,14 @@ public class PostgresCustomImplementation {
 		jdbcService.executeUpdate("CREATE ROLE \"" + bindingId + "\"");
 		jdbcService.executeUpdate("ALTER ROLE \"" + bindingId + "\" LOGIN password '" + passwd + "'");
 		jdbcService.executeUpdate(
-				"GRANT ALL PRIVILEGES ON DATABASE \"" + serviceInstanceId + "\" TO \"" + bindingId + "\"");
+				// "GRANT ALL PRIVILEGES ON DATABASE \"" + serviceInstanceId +
+				// "\" TO \"" + bindingId + "\"");
+				"GRANT \"" + serviceInstanceId + "\" TO \"" + bindingId + "\"");
 		return passwd;
 	}
 
-	public void unbindRoleFromDatabase(String dbInstanceId) throws SQLException {
-		jdbcService.checkValidUUID(dbInstanceId);
-		jdbcService.executeUpdate("ALTER ROLE \"" + dbInstanceId + "\" NOLOGIN");
+	public void unbindRoleFromDatabase(String bindingId) throws SQLException {
+		jdbcService.checkValidUUID(bindingId);
+		jdbcService.executeUpdate("ALTER ROLE \"" + bindingId + "\" NOLOGIN");
 	}
 }

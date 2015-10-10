@@ -4,12 +4,15 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.Executor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -42,8 +45,12 @@ import de.evoila.cf.cpi.openstack.custom.props.DomainBasedCustomPropertyHandler;
 @Configuration
 @EnableWebMvc
 @EnableAsync
-@ComponentScan(basePackages = { "de.evoila.cf.broker", "de.evoila.cf.cpi" })
+@ComponentScan(basePackages = { "de.evoila.cf.broker", "de.evoila.cf.cpi" }, excludeFilters = {
+		@ComponentScan.Filter(type = FilterType.REGEX, pattern = {
+				"de.evoila.cf.cpi.openstack.custom.OpenstackPlatformService" }) })
 public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements AsyncConfigurer {
+
+	Logger log = LoggerFactory.getLogger(CustomMvcConfiguration.class);
 
 	@Override
 	public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
@@ -91,7 +98,7 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 		try {
 			serviceDefinition = (ServiceDefinition) yaml.load(classPathResource.getInputStream());
 		} catch (IOException e) {
-			e.printStackTrace();
+			log.error("Could not find service defintion .yml file. Caused by ", e);
 		}
 		return serviceDefinition;
 	}
