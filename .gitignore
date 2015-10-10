@@ -6,7 +6,8 @@ target
 *.log
 .buildpath
 .metadata
-.classpath
-.project
-.springBeans
+custom-elasticsearch/.classpath
+custom-elasticsearch/.project
+core/.factorypath
+*/.springBeans
 .settings/
