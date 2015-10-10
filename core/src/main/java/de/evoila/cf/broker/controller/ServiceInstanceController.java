@@ -39,7 +39,7 @@ import de.evoila.cf.broker.service.impl.DeploymentServiceImpl;
 @RequestMapping(value = "/v2")
 public class ServiceInstanceController extends BaseController {
 
-	private static final Logger logger = LoggerFactory.getLogger(ServiceInstanceController.class);
+	private static final Logger log = LoggerFactory.getLogger(ServiceInstanceController.class);
 
 	public static final String SERVICE_INSTANCE_BASE_PATH = "/v2/service_instances";
 
@@ -50,7 +50,7 @@ public class ServiceInstanceController extends BaseController {
 	private CatalogService catalogService;
 
 	public ServiceInstanceController() {
-		logger.info("was here");
+		log.info("was here");
 	}
 
 	@RequestMapping(value = "/service_instances/{instanceId}", method = RequestMethod.PUT)
@@ -64,7 +64,7 @@ public class ServiceInstanceController extends BaseController {
 			throw new AsyncRequiredException();
 		}
 
-		logger.debug("PUT: " + SERVICE_INSTANCE_BASE_PATH + "/{instanceId}"
+		log.debug("PUT: " + SERVICE_INSTANCE_BASE_PATH + "/{instanceId}"
 				+ ", createServiceInstance(), serviceInstanceId = " + serviceInstanceId);
 
 		ServiceDefinition svc = catalogService.getServiceDefinition(request.getServiceDefinitionId());
@@ -77,7 +77,7 @@ public class ServiceInstanceController extends BaseController {
 				request.getServiceDefinitionId(), request.getPlanId(), request.getOrganizationGuid(),
 				request.getSpaceGuid(), request.getParameters());
 
-		logger.debug("ServiceInstance Created: " + serviceInstanceId);
+		log.debug("ServiceInstance Created: " + serviceInstanceId);
 
 		if (response.isAsync())
 			return new ResponseEntity<ServiceInstanceResponse>(response, HttpStatus.ACCEPTED);
@@ -100,13 +100,13 @@ public class ServiceInstanceController extends BaseController {
 			@RequestParam("service_id") String serviceId, @RequestParam("plan_id") String planId)
 					throws ServiceBrokerException, AsyncRequiredException, ServiceInstanceDoesNotExistException {
 
-		logger.debug("DELETE: " + SERVICE_INSTANCE_BASE_PATH + "/{instanceId}"
+		log.debug("DELETE: " + SERVICE_INSTANCE_BASE_PATH + "/{instanceId}"
 				+ ", deleteServiceInstanceBinding(), serviceInstanceId = " + instanceId + ", serviceId = " + serviceId
 				+ ", planId = " + planId);
 
 		deploymentService.deleteServiceInstance(instanceId);
 
-		logger.debug("ServiceInstance Deleted: " + instanceId);
+		log.debug("ServiceInstance Deleted: " + instanceId);
 
 		return new ResponseEntity<String>("{}", HttpStatus.OK);
 	}

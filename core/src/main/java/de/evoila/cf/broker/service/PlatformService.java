@@ -3,6 +3,8 @@
  */
 package de.evoila.cf.broker.service;
 
+import java.util.Map;
+
 import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.model.Plan;
@@ -67,7 +69,7 @@ public abstract interface PlatformService {
 	 * @return new ServiceInstance with updated fields
 	 * @throws Exception 
 	 */
-	public ServiceInstance createInstance(ServiceInstance instance, Plan plan) throws Exception;
+	public ServiceInstance createInstance(ServiceInstance instance, Plan plan, Map<String, String> customParameters) throws Exception;
 
 	/**
 	 * Same result as in PlatformService.createInstance(), but without creating

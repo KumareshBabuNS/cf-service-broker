@@ -1,0 +1,24 @@
+id: mongodb
+name: MongoDB
+description: MongoDB Instances
+bindable: true
+plans:
+  - id: docker-mongodb-25mb
+    name: MongoDB-Docker-25MB
+    description: The most basic MongoDB plan currently available. Providing 25 MB of capcity in a MongoDB DB.
+    metadata: 
+      guid : {id: test}
+    volumeSize: 25
+    volumeUnit: M
+    platform: DOCKER
+    connections: 4
+  - id: openstack-mongodb-500mb
+    name: MongoDB-VM-500MB
+    description: The most basic MongoDB plan currently available. Providing 500 MB of capcity in a MongoDB DB.
+    metadata: 
+      guid : {id: test}
+    volumeSize: 1
+    volumeUnit: G
+    platform: OPENSTACK
+    flavorId: 3
+    connections: 10

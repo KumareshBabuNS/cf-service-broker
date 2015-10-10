@@ -65,18 +65,20 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 	}
 
 	@Override
-	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan)
+	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan, Map<String, String> customParameters)
 			throws OpenstackPlatformException {
-		Map<String, String> customParameters = new HashMap<String, String>();
-		customParameters.put("flavor", plan.getFlavorId());
-		customParameters.put("volume_size", volumeSize(plan.getVolumeSize(), plan.getVolumeUnit()));
-
 		String instanceId = serviceInstance.getId();
 
-		domainPropertyHandler.addDomainBasedCustomProperties(plan, customParameters, serviceInstance);
+		Map<String, String> platformParameters = new HashMap<String, String>();
+		platformParameters.put("flavor", plan.getFlavorId());
+		platformParameters.put("volume_size", volumeSize(plan.getVolumeSize(), plan.getVolumeUnit()));
+
+		domainPropertyHandler.addDomainBasedCustomProperties(plan, platformParameters, serviceInstance);
+		
+		platformParameters.putAll(customParameters);
 
 		try {
-			this.create(instanceId, customParameters);
+			this.create(instanceId, platformParameters);
 		} catch (Exception e) {
 			throw new OpenstackPlatformException(e);
 		}

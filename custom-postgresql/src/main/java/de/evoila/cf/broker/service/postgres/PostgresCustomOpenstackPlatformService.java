@@ -7,7 +7,6 @@ import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.evoila.cf.broker.exception.ServiceBrokerException;
@@ -24,9 +23,6 @@ public class PostgresCustomOpenstackPlatformService extends OpenstackPlatformSer
 
 	Logger log = LoggerFactory.getLogger(PostgresCustomOpenstackPlatformService.class);
 
-	@Autowired
-	private PostgresCustomImplementation pgCustomImpl;
-
 	/**
 	 * 
 	 */
@@ -42,17 +38,6 @@ public class PostgresCustomOpenstackPlatformService extends OpenstackPlatformSer
 
 	@Override
 	public ServiceInstance postProvisioning(ServiceInstance serviceInstance, Plan plan) throws ServiceBrokerException {
-		// int connections = plan.getConnections();
-		// String[] databases = new String[connections];
-		// for (int i = 0; i < connections; i++) {
-		// databases[i] = Integer.toString(i);
-		// }
-		// try {
-		// pgCustomImpl.initServiceInstance(serviceInstance, databases);
-		// } catch (SQLException e) {
-		// log.error("SQL Exception wenn configuring database server ", e);
-		// throw new ServiceBrokerException(e.getMessage());
-		// }
 		return super.postProvisioning(serviceInstance, plan);
 	}
 

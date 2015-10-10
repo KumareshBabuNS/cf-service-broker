@@ -4,6 +4,8 @@
 package de.evoila.cf.cpi.configuration;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
@@ -40,6 +42,14 @@ public class IntegrationTestConfiguration {
 		Catalog catalog = new Catalog(Arrays.asList(serviceDefinition()));
 
 		return catalog;
+	}
+	
+	@Bean
+	public Map<String, String> customProperties() {
+		Map<String, String> customProperties = new HashMap<String, String>();
+		customProperties.put("database_name", "admin");
+		
+		return customProperties;
 	}
 	
 	@Bean

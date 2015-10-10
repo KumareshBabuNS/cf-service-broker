@@ -6,6 +6,8 @@ package de.evoila.cf.broker.service.impl;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.annotation.Resource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +44,9 @@ public class DeploymentServiceImpl implements DeploymentService {
 
 	@Autowired(required = false)
 	private AsyncDeploymentService asyncDeploymentService;
+	
+	@Resource(name = "customProperties")
+	public Map<String, String> customProperties;
 
 	@Override
 	public JobProgress getLastOperation(String serviceInstanceId)
@@ -92,7 +97,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 			PlatformService platformService) throws ServiceBrokerException {
 		ServiceInstance createdServiceInstance;
 		try {
-			createdServiceInstance = platformService.createInstance(serviceInstance, plan);
+			createdServiceInstance = platformService.createInstance(serviceInstance, plan, customProperties);
 		} catch (Exception e) {
 			throw new ServiceBrokerException("Could not create instance due to: " + e.getMessage());
 		}

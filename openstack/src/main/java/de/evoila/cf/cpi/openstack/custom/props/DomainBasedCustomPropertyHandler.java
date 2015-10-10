@@ -13,6 +13,8 @@ import de.evoila.cf.broker.model.ServiceInstance;
  *
  */
 public interface DomainBasedCustomPropertyHandler {
+	
 	public void addDomainBasedCustomProperties(Plan plan, Map<String, String> customParameters,
 			ServiceInstance serviceInstance);
+	
 }

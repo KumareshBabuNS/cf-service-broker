@@ -2,10 +2,6 @@ id: postgres
 name: PostgreSQL
 description: PostgreSQL Instances
 bindable: true
-#tags:
- # - syslog_drain
-#metadata: 
-  #guid : {id: testDef}
 plans:
   - id: docker-postgresql-25mb
     name: PostgreSQL-Docker-25MB

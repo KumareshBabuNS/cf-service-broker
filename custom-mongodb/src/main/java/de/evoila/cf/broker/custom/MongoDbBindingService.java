@@ -93,7 +93,7 @@ public class MongoDbBindingService extends BindingServiceImpl {
 	@Override
 	protected void deleteBinding(String bindingId, ServiceInstance serviceInstance) throws ServiceBrokerException {
 		connection(serviceInstance);
-
+		
 		mongoDbService.mongoClient().getDatabase(serviceInstance.getId())
 				.runCommand(new BasicDBObject("dropUser", bindingId));
 	}

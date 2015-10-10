@@ -39,8 +39,16 @@ public class HeatFluent {
 
 	public Stack create(String name, String template, Map<String, String> parameters, boolean disableRollback,
 			Long timeOutMins) {
-		Stack stack = client().heat().stacks().create(Builders.stack().name(name).template(template)
-				.parameters(parameters).disableRollback(disableRollback).timeoutMins(timeOutMins).build());
+		Stack stack = client()
+				.heat()
+				.stacks()
+				.create(Builders.stack()
+						.name(name)
+						.template(template)
+						.parameters(parameters)
+						.disableRollback(disableRollback)
+						.timeoutMins(timeOutMins)
+						.build());
 
 		return stack;
 	}

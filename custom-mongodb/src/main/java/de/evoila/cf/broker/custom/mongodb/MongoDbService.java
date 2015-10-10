@@ -29,6 +29,9 @@ public class MongoDbService {
 	}
 
 	public void createConnection(String id, String host, int port) {
+		this.host = host;
+		this.port = port;
+		
 		MongoCredential mongoCredential = MongoCredential.createScramSha1Credential(id, "admin", id.toCharArray());
 		mongoClient = new MongoClient(new ServerAddress(host, port), Arrays.asList(mongoCredential));
 	}

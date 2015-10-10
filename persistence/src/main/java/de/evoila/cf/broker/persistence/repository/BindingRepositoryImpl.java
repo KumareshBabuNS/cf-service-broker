@@ -49,4 +49,13 @@ public class BindingRepositoryImpl extends StringCrudRepositoryImpl implements B
 		return exists(bindingId);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see de.evoila.cf.broker.repository.BindingRepository#deleteBinding(java.lang.String)
+	 */
+	@Override
+	public void deleteBinding(String bindingId) {
+		this.delete(bindingId);
+	}
+
 }

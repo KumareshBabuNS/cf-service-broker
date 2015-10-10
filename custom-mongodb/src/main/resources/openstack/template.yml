@@ -31,6 +31,9 @@ parameters:
   database_password:
     type: string
     description: Database password
+  database_number:
+    type: string
+    description: Database number
 resources:
   nova_instance:
     type: OS::Nova::Server
@@ -40,6 +43,8 @@ resources:
       key_name: {get_param: keypair}
       networks: [{network: {get_param: network_id} }]
       user_data_format: RAW
+      security_groups:
+        - all
       user_data:
         str_replace:
           template: |

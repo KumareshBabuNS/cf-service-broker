@@ -100,7 +100,7 @@ public class PostgreSQLBindingService extends BindingServiceImpl {
 			throw new ServiceBrokerException("Could not update database");
 		}
 
-		String dbURL = String.format("postgres://%s:%s@%s:%d/%s", serviceInstance.getId(), password,
+		String dbURL = String.format("postgres://%s:%s@%s:%d/%s", bindingId, password,
 				jdbcService.getHost(), jdbcService.getPort(), serviceInstance.getId());
 
 		Map<String, Object> credentials = new HashMap<String, Object>();

@@ -14,7 +14,7 @@ import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.service.postgres.jdbc.PostgresDbService;
 
 /**
- * @author Johannes Hiemer
+ * @author Johannes Hiemer.
  *
  */
 @Service
@@ -28,15 +28,10 @@ public class PostgresCustomImplementation {
 		if (!jdbcService.isConnected()) {
 			jdbcService.createConnection(serviceInstanceId, serviceInstance.getHost(), serviceInstance.getPort());
 		}
-		// jdbcService.checkValidUUID(instanceId);
 		jdbcService.executeUpdate("CREATE ROLE \"" + serviceInstanceId + "\"");
 		for (String database : databases) {
 			jdbcService.executeUpdate("CREATE DATABASE \"" + database + "\" OWNER \"" + serviceInstanceId + "\"");
 		}
-		// for (String database : databases) {
-		// jdbcService.executeUpdate("ALTER DATABASE \"" + database + "\" OWNER
-		// TO \"" + instanceId + "\"");
-		// }
 	}
 
 	public void deleteRole(String instanceId) throws SQLException {
@@ -52,10 +47,9 @@ public class PostgresCustomImplementation {
 
 		jdbcService.executeUpdate("CREATE ROLE \"" + bindingId + "\"");
 		jdbcService.executeUpdate("ALTER ROLE \"" + bindingId + "\" LOGIN password '" + passwd + "'");
-		jdbcService.executeUpdate(
-				// "GRANT ALL PRIVILEGES ON DATABASE \"" + serviceInstanceId +
-				// "\" TO \"" + bindingId + "\"");
-				"GRANT \"" + serviceInstanceId + "\" TO \"" + bindingId + "\"");
+		jdbcService.executeUpdate("GRANT \"" + serviceInstanceId + "\" TO \"" + bindingId + "\"");
+		jdbcService.executeUpdate("GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO \"" + bindingId + "\"");
+		jdbcService.executeUpdate("GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO \"" + bindingId + "\"");
 		return passwd;
 	}
 

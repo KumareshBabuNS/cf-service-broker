@@ -2,6 +2,8 @@ package de.evoila.config.web;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 import org.slf4j.Logger;
@@ -77,7 +79,7 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 	public PropertySourcesPlaceholderConfigurer standardProperties() {
 		PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertySourcesPlaceholderConfigurer();
 		Resource[] resources = new ClassPathResource[] { new ClassPathResource("persistence.properties"),
-				new ClassPathResource("openstack.properties"), new ClassPathResource("container.properites") };
+				new ClassPathResource("/cpi/openstack.properties"), new ClassPathResource("/cpi/container.properites") };
 		propertyPlaceholderConfigurer.setOrder(PropertyPlaceholderConfigurer.HIGHEST_PRECEDENCE);
 		propertyPlaceholderConfigurer.setLocations(resources);
 		propertyPlaceholderConfigurer.setIgnoreUnresolvablePlaceholders(true);
@@ -86,7 +88,7 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 
 	@Bean
 	public ServiceDefinition serviceDefinition() {
-		ClassPathResource classPathResource = new ClassPathResource("servicedefinition.yml");
+		ClassPathResource classPathResource = new ClassPathResource("/plans/service-definition.yml");
 		Constructor constructor = new Constructor(ServiceDefinition.class);
 		TypeDescription serviceDefictionDescription = new TypeDescription(ServiceDefinition.class);
 		serviceDefictionDescription.putListPropertyType("plans", Plan.class);
@@ -100,7 +102,16 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 		} catch (IOException e) {
 			log.error("Could not find service defintion .yml file. Caused by ", e);
 		}
+		serviceDefinition.setRequires(Arrays.asList("syslog_drain"));
+		
 		return serviceDefinition;
+	}
+
+	@Bean(name = "customProperties")
+	public Map<String, String> customProperties() {
+		Map<String, String> customProperties = new HashMap<String, String>();
+		
+		return customProperties;
 	}
 
 	@Override
@@ -135,26 +146,5 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 	public DomainBasedCustomPropertyHandler domainPropertyHandler() {
 		return new DefaultDatabaseCustomPropertyHandler();
 	}
-
-	// @Bean
-	// public ServiceDefinition serviceDefinition() {
-	// Plan dockerPlan = new Plan("docker-postgresql-25mb",
-	// "PostgreSQL-Docker-25MB",
-	// "The most basic PostgreSQL plan currently available. Providing"
-	// + "25 MB of capcity in a PostgreSQL DB.",
-	// Platform.DOCKER, 25, VolumeUnit.M, null, 4);
-	// Plan openstackPlan = new Plan("openstack-postgresql-500mb",
-	// "PostgreSQL-VM-500MB",
-	// "The most basic PostgreSQL plan currently available. Providing"
-	// + "500 MB of capcity in a PostgreSQL DB.",
-	// Platform.OPENSTACK, 1, VolumeUnit.G, "3", 10);
-	//
-	// ServiceDefinition serviceDefinition = new ServiceDefinition("postgres",
-	// "PostgreSQL", "PostgreSQL Instances",
-	// true, Arrays.asList(dockerPlan, openstackPlan),
-	// Arrays.asList("syslog_drain"));
-	//
-	// return serviceDefinition;
-	// }
 
 }
