@@ -25,15 +25,15 @@ parameters:
   database_name:
     type: string
     description: Database Name
-  database_number:
-    type: string
-    description: Number of databases
   database_user:
     type: string
     description: Database user
   database_password:
     type: string
     description: Database password
+  database_number:
+    type: string
+    description: Number of databases
 resources:
   nova_instance:
     type: OS::Nova::Server
@@ -43,6 +43,8 @@ resources:
       key_name: {get_param: keypair}
       networks: [{network: {get_param: network_id} }]
       user_data_format: RAW
+      security_groups:
+        - all
       user_data:
         str_replace:
           template: |

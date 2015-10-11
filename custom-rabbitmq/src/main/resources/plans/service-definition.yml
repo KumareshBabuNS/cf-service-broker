@@ -2,10 +2,6 @@ id: rabbitmq
 name: RabbitMQ
 description: RabbitMQ Instances
 bindable: true
-#tags:
- # - syslog_drain
-#metadata: 
-  #guid : {id: testDef}
 plans:
   - id: docker-rabbit-25mb
     name: RabbitMQ-Docker-25MB

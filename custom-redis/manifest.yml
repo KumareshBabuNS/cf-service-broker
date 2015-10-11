@@ -11,5 +11,3 @@ applications:
   host: redis
   path: target/ssb-redis.war
   buildpack: https://github.com/cloudfoundry/java-buildpack.git
-  memory: 512M
-  domain: 88.198.249.59.xip.io

@@ -27,9 +27,7 @@ public class RabbitMQCustomPropertyHandler implements DomainBasedCustomPropertyH
 			ServiceInstance serviceInstance) {
 		String id = serviceInstance.getId();
 		customParameters.put("rabbit_vhost", id);
-
-		// TODO add secure user/pass-combination
-		customParameters.put("rabbit_user", "evoila");
-		customParameters.put("rabbit_passw", "evoila");
+		customParameters.put("rabbit_user", id);
+		customParameters.put("rabbit_password", id);
 	}
 }

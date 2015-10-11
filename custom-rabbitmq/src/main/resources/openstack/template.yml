@@ -1,5 +1,5 @@
 heat_template_version: 2013-05-23
-description: Deployment Description for PostgreSQL
+description: Deployment Description for RabbitMQ
 parameters:
   image_id:
     type: string
@@ -28,7 +28,7 @@ parameters:
   rabbit_user:
     type: string
     description: Database user
-  rabbit_passw:
+  rabbit_password:
     type: string
     description: Database password
 resources:
@@ -40,11 +40,13 @@ resources:
       key_name: {get_param: keypair}
       networks: [{network: {get_param: network_id} }]
       user_data_format: RAW
+      security_groups:
+        - all
       user_data:
         str_replace:
           template: |
             #!/bin/bash -v
-            export RABBITMQ_VERSION=3.5.4-1
+            export RABBITMQ_VERSION=3.5.6-1
             export PATH=/usr/lib/rabbitmq/bin:$PATH
             
             wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Rabbitmq/rabbitmq-install.sh
@@ -53,11 +55,11 @@ resources:
             
             wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Rabbitmq/docker-entrypoint.sh
             chmod +x docker-entrypoint.sh
-            ./docker-entrypoint.sh -d $amqp_vhost -u $amqp_user -p $amqp_passw rabbitmq-server            
+            ./docker-entrypoint.sh -d $amqp_vhost -u $amqp_user -p $amqp_password rabbitmq-server            
           params:
             $amqp_vhost: {get_param: rabbit_vhost}
             $amqp_user: {get_param: rabbit_user}
-            $amqp_passw: {get_param: rabbit_passw}
+            $amqp_password: {get_param: rabbit_password}
   cinder_volume:
     type: OS::Cinder::Volume
     properties:

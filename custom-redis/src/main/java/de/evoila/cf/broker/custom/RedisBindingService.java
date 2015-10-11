@@ -55,7 +55,6 @@ public class RedisBindingService extends BindingServiceImpl {
 	@Override
 	protected void deleteBinding(String bindingId, ServiceInstance serviceInstance) throws ServiceBrokerException {
 		log.debug("unbind Service");
-		// TODO
 	}
 
 	@Override

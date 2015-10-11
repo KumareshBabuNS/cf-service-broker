@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.evoila.cf.broker.custom.mongodb;
+package de.evoila.cf.broker.custom.rabbitmq;
 
 import java.io.IOException;
 
