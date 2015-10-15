@@ -73,7 +73,7 @@ public class ServiceInstanceBindingController extends BaseController {
 		try {
 			bindingService.deleteServiceInstanceBinding(bindingId);
 		} catch (ServerviceInstanceBindingDoesNotExistsException e) {
-			return new ResponseEntity<String>("{}", HttpStatus.NOT_FOUND);
+			return new ResponseEntity<String>("{}", HttpStatus.GONE);
 		}
 
 		log.debug("ServiceInstanceBinding Deleted: " + bindingId);
