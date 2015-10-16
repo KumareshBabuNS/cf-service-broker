@@ -70,7 +70,7 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 	public PropertyPlaceholderConfigurer properties() {
 		PropertyPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertyPlaceholderConfigurer();
 		Resource[] resources = new ClassPathResource[] { new ClassPathResource("persistence.properties"),
-				new ClassPathResource("openstack.properties"), new ClassPathResource("container.properites") };
+				new ClassPathResource("openstack.properties"), new ClassPathResource("container.properties") };
 		propertyPlaceholderConfigurer.setLocations(resources);
 		propertyPlaceholderConfigurer.setIgnoreUnresolvablePlaceholders(true);
 		return propertyPlaceholderConfigurer;

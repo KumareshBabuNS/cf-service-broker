@@ -71,7 +71,8 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 	public PropertyPlaceholderConfigurer properties() {
 		PropertyPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertyPlaceholderConfigurer();
 		Resource[] resources = new ClassPathResource[] { new ClassPathResource("persistence.properties"),
-				new ClassPathResource("/cpi/openstack.properties"), new ClassPathResource("/cpi/container.properites") };
+				new ClassPathResource("/cpi/openstack.properties"),
+				new ClassPathResource("/cpi/container.properties") };
 		propertyPlaceholderConfigurer.setLocations(resources);
 		propertyPlaceholderConfigurer.setIgnoreUnresolvablePlaceholders(true);
 		return propertyPlaceholderConfigurer;
@@ -122,14 +123,14 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 			e.printStackTrace();
 		}
 		serviceDefinition.setRequires(Arrays.asList("syslog_drain"));
-		
+
 		return serviceDefinition;
 	}
-	
+
 	@Bean(name = "customProperties")
 	public Map<String, String> customProperties() {
 		Map<String, String> customProperties = new HashMap<String, String>();
-		
+
 		return customProperties;
 	}
 
