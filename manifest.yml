@@ -25,5 +25,5 @@ applications:
 ## RabbitMQ Service Broker
 - name: rabbit
   host: rabbit
-  path: target/ssb-rabbitmq.war
+  path: custom-rabbitmq/target/ssb-rabbitmq.war
   buildpack: https://github.com/cloudfoundry/java-buildpack.git
