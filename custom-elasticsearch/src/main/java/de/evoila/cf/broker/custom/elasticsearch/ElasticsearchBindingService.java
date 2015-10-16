@@ -29,12 +29,10 @@ public class ElasticsearchBindingService extends BindingServiceImpl {
 
 	public void create(ServiceInstance serviceInstance, Plan plan) {
 		log.debug("created Binding");
-		// TODO
 	}
 
 	public void delete(ServiceInstance serviceInstance, Plan plan) {
 		log.debug("deleted Binding");
-		// TODO
 	}
 
 	@Override
@@ -43,8 +41,7 @@ public class ElasticsearchBindingService extends BindingServiceImpl {
 
 		log.debug("bind Service");
 
-		String dbURL = String.format("http://%s:%d/%s", serviceInstance.getHost(), serviceInstance.getPort(),
-				serviceInstance.getId());
+		String dbURL = String.format("http://%s:%d", serviceInstance.getHost(), serviceInstance.getPort());
 
 		Map<String, Object> credentials = new HashMap<String, Object>();
 		credentials.put("uri", dbURL);
@@ -55,7 +52,6 @@ public class ElasticsearchBindingService extends BindingServiceImpl {
 	@Override
 	protected void deleteBinding(String bindingId, ServiceInstance serviceInstance) throws ServiceBrokerException {
 		log.debug("unbind Service");
-		// TODO
 	}
 
 	@Override

@@ -58,10 +58,10 @@ resources:
             wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Elasticsearch/docker-entrypoint.sh
             chmod +x docker-entrypoint.sh
             ./docker-entrypoint.sh elasticsearch   
-          params:
-            $db_number: {get_param: database_number}
-            $db_user: {get_param: database_user}
-            $db_password: {get_param: database_password}
+#          params:
+#            $db_number: {get_param: database_number}
+#            $db_user: {get_param: database_user}
+#            $db_password: {get_param: database_password}
   cinder_volume:
     type: OS::Cinder::Volume
     properties:
