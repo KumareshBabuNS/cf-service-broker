@@ -12,7 +12,7 @@ import de.evoila.cf.broker.repository.BindingRepository;
  *
  */
 @Repository
-public class BindingRepositoryImpl extends StringCrudRepositoryImpl implements BindingRepository {
+public class BindingRepositoryImpl extends StringCrudRepository implements BindingRepository {
 
 	/*
 	 * (non-Javadoc)

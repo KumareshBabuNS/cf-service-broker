@@ -43,8 +43,7 @@ public class RedisBindingService extends BindingServiceImpl {
 
 		log.debug("bind Service");
 
-		String dbURL = String.format("http://%s:%d/%s", serviceInstance.getHost(), serviceInstance.getPort(),
-				serviceInstance.getId());
+		String dbURL = String.format("redis://:%s@%s:%d", serviceInstance.getId(), serviceInstance.getHost(), serviceInstance.getPort());
 
 		Map<String, Object> credentials = new HashMap<String, Object>();
 		credentials.put("uri", dbURL);
