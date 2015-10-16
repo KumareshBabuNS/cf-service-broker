@@ -61,12 +61,25 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 
 	@Override
 	public ServiceInstance postProvisioning(ServiceInstance serviceInstance, Plan plan) throws ServiceBrokerException {
+		boolean available;
+		try {
+			available = super.verifyServiceAvailability(serviceInstance.getId(), serviceInstance.getPort());
+		} catch (Exception e) {
+			throw new ServiceBrokerException(
+					"Service instance is not reachable. Service may not be started on instance.", e);
+		}
+
+		if (!available) {
+			throw new ServiceBrokerException(
+					"Service instance is not reachable. Service may not be started on instance.");
+		}
+
 		return serviceInstance;
 	}
 
 	@Override
-	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan, Map<String, String> customParameters)
-			throws OpenstackPlatformException {
+	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan,
+			Map<String, String> customParameters) throws OpenstackPlatformException {
 		String instanceId = serviceInstance.getId();
 
 		Map<String, String> platformParameters = new HashMap<String, String>();
@@ -74,7 +87,7 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 		platformParameters.put("volume_size", volumeSize(plan.getVolumeSize(), plan.getVolumeUnit()));
 
 		domainPropertyHandler.addDomainBasedCustomProperties(plan, platformParameters, serviceInstance);
-		
+
 		platformParameters.putAll(customParameters);
 
 		try {

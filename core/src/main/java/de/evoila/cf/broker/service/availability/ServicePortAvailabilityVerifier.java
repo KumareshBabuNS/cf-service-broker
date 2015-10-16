@@ -16,13 +16,21 @@ import org.slf4j.LoggerFactory;
  */
 public class ServicePortAvailabilityVerifier {
 
-	private static final int SOCKET_TIMEOUT = 5000;
-	
+	private static final int SOCKET_TIMEOUT = 10000;
+
+	private static final int INITIAL_TIMEOUT = 3600 * 1000;
+
 	private static Logger log = LoggerFactory.getLogger(ServicePortAvailabilityVerifier.class);
 
 	public static boolean execute(String ip, int port) {
 		boolean available = false;
-		
+
+		try {
+			Thread.sleep(INITIAL_TIMEOUT);
+		} catch (InterruptedException e1) {
+			log.info("Initial timeout was interrupted.", e1);
+		}
+
 		Socket socket = new Socket();
 		try {
 			socket.connect(new InetSocketAddress(ip, port), SOCKET_TIMEOUT);
