@@ -2,7 +2,9 @@ package de.evoila.cf.cpi.docker;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -15,6 +17,8 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.model.Bind;
+import com.github.dockerjava.api.model.Container;
+import com.github.dockerjava.api.model.Container.Port;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.PortBinding;
 import com.github.dockerjava.api.model.Ports.Binding;
@@ -25,11 +29,12 @@ import com.github.dockerjava.core.DockerClientConfig.DockerClientConfigBuilder;
 import com.github.dockerjava.core.LocalDirectorySSLConfig;
 import com.github.dockerjava.core.SSLConfig;
 
+import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.service.PlatformService;
 
 /**
  * 
- * @author Dennis Mueller, evoila GmbH, Aug 26, 2015
+ * @author Dennis Mueller, evoila GmbH.
  *
  */
 public abstract class DockerServiceFactory implements PlatformService {
@@ -72,9 +77,46 @@ public abstract class DockerServiceFactory implements PlatformService {
 
 	@Value("${docker.volume.service.port}")
 	private String dockerVolumePort;
+	
+	@Value("${docker.portRange.start}")
+	private Integer portRangeStart;
+	
+	@Value("${docker.portRange.end}")
+	private Integer portRangeEnd;
+	
+	private List<Integer> availablePorts = new ArrayList<Integer>();
+	
+	private List<Integer> usedPorts = new ArrayList<Integer>();
+	
+	private void listUsedPortForHost() throws ServiceBrokerException {
+		DockerClient dockerClient = this.createDockerClientInstance();
+		List<Container> containers = dockerClient.listContainersCmd().exec();
+		
+		for (Container container : containers) {
+			for (Port port : container.getPorts()) 
+				usedPorts.add(port.getPublicPort());
+		}
+	}
+	
+	private void intersect() throws ServiceBrokerException {
+		availablePorts.removeAll(usedPorts);
+		
+		if (availablePorts.isEmpty())
+			throw new ServiceBrokerException("The Port Range for your Docker Host is exhausted");
+	}
+	
+	private Integer resolveNextAvailablePort() {
+		return this.availablePorts.get(0);
+	}
 
-	private DockerClient createDockerClientInstance() {
+	private DockerClient createDockerClientInstance() throws ServiceBrokerException {
 		URL url = this.getClass().getResource("/docker/");
+		
+		for (int i = portRangeStart; i<portRangeEnd; i++) 
+			availablePorts.add(i);
+		
+		this.listUsedPortForHost();
+		this.intersect();
 		
 		SSLConfig sslConfig = new LocalDirectorySSLConfig(url.getPath());
 		DockerClientConfig dockerClientConfig = new DockerClientConfigBuilder()
@@ -95,10 +137,10 @@ public abstract class DockerServiceFactory implements PlatformService {
 	}
 
 	private CreateContainerResponse createDockerContainer(String mountPoint, String vhost,
-			String username, String password) {
+			String username, String password) throws ServiceBrokerException {
 		DockerClient dockerClient = this.createDockerClientInstance();
-		// XXX: port mapping
-		Binding binding = new Binding(PORT);
+		
+		Binding binding = new Binding(this.resolveNextAvailablePort());
 		ExposedPort exposedPort = new ExposedPort(this.containerPort);
 		PortBinding portBinding = new PortBinding(binding, exposedPort);
 		Volume volume = new Volume(this.containerVolume);
@@ -106,16 +148,21 @@ public abstract class DockerServiceFactory implements PlatformService {
 		CreateContainerCmd containerCmd = dockerClient
 				.createContainerCmd(imageName).withPortBindings(portBinding)
 				.withVolumes(volume).withBinds(bind);
+		
 		if (usernameEnv != null) {
 			containerCmd.withEnv(getEnviornment(usernameEnv, username));
 		}
+		
 		if (passwordEnv != null) {
 			containerCmd.withEnv(getEnviornment(passwordEnv, password));
 		}
+		
 		if (vHostEnv != null) {
 			containerCmd.withEnv(getEnviornment(vHostEnv, vhost));
 		}
+		
 		logger.trace(containerCmd.toString());
+		
 		CreateContainerResponse container = containerCmd.exec();
 		dockerClient.startContainerCmd(container.getId()).exec();
 		try {
@@ -124,10 +171,11 @@ public abstract class DockerServiceFactory implements PlatformService {
 			logger.error("On docker client close: " + e.getMessage());
 			e.printStackTrace();
 		}
+		
 		return container;
 	}
 
-	public CreateContainerResponse createDockerContainer(String instanceId, int voluneSize, String vhost, String username, String password) {
+	public CreateContainerResponse createDockerContainer(String instanceId, int voluneSize, String vhost, String username, String password) throws Exception {
 		Properties volume = this.createDockerVolume(voluneSize
 				+ this.offset);
 		String mountPoint = volume.getProperty("mountPoint");
@@ -139,9 +187,9 @@ public abstract class DockerServiceFactory implements PlatformService {
 		try {
 			container = this.createDockerContainer(mountPoint, vhost,
 					username, password);
-		} catch (Exception e) {
+		} catch (ServiceBrokerException e) {
 			logger.error("Cannot create docker container");
-			throw e;
+			throw new ServiceBrokerException("Error during container creation", e);
 		}
 		logger.trace("Docker container '" + container.getId() + "' created with: -p "
 				+ this.containerPort + ":" + "PORT" + " -v " + mountPoint + ":"

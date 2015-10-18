@@ -68,7 +68,7 @@ public class DockerPlatformService extends DockerServiceFactory {
 	}
 
 	@Override
-	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan, Map<String, String> customProperties) {
+	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan, Map<String, String> customProperties) throws Exception {
 		String instanceId = serviceInstance.getId();
 		String vhost = instanceId;
 		String username = instanceId;

@@ -158,13 +158,13 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 		ServicePortAvailabilityVerifier.initialSleep();
 		for (int i = 0; i < this.connectionTimeouts; i++) {
 			available = ServicePortAvailabilityVerifier.execute(this.primaryIp(instanceId), port);
+			
 			log.info("Service Port availability: " + available);
 
 			if (available) {
 				break;
 			}
 		}
-
 		return available;
 	}
 
