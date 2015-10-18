@@ -3,7 +3,7 @@
  */
 package de.evoila.cf.broker.service.postgresql.documentation.service;
 
-import static org.springframework.restdocs.RestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 

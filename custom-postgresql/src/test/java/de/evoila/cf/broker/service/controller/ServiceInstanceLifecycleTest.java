@@ -4,7 +4,7 @@
 package de.evoila.cf.broker.service.controller;
 
 import static org.junit.Assert.assertTrue;
-import static org.springframework.restdocs.RestDocumentation.document;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
