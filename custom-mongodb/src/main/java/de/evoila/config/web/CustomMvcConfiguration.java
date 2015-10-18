@@ -47,7 +47,7 @@ import de.evoila.cf.cpi.openstack.custom.props.DomainBasedCustomPropertyHandler;
 @EnableAsync
 @ComponentScan(basePackages = { "de.evoila.cf.broker", "de.evoila.cf.cpi" })
 public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements AsyncConfigurer {
-	
+
 	Logger log = LoggerFactory.getLogger(CustomMvcConfiguration.class);
 
 	@Override
@@ -75,7 +75,8 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 	public PropertyPlaceholderConfigurer properties() {
 		PropertyPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertyPlaceholderConfigurer();
 		Resource[] resources = new ClassPathResource[] { new ClassPathResource("persistence.properties"),
-				new ClassPathResource("/cpi/openstack.properties"), new ClassPathResource("/cpi/container.properites") };
+				new ClassPathResource("/cpi/openstack.properties"),
+				new ClassPathResource("/cpi/container.properties") };
 		propertyPlaceholderConfigurer.setLocations(resources);
 		propertyPlaceholderConfigurer.setIgnoreUnresolvablePlaceholders(true);
 		return propertyPlaceholderConfigurer;
@@ -126,18 +127,17 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 			log.error("Could not find service defintion .yml file. Caused by ", e);
 		}
 		serviceDefinition.setRequires(Arrays.asList("syslog_drain"));
-		
+
 		return serviceDefinition;
 	}
-	
+
 	@Bean(name = "customProperties")
 	public Map<String, String> customProperties() {
 		Map<String, String> customProperties = new HashMap<String, String>();
 		customProperties.put("database_name", "admin");
-		
+
 		return customProperties;
 	}
-
 
 	@Bean
 	public DomainBasedCustomPropertyHandler domainPropertyHandler() {

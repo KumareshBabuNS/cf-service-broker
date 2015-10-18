@@ -80,6 +80,9 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 	@Value("${backend.default.port}")
 	protected int defaultPort;
 
+	@Value("${backend.connection.timeouts}")
+	protected int connectionTimeouts;
+
 	private String heatTemplate;
 
 	private static String DEFAULT_ENCODING = "UTF-8";
@@ -152,9 +155,15 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 	protected boolean verifyServiceAvailability(String instanceId, int port) throws OpenstackPlatformException {
 		boolean available = false;
 
-		available = ServicePortAvailabilityVerifier.execute(this.primaryIp(instanceId), port);
+		ServicePortAvailabilityVerifier.initialSleep();
+		for (int i = 0; i < this.connectionTimeouts; i++) {
+			available = ServicePortAvailabilityVerifier.execute(this.primaryIp(instanceId), port);
+			log.info("Service Port availability: " + available);
 
-		log.info("Service Port availability: " + available);
+			if (available) {
+				break;
+			}
+		}
 
 		return available;
 	}

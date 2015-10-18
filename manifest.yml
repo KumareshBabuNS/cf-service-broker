@@ -27,3 +27,8 @@ applications:
   host: rabbit
   path: custom-rabbitmq/target/ssb-rabbitmq.war
   buildpack: https://github.com/cloudfoundry/java-buildpack.git
+## Elasticsearch Service Broker
+- name: elasticsearch
+  host: elasticsearch
+  path: custom-elasticsearch/target/ssb-elasticsearch.war
+  buildpack: https://github.com/cloudfoundry/java-buildpack.git

@@ -79,7 +79,8 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 	public PropertySourcesPlaceholderConfigurer standardProperties() {
 		PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertySourcesPlaceholderConfigurer();
 		Resource[] resources = new ClassPathResource[] { new ClassPathResource("persistence.properties"),
-				new ClassPathResource("/cpi/openstack.properties"), new ClassPathResource("/cpi/container.properites") };
+				new ClassPathResource("/cpi/openstack.properties"),
+				new ClassPathResource("/cpi/container.properties") };
 		propertyPlaceholderConfigurer.setOrder(PropertyPlaceholderConfigurer.HIGHEST_PRECEDENCE);
 		propertyPlaceholderConfigurer.setLocations(resources);
 		propertyPlaceholderConfigurer.setIgnoreUnresolvablePlaceholders(true);
@@ -103,14 +104,14 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 			log.error("Could not find service defintion .yml file. Caused by ", e);
 		}
 		serviceDefinition.setRequires(Arrays.asList("syslog_drain"));
-		
+
 		return serviceDefinition;
 	}
 
 	@Bean(name = "customProperties")
 	public Map<String, String> customProperties() {
 		Map<String, String> customProperties = new HashMap<String, String>();
-		
+
 		return customProperties;
 	}
 
