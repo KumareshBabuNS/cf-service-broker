@@ -24,11 +24,10 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<org.springframework>4.2.1.RELEASE</org.springframework>
-		<org.springframework.security>3.2.0.RELEASE</org.springframework.security>
-		<org.springframework.mongodb>1.4.0.M1</org.springframework.mongodb>
+		<org.springframework>4.2.2.RELEASE</org.springframework>
+		<org.springframework.security>4.0.2.RELEASE</org.springframework.security>
 
-		<org.springframework.rest.docs>1.0.0.M1</org.springframework.rest.docs>
+		<org.springframework.rest.docs>1.0.0.RELEASE</org.springframework.rest.docs>
 
 		<org.hibernate.validator>5.0.2.Final</org.hibernate.validator>
 		<org.javax.validation>1.1.0.Final</org.javax.validation>
@@ -157,7 +156,7 @@
 			<!-- Testing -->
 			<dependency>
 				<groupId>org.springframework.restdocs</groupId>
-				<artifactId>spring-restdocs</artifactId>
+				<artifactId>spring-restdocs-mockmvc</artifactId>
 				<version>${org.springframework.rest.docs}</version>
 				<scope>test</scope>
 			</dependency>
