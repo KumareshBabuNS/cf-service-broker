@@ -6,6 +6,8 @@ package de.evoila.cf.broker.service.impl;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.annotation.Resource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,13 +44,16 @@ public class DeploymentServiceImpl implements DeploymentService {
 
 	@Autowired(required = false)
 	private AsyncDeploymentService asyncDeploymentService;
+	
+	@Resource(name = "customProperties")
+	public Map<String, String> customProperties;
 
 	@Override
 	public JobProgress getLastOperation(String serviceInstanceId)
 			throws ServiceInstanceDoesNotExistException, ServiceBrokerException {
 		String progress = asyncDeploymentService.getProgress(serviceInstanceId);
 		if (progress == null || !serviceInstanceRepository.containsServiceInstanceId(serviceInstanceId)) {
-			throw new ServiceInstanceDoesNotExistException(serviceInstanceId);
+			throw new ServiceInstanceDoesNotExistException("Service instance not found " + serviceInstanceId);
 		}
 		return new JobProgress(progress, "");
 	}
@@ -65,7 +70,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 			throw new ServiceInstanceExistsException(serviceInstanceId,
 					serviceDefinitionRepository.getServiceDefinition().getId());
 		}
-		
+
 		ServiceInstance serviceInstance = new ServiceInstance(serviceInstanceId,
 				serviceDefinitionRepository.getServiceDefinition().getId(), planId, organizationGuid, spaceGuid,
 				parameters == null ? new ConcurrentHashMap<String, String>()
@@ -79,9 +84,9 @@ public class DeploymentServiceImpl implements DeploymentService {
 			return syncCreateInstance(serviceInstance, plan, platformService);
 		} else {
 			ServiceInstanceResponse serviceInstanceResponse = new ServiceInstanceResponse(serviceInstance, true);
-			
+
 			serviceInstanceRepository.addServiceInstance(serviceInstance.getId(), serviceInstance);
-			
+
 			asyncDeploymentService.asyncCreateInstance(this, serviceInstance, plan, platformService);
 
 			return serviceInstanceResponse;
@@ -92,7 +97,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 			PlatformService platformService) throws ServiceBrokerException {
 		ServiceInstance createdServiceInstance;
 		try {
-			createdServiceInstance = platformService.createInstance(serviceInstance, plan);
+			createdServiceInstance = platformService.createInstance(serviceInstance, plan, customProperties);
 		} catch (Exception e) {
 			throw new ServiceBrokerException("Could not create instance due to: " + e.getMessage());
 		}
@@ -150,7 +155,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 		platformService.preDeprovisionServiceInstance(serviceInstance);
 
 		platformService.deleteServiceInstance(serviceInstance);
-		
+
 		serviceInstanceRepository.deleteServiceInstance(serviceInstance.getId());
 	}
 }

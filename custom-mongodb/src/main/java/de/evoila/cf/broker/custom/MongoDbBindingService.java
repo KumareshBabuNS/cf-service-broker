@@ -40,54 +40,49 @@ public class MongoDbBindingService extends BindingServiceImpl {
 		if (mongoDbService.isConnected())
 			return true;
 		else {
-			log.info("Opening connection to " + serviceInstance.getHost() + 
-					":" + serviceInstance.getPort());
-			mongoDbService.createConnection(serviceInstance.getId(), 
-					serviceInstance.getHost(), serviceInstance.getPort());
+			log.info("Opening connection to " + serviceInstance.getHost() + ":" + serviceInstance.getPort());
+			mongoDbService.createConnection(serviceInstance.getId(), serviceInstance.getHost(),
+					serviceInstance.getPort());
 		}
 		return true;
 	}
 
 	public void create(ServiceInstance serviceInstance, Plan plan) {
 		connection(serviceInstance);
-		
+
 		String instanceId = serviceInstance.getId();
-		
+
 		mongoDbService.mongoClient().getDatabase(instanceId);
 	}
-	
+
 	public void delete(ServiceInstance serviceInstance, Plan plan) {
 		connection(serviceInstance);
-		
+
 		String instanceId = serviceInstance.getId();
-		
+
 		mongoDbService.mongoClient().getDatabase(instanceId).drop();
 	}
 
 	@Override
-	protected ServiceInstanceBindingResponse bindService(String bindingId, ServiceInstance serviceInstance, 
-			Plan plan) throws ServiceBrokerException {
-		
-		connection(serviceInstance);
-		
-		SecureRandom random = new SecureRandom();
-        String password = new BigInteger(130, random).toString(32);
-		
-        Map<String, Object> commandArguments = new BasicDBObject();
-	    commandArguments.put("createUser", bindingId);
-	    commandArguments.put("pwd", password);
-	    String[] roles = {"readWrite"};
-	    commandArguments.put("roles", roles);
-	    BasicDBObject command = new BasicDBObject(commandArguments);
-	    
-	    mongoDbService.mongoClient()
-	    	.getDatabase(serviceInstance.getId())
-	    	.runCommand(command);
-			
-		
+	protected ServiceInstanceBindingResponse bindService(String bindingId, ServiceInstance serviceInstance, Plan plan)
+			throws ServiceBrokerException {
 
-		String dbURL = String.format("postgres://%s:%s@%s:%d/%s", serviceInstance.getId(), password,
-				mongoDbService.getHost(), mongoDbService.getPort(), serviceInstance.getId());
+		connection(serviceInstance);
+
+		SecureRandom random = new SecureRandom();
+		String password = new BigInteger(130, random).toString(32);
+
+		Map<String, Object> commandArguments = new BasicDBObject();
+		commandArguments.put("createUser", bindingId);
+		commandArguments.put("pwd", password);
+		String[] roles = { "readWrite" };
+		commandArguments.put("roles", roles);
+		BasicDBObject command = new BasicDBObject(commandArguments);
+
+		mongoDbService.mongoClient().getDatabase(serviceInstance.getId()).runCommand(command);
+
+		String dbURL = String.format("mongodb://%s:%s@%s:%d/%s", bindingId, password, mongoDbService.getHost(),
+				mongoDbService.getPort(), serviceInstance.getId());
 
 		Map<String, Object> credentials = new HashMap<String, Object>();
 		credentials.put("uri", dbURL);
@@ -98,10 +93,9 @@ public class MongoDbBindingService extends BindingServiceImpl {
 	@Override
 	protected void deleteBinding(String bindingId, ServiceInstance serviceInstance) throws ServiceBrokerException {
 		connection(serviceInstance);
-
-		mongoDbService.mongoClient()
-		 	.getDatabase(serviceInstance.getId())
-		 	.runCommand(new BasicDBObject("dropUser", bindingId));
+		
+		mongoDbService.mongoClient().getDatabase(serviceInstance.getId())
+				.runCommand(new BasicDBObject("dropUser", bindingId));
 	}
 
 	@Override

@@ -22,6 +22,7 @@ import de.evoila.cf.broker.model.VolumeUnit;
 import de.evoila.cf.broker.repository.PlatformRepository;
 import de.evoila.cf.cpi.openstack.OpenstackServiceFactory;
 import de.evoila.cf.cpi.openstack.custom.exception.OpenstackPlatformException;
+import de.evoila.cf.cpi.openstack.custom.props.DomainBasedCustomPropertyHandler;
 
 /**
  * 
@@ -33,6 +34,9 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 
 	@Autowired
 	private PlatformRepository platformRepositroy;
+
+	@Autowired
+	private DomainBasedCustomPropertyHandler domainPropertyHandler;
 
 	@PostConstruct
 	@Override
@@ -57,23 +61,37 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 
 	@Override
 	public ServiceInstance postProvisioning(ServiceInstance serviceInstance, Plan plan) throws ServiceBrokerException {
+		boolean available;
+		try {
+			available = super.verifyServiceAvailability(serviceInstance.getId(), serviceInstance.getPort());
+		} catch (Exception e) {
+			throw new ServiceBrokerException(
+					"Service instance is not reachable. Service may not be started on instance.", e);
+		}
+
+		if (!available) {
+			throw new ServiceBrokerException(
+					"Service instance is not reachable. Service may not be started on instance.");
+		}
+
 		return serviceInstance;
 	}
 
 	@Override
-	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan) throws OpenstackPlatformException {
-		Map<String, String> customParameters = new HashMap<String, String>();
-		customParameters.put("flavor", plan.getFlavorId());
-		customParameters.put("volume_size", volumeSize(plan.getVolumeSize(), plan.getVolumeUnit()));
-
+	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan,
+			Map<String, String> customParameters) throws OpenstackPlatformException {
 		String instanceId = serviceInstance.getId();
 
-		customParameters.put("database_name", instanceId);
-		customParameters.put("database_user", instanceId);
-		customParameters.put("database_password", instanceId);
+		Map<String, String> platformParameters = new HashMap<String, String>();
+		platformParameters.put("flavor", plan.getFlavorId());
+		platformParameters.put("volume_size", volumeSize(plan.getVolumeSize(), plan.getVolumeUnit()));
+
+		domainPropertyHandler.addDomainBasedCustomProperties(plan, platformParameters, serviceInstance);
+
+		platformParameters.putAll(customParameters);
 
 		try {
-			this.create(instanceId, customParameters);
+			this.create(instanceId, platformParameters);
 		} catch (Exception e) {
 			throw new OpenstackPlatformException(e);
 		}
@@ -81,7 +99,7 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 		return new ServiceInstance(serviceInstance, "http://currently.not/available", this.uniqueName(instanceId),
 				this.primaryIp(instanceId), this.defaultPort);
 	}
-	
+
 	private String volumeSize(int volumeSize, VolumeUnit volumeUnit) {
 		if (volumeUnit.equals(VolumeUnit.M))
 			throw new NotAcceptableException("Volumes in openstack may not be smaller than 1 GB");

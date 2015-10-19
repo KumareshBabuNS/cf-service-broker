@@ -25,6 +25,7 @@ import org.springframework.util.Assert;
 
 import de.evoila.cf.broker.service.PlatformService;
 import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
+import de.evoila.cf.cpi.openstack.custom.exception.OpenstackPlatformException;
 import de.evoila.cf.cpi.openstack.fluent.HeatFluent;
 import de.evoila.cf.cpi.openstack.fluent.NeutronFluent;
 import de.evoila.cf.cpi.openstack.fluent.NovaFluent;
@@ -35,20 +36,20 @@ import de.evoila.cf.cpi.openstack.fluent.connection.OpenstackConnectionFactory;
  *
  */
 public abstract class OpenstackServiceFactory implements PlatformService {
-	
+
 	private static final String CREATE_IN_PROGRESS = "CREATE_IN_PROGRESS";
 
 	private Logger log = LoggerFactory.getLogger(getClass());
-	
+
 	@Autowired
 	private HeatFluent heatFluent;
-	
+
 	@Autowired
 	private NovaFluent novaFluent;
-	
+
 	@Autowired
 	private NeutronFluent neutronFluent;
-	
+
 	@Value("${openstack.endpoint}")
 	private String endpoint;
 
@@ -60,125 +61,129 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 
 	@Value("${openstack.tenant}")
 	private String tenant;
-	
+
 	@Value("${openstack.networkId}")
 	private String networkId;
-	
+
 	@Value("${openstack.subnetId}")
 	private String subnetId;
-	
+
 	@Value("${openstack.imageId}")
 	private String imageId;
-	
+
 	@Value("${openstack.keypair}")
 	private String keypair;
-	
+
 	@Value("${openstack.cinder.az}")
 	private String availabilityZone;
-	
+
 	@Value("${backend.default.port}")
 	protected int defaultPort;
-	
+
+	@Value("${backend.connection.timeouts}")
+	protected int connectionTimeouts;
+
 	private String heatTemplate;
-	
+
 	private static String DEFAULT_ENCODING = "UTF-8";
-	
+
 	private static boolean DEFAULT_DISABLE_ROLLBACK = true;
-	
+
 	private static long DEFAULT_TIMEOUT_MINUTES = 10;
-	
+
 	@PostConstruct
 	public void initialize() {
 		log.debug("Initializing Openstack Connection Factory");
-		
-		OpenstackConnectionFactory.getInstance()
-			.setCredential(username, password)
-			.authenticate(endpoint, tenant);
-		
+
+		OpenstackConnectionFactory.getInstance().setCredential(username, password).authenticate(endpoint, tenant);
+
 		log.debug("Reading heat template definition for openstack");
-		
+
 		URL url = this.getClass().getResource("/openstack/template.yml");
-		
+
 		try {
 			heatTemplate = this.readTemplateFile(url);
 		} catch (IOException | URISyntaxException e) {
 			log.info("Failed to load heat template", e);
 		}
-		
+
 		Assert.notNull(url, "Heat template definition must be provided.");
 	}
-	
+
 	private String readTemplateFile(URL url) throws IOException, URISyntaxException {
 		byte[] encoded = Files.readAllBytes(Paths.get(url.toURI()));
 		return new String(encoded, DEFAULT_ENCODING);
 	}
-	
+
 	protected Stack create(String instanceId, Map<String, String> customParameters) throws Exception {
 		Map<String, String> completeParameters = new HashMap<String, String>();
 		completeParameters.putAll(defaultParameters());
 		completeParameters.putAll(customParameters);
-		
+
 		String name = uniqueName(instanceId);
-		
-		Stack stack = heatFluent.create(name, 
-				heatTemplate, 
-				completeParameters, 
-				DEFAULT_DISABLE_ROLLBACK, 
+
+		Stack stack = heatFluent.create(name, heatTemplate, completeParameters, DEFAULT_DISABLE_ROLLBACK,
 				DEFAULT_TIMEOUT_MINUTES);
-		
+
 		Thread.sleep(5000);
-		
+
 		stack = heatFluent.get(name);
 		while (stack.getStatus().equals(CREATE_IN_PROGRESS)) {
 			stack = heatFluent.get(name);
-			
+
 			Thread.sleep(5000);
 		}
-		
+
 		return stack;
 	}
-	
+
 	protected void delete(String instanceId) {
 		Stack stack = heatFluent.get(uniqueName(instanceId));
-		
+
 		heatFluent.delete(stack.getName(), stack.getId());
 	}
-	
-	protected Server details(String instanceId) {
+
+	protected Server details(String instanceId) throws OpenstackPlatformException {
 		List<Server> servers = servers(instanceId);
-		
-		if (servers.size() == 1) 
+
+		if (servers.size() == 1)
 			return servers.get(0);
 		else
 			return null;
 	}
-	
-	protected boolean verifyServiceAvailability(String instanceId, int port) {
+
+	protected boolean verifyServiceAvailability(String instanceId, int port) throws OpenstackPlatformException {
 		boolean available = false;
-		
-		available = ServicePortAvailabilityVerifier.execute(this.primaryIp(instanceId), port);
+
+		ServicePortAvailabilityVerifier.initialSleep();
+		for (int i = 0; i < this.connectionTimeouts; i++) {
+			available = ServicePortAvailabilityVerifier.execute(this.primaryIp(instanceId), port);
 			
-		log.info("Service Port availability: " + available);
-		
+			log.info("Service Port availability: " + available);
+
+			if (available) {
+				break;
+			}
+		}
 		return available;
 	}
-	
-	private List<Server> servers(String instanceId) {
+
+	private List<Server> servers(String instanceId) throws OpenstackPlatformException {
 		Stack stack = heatFluent.get(uniqueName(instanceId));
-		
+
 		return heatFluent.servers(stack.getName(), stack.getId(), HeatFluent.NOVA_INSTANCE_TYPE);
 	}
-	
-	protected String primaryIp(String instanceId) {
+
+	protected String primaryIp(String instanceId) throws OpenstackPlatformException {
 		Subnet subnet = neutronFluent.subnet(networkId, subnetId);
-		 
+
 		return novaFluent.ip(this.details(instanceId), subnet.getCidr());
 	}
-	
+
 	protected String uniqueName(String instanceId) {
 		return "s" + instanceId;
 	}
-	
+
 	private Map<String, String> defaultParameters() {
 		Map<String, String> defaultParameters = new HashMap<String, String>();
 		defaultParameters.put("image_id", imageId);
@@ -186,7 +191,7 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 		defaultParameters.put("network_id", networkId);
 		defaultParameters.put("subnet_id", subnetId);
 		defaultParameters.put("availability_zone", availabilityZone);
-		
+
 		return defaultParameters;
 	}
 

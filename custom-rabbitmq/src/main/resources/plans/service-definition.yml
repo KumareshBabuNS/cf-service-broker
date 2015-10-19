@@ -1,0 +1,24 @@
+id: rabbitmq
+name: RabbitMQ
+description: RabbitMQ Instances
+bindable: true
+plans:
+  - id: docker-rabbit-25mb
+    name: RabbitMQ-Docker-25MB
+    description: The most basic RabbitMQ plan currently available. Providing 25 MB of capcity in a RabbitMQ.
+    metadata: 
+      guid : {id: test}
+    volumeSize: 25
+    volumeUnit: M
+    platform: DOCKER
+    connections: 3
+  - id: openstack-rabbit-2gb
+    name: RabbitMQ-VM-2GB
+    description: The most basic RabbitMQ plan currently available. Providing 2 GB of capcity in a RabbitMQ.
+    metadata: 
+      guid : {id: test}
+    volumeSize: 2
+    volumeUnit: G
+    platform: OPENSTACK
+    flavorId: 3
+    connections: 6

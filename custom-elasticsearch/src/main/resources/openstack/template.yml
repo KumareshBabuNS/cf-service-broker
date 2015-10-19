@@ -1,0 +1,75 @@
+heat_template_version: 2013-05-23
+description: Deployment Description for Elasticsearch
+parameters:
+  image_id:
+    type: string
+    description: Image used for servers
+  keypair:
+    type: string
+    description: SSH key to connect to the servers
+  flavor:
+    type: string
+    description: flavor used by the web servers
+  network_id:
+    type: string
+    description: Network used by the server
+  subnet_id:
+    type: string
+    description: subnet on which the load balancer will be located
+  volume_size:
+    type: number
+    description: Size of the volume to be created.
+  availability_zone:
+    type: string
+    description: The Availability Zone to launch the instance.
+#  database_name:
+#    type: string
+#    description: Database Name
+#  database_number:
+#    type: string
+#    description: Number of databases
+#  database_user:
+#    type: string
+#    description: Database user
+#  database_password:
+#    type: string
+#    description: Database password
+resources:
+  nova_instance:
+    type: OS::Nova::Server
+    properties:
+      flavor: {get_param: flavor}
+      image: {get_param: image_id}
+      key_name: {get_param: keypair}
+      networks: [{network: {get_param: network_id} }]
+      user_data_format: RAW
+      user_data:
+        str_replace:
+          template: |
+            #!/bin/bash -v
+            export ELASTICSEARCH_MAJOR=1.7
+            export ELASTICSEARCH_VERSION=1.7.1
+            export PATH=/usr/share/elasticsearch/bin:$PATH
+            
+            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Elasticsearch/elasticsearch-install.sh
+            chmod +x elasticsearch-install.sh
+            ./elasticsearch-install.sh
+            
+            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Elasticsearch/docker-entrypoint.sh
+            chmod +x docker-entrypoint.sh
+            ./docker-entrypoint.sh elasticsearch   
+#          params:
+#            $db_number: {get_param: database_number}
+#            $db_user: {get_param: database_user}
+#            $db_password: {get_param: database_password}
+  cinder_volume:
+    type: OS::Cinder::Volume
+    properties:
+      size: { get_param: volume_size }
+      availability_zone: { get_param: availability_zone }
+  volume_attachment:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: { get_resource: cinder_volume }
+      instance_uuid: { get_resource: nova_instance }
+      mountpoint: /dev/vdc

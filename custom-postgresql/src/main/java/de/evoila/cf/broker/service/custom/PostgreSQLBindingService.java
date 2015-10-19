@@ -20,7 +20,7 @@ import de.evoila.cf.broker.model.ServiceInstanceBinding;
 import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
 import de.evoila.cf.broker.service.impl.BindingServiceImpl;
 import de.evoila.cf.broker.service.postgres.PostgresCustomImplementation;
-import de.evoila.cf.broker.service.postgres.jdbc.MongoDbService;
+import de.evoila.cf.broker.service.postgres.jdbc.PostgresDbService;
 
 /**
  * @author Johannes Hiemer.
@@ -32,57 +32,75 @@ public class PostgreSQLBindingService extends BindingServiceImpl {
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
-	private MongoDbService jdbcService;
+	private PostgresDbService jdbcService;
 
 	@Autowired
 	private PostgresCustomImplementation postgresCustomImplementation;
-	
+
 	private boolean connection(ServiceInstance serviceInstance) throws SQLException {
 		if (jdbcService.isConnected())
 			return true;
 		else {
-			jdbcService.createConnection(serviceInstance.getId(), 
-					serviceInstance.getHost(), serviceInstance.getPort());
+			return jdbcService.createConnection(serviceInstance.getId(), serviceInstance.getHost(),
+					serviceInstance.getPort());
 		}
-		return true;
 	}
 
-	public void create(ServiceInstance serviceInstance, Plan plan) throws SQLException {
-		connection(serviceInstance);
-		
-		String instanceId = serviceInstance.getId();
-		
-		jdbcService.executeUpdate("CREATE DATABASE \"" + instanceId + "\" ENCODING 'UTF8'");
-		jdbcService.executeUpdate("REVOKE all on database \"" + instanceId + "\" from public");
-	}
-	
-	public void delete(ServiceInstance serviceInstance, Plan plan) throws SQLException {
-		connection(serviceInstance);
-		
-		String instanceId = serviceInstance.getId();
-		
-		jdbcService.executeUpdate("REVOKE all on database \"" + instanceId + "\" from public");
-		jdbcService.executeUpdate("DROP DATABASE \"" + instanceId + "\"");
-	}
-
-	@Override
-	protected ServiceInstanceBindingResponse bindService(String bindingId, ServiceInstance serviceInstance, 
-			Plan plan) throws ServiceBrokerException {
-		
+	public void create(ServiceInstance serviceInstance, Plan plan) throws ServiceBrokerException {
 		try {
 			connection(serviceInstance);
 		} catch (SQLException e1) {
 			throw new ServiceBrokerException("Could not connect to database");
 		}
-		
+
+		String instanceId = serviceInstance.getId();
+
+		try {
+			jdbcService.executeUpdate("CREATE DATABASE \"" + instanceId + "\" ENCODING 'UTF8'");
+			jdbcService.executeUpdate("REVOKE all on database \"" + instanceId + "\" from public");
+		} catch (SQLException e) {
+			log.error(e.toString());
+			throw new ServiceBrokerException("Could not add to database");
+		}
+	}
+
+	public void delete(ServiceInstance serviceInstance, Plan plan) throws ServiceBrokerException {
+		try {
+			connection(serviceInstance);
+		} catch (SQLException e1) {
+			throw new ServiceBrokerException("Could not connect to database");
+		}
+
+		String instanceId = serviceInstance.getId();
+
+		try {
+			jdbcService.executeUpdate("REVOKE all on database \"" + instanceId + "\" from public");
+			jdbcService.executeUpdate("DROP DATABASE \"" + instanceId + "\"");
+		} catch (SQLException e) {
+			log.error(e.toString());
+			throw new ServiceBrokerException("Could not remove from database");
+		}
+	}
+
+	@Override
+	protected ServiceInstanceBindingResponse bindService(String bindingId, ServiceInstance serviceInstance, Plan plan)
+			throws ServiceBrokerException {
+
+		try {
+			connection(serviceInstance);
+		} catch (SQLException e1) {
+			throw new ServiceBrokerException("Could not connect to database");
+		}
+
 		String password = "";
 		try {
 			password = postgresCustomImplementation.bindRoleToDatabase(serviceInstance.getId(), bindingId);
 		} catch (SQLException e) {
 			log.error(e.toString());
+			throw new ServiceBrokerException("Could not update database");
 		}
 
-		String dbURL = String.format("postgres://%s:%s@%s:%d/%s", serviceInstance.getId(), password,
+		String dbURL = String.format("postgres://%s:%s@%s:%d/%s", bindingId, password,
 				jdbcService.getHost(), jdbcService.getPort(), serviceInstance.getId());
 
 		Map<String, Object> credentials = new HashMap<String, Object>();
@@ -98,11 +116,12 @@ public class PostgreSQLBindingService extends BindingServiceImpl {
 		} catch (SQLException e1) {
 			throw new ServiceBrokerException("Could not connect to database");
 		}
-		
+
 		try {
 			postgresCustomImplementation.unbindRoleFromDatabase(bindingId);
 		} catch (SQLException e) {
 			log.error(e.toString());
+			throw new ServiceBrokerException("Could not remove from database");
 		}
 	}
 

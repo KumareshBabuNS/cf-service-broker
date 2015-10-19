@@ -1,0 +1,13 @@
+cert.pem
+key.pem
+ca.pem
+target
+*/bin
+*.log
+.buildpath
+.metadata
+custom-elasticsearch/.classpath
+custom-elasticsearch/.project
+core/.factorypath
+*/.springBeans
+.settings/

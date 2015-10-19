@@ -3,6 +3,7 @@
  */
 package de.evoila.cf.cpi.openstack.custom;
 
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.NotImplementedException;
@@ -32,6 +33,9 @@ public class OpenstackPlatformServiceTest extends BaseIntegrationTest {
 	
 	@Autowired
 	private OpenstackPlatformService openstackPlatformService;
+	
+	@Autowired
+	public Map<String, String> customProperties;
 	
 	@Before
 	public void before() {
@@ -68,13 +72,13 @@ public class OpenstackPlatformServiceTest extends BaseIntegrationTest {
 	
 	@Test
 	public void createInstanceTest() throws InterruptedException, OpenstackPlatformException {
-		openstackPlatformService.createInstance(serviceInstance, plan);
+		openstackPlatformService.createInstance(serviceInstance, plan, customProperties);
 	}
 	
 	@Test
 	public void deleteInstanceTest() throws ServiceBrokerException, 
 		ServiceInstanceDoesNotExistException, OpenstackPlatformException {
-		openstackPlatformService.createInstance(serviceInstance, plan);
+		openstackPlatformService.createInstance(serviceInstance, plan, customProperties);
 		
 		openstackPlatformService.deleteServiceInstance(serviceInstance);
 	}

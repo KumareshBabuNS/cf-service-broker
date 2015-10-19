@@ -1,0 +1,24 @@
+id: redis
+name: Redis
+description: Redis Instances
+bindable: true
+plans:
+  - id: docker-redis-25mb
+    name: Redis-Docker-25MB
+    description: The most basic Redis plan currently available. Providing 25 MB of capcity in a Redis DB.
+    metadata: 
+      guid : {id: test}
+    volumeSize: 25
+    volumeUnit: M
+    platform: DOCKER
+    connections: 30
+  - id: openstack-redis-250mb
+    name: Redis-250MB
+    description: The most basic Redis plan currently available. Providing 250 MB of capcity in a Redis DB.
+    metadata: 
+      guid : {id: test}
+    volumeSize: 1
+    volumeUnit: G
+    platform: OPENSTACK
+    flavorId: 3
+    connections: 256

@@ -3,6 +3,8 @@
  */
 package de.evoila.cf.broker.service.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,15 +27,17 @@ import de.evoila.cf.broker.service.BindingService;
  */
 @Service
 public abstract class BindingServiceImpl implements BindingService {
+	
+	private static final Logger log = LoggerFactory.getLogger(BindingServiceImpl.class);
 
 	@Autowired
-	private BindingRepository bindingRepository;
+	protected BindingRepository bindingRepository;
 
 	@Autowired
-	private ServiceDefinitionRepository serviceDefinitionRepository;
+	protected ServiceDefinitionRepository serviceDefinitionRepository;
 
 	@Autowired
-	private ServiceInstanceRepository serviceInstanceRepository;
+	protected ServiceInstanceRepository serviceInstanceRepository;
 
 	protected abstract ServiceInstanceBindingResponse bindService(String bindingId, ServiceInstance instance, Plan plan)
 			throws ServiceBrokerException;
@@ -64,7 +68,14 @@ public abstract class BindingServiceImpl implements BindingService {
 	public void deleteServiceInstanceBinding(String bindingId)
 			throws ServiceBrokerException, ServerviceInstanceBindingDoesNotExistsException {
 		ServiceInstance serviceInstance = getBinding(bindingId);
-		deleteBinding(bindingId, serviceInstance);
+		
+		try {
+			deleteBinding(bindingId, serviceInstance);
+		} catch(ServiceBrokerException e) {
+			log.error("Could not cleanup service binding", e);
+		} finally {
+			bindingRepository.deleteBinding(bindingId);
+		}
 	}
 
 	private void validateBindingNotExists(String bindingId, String instanceId)

@@ -1,0 +1,28 @@
+id: elasticsearch
+name: Elasticsearch
+description: Elasticsearch Instances
+bindable: true
+#tags:
+ # - syslog_drain
+#metadata: 
+  #guid : {id: testDef}
+plans:
+  - id: docker-elasticsearch-25mb
+    name: Elasticsearch-Docker-25MB
+    description: The most basic Elasticsearch plan currently available. Providing 25 MB of capcity in a Elasticsearch.
+    metadata: 
+      guid : {id: test}
+    volumeSize: 25
+    volumeUnit: M
+    platform: DOCKER
+    connections: 30
+  - id: openstack-elasticsearch-250mb
+    name: Elasticsearch-VM-2GB
+    description: The most basic Elasticsearch plan currently available. Providing 250 MB of capcity in a Elasticsearch DB.
+    metadata: 
+      guid : {id: test}
+    volumeSize: 250
+    volumeUnit: M
+    platform: OPENSTACK
+    flavorId: 3
+    connections: 256

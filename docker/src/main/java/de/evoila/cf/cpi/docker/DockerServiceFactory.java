@@ -2,7 +2,9 @@ package de.evoila.cf.cpi.docker;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -14,8 +16,10 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.PortBinding;
+import com.github.dockerjava.api.model.Container.Port;
 import com.github.dockerjava.api.model.Ports.Binding;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
@@ -23,6 +27,7 @@ import com.github.dockerjava.core.DockerClientConfig.DockerClientConfigBuilder;
 import com.github.dockerjava.core.LocalDirectorySSLConfig;
 import com.github.dockerjava.core.SSLConfig;
 
+import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.service.PlatformService;
 
 /**
@@ -67,12 +72,49 @@ public abstract class DockerServiceFactory implements PlatformService {
 
 	@Value("${docker.volume.service.port}")
 	private String dockerVolumePort;
+	
+	@Value("${docker.portRange.start}")
+	private Integer portRangeStart;
+	
+	@Value("${docker.portRange.end}")
+	private Integer portRangeEnd;
+	
+	private List<Integer> availablePorts = new ArrayList<Integer>();
+	
+	private List<Integer> usedPorts = new ArrayList<Integer>();
+	
+	private void listUsedPortForHost() throws ServiceBrokerException {
+		DockerClient dockerClient = this.createDockerClientInstance();
+		List<Container> containers = dockerClient.listContainersCmd().exec();
+		
+		for (Container container : containers) {
+			for (Port port : container.getPorts()) 
+				usedPorts.add(port.getPublicPort());
+		}
+	}
+	
+	private void intersect() throws ServiceBrokerException {
+		availablePorts.removeAll(usedPorts);
+		
+		if (availablePorts.isEmpty())
+			throw new ServiceBrokerException("The Port Range for your Docker Host is exhausted");
+	}
+	
+	private Integer resolveNextAvailablePort() {
+		return this.availablePorts.get(0);
+	}
 
 	@Autowired
 	private DockerVolumeServiceBroker dockerVolumeServiceBroker;
 
-	private DockerClient createClientInstance() {
+	private DockerClient createDockerClientInstance() throws ServiceBrokerException {
 		URL url = this.getClass().getResource("/docker/");
+		
+		for (int i = portRangeStart; i<portRangeEnd; i++) 
+			availablePorts.add(i);
+		
+		this.listUsedPortForHost();
+		this.intersect();
 
 		SSLConfig sslConfig = new LocalDirectorySSLConfig(url.getPath());
 		DockerClientConfig dockerClientConfig = new DockerClientConfigBuilder()
@@ -85,11 +127,11 @@ public abstract class DockerServiceFactory implements PlatformService {
 		return key + "='" + value + "'";
 	}
 
-	private CreateContainerResponse createContainer(String vhost,
-			String username, String password) {
-		DockerClient dockerClient = this.createClientInstance();
+	private CreateContainerResponse createDockerContainer(String vhost,
+			String username, String password) throws ServiceBrokerException {
+		DockerClient dockerClient = this.createDockerClientInstance();
 		// XXX: port mapping
-		Binding binding = new Binding(PORT);
+		Binding binding = new Binding(this.resolveNextAvailablePort());
 		ExposedPort exposedPort = new ExposedPort(this.containerPort);
 		PortBinding portBinding = new PortBinding(binding, exposedPort);
 		CreateContainerCmd containerCmd = dockerClient.createContainerCmd(
@@ -113,23 +155,23 @@ public abstract class DockerServiceFactory implements PlatformService {
 		return container;
 	}
 
-	private String getContainerVolumeHostPath(String containerId) {
-		DockerClient dockerClient = this.createClientInstance();
+	private String getContainerVolumeHostPath(String containerId) throws ServiceBrokerException {
+		DockerClient dockerClient = this.createDockerClientInstance();
 		InspectContainerResponse i = dockerClient.inspectContainerCmd(
 				containerId).exec();
 		return i.getVolumes()[0].getHostPath();
 	}
 
-	private String getContainerNode(String containerId) {
-		DockerClient dockerClient = this.createClientInstance();
+	private String getContainerNode(String containerId) throws ServiceBrokerException {
+		DockerClient dockerClient = this.createDockerClientInstance();
 		InspectContainerResponse i = dockerClient.inspectContainerCmd(
 				containerId).exec();
 		// TODO
 		return i.getHostsPath();
 	}
 
-	private void startContainer(CreateContainerResponse container) {
-		DockerClient dockerClient = this.createClientInstance();
+	private void startContainer(CreateContainerResponse container) throws ServiceBrokerException {
+		DockerClient dockerClient = this.createDockerClientInstance();
 		dockerClient.startContainerCmd(container.getId()).exec();
 
 		try {
@@ -140,8 +182,8 @@ public abstract class DockerServiceFactory implements PlatformService {
 
 	}
 
-	public void killContainer(String containerId) {
-		DockerClient dockerClient = createClientInstance();
+	public void killContainer(String containerId) throws ServiceBrokerException {
+		DockerClient dockerClient = createDockerClientInstance();
 		dockerClient.killContainerCmd(containerId);
 		
 		try {
@@ -151,8 +193,8 @@ public abstract class DockerServiceFactory implements PlatformService {
 		}
 	}
 	
-	public void removeContainer(String containerId) {
-		DockerClient dockerClient = createClientInstance();
+	public void removeContainer(String containerId) throws ServiceBrokerException {
+		DockerClient dockerClient = createDockerClientInstance();
 		dockerClient.removeContainerCmd(containerId);
 		
 		try {
@@ -163,10 +205,10 @@ public abstract class DockerServiceFactory implements PlatformService {
 	}
 
 	public CreateContainerResponse createDockerContainer(String instanceId,
-			int voluneSize, String vhost, String username, String password) {
+			int voluneSize, String vhost, String username, String password) throws Exception {
 		CreateContainerResponse container;
 		try {
-			container = this.createContainer(vhost, username, password);
+			container = this.createDockerContainer(vhost, username, password);
 
 		} catch (Exception e) {
 			logger.error("Cannot create docker container");
@@ -206,7 +248,7 @@ public abstract class DockerServiceFactory implements PlatformService {
 		return container;
 	}
 
-	public void removeDockerContainer(String containerId) {
+	public void removeDockerContainer(String containerId) throws ServiceBrokerException {
 		this.killContainer(containerId);
 		String nodeName = this.getContainerNode(containerId);
 		String mountPoint = this.getContainerVolumeHostPath(containerId);

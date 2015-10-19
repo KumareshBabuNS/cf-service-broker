@@ -14,5 +14,8 @@ public interface BindingRepository {
 
 	// Bind
 	boolean containsInternalBindingId(String bindingId);
+	
+	// Bind
+	void deleteBinding(String bindingId);
 
 }

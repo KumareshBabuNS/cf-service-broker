@@ -17,4 +17,18 @@ applications:
   host: mongo
   path: custom-mongodb/target/ssb-mongodb.war
   buildpack: https://github.com/cloudfoundry/java-buildpack.git
-  
+## Redis Service Broker
+- name: redis
+  host: redis
+  path: custom-redis/target/ssb-redis.war
+  buildpack: https://github.com/cloudfoundry/java-buildpack.git
+## RabbitMQ Service Broker
+- name: rabbit
+  host: rabbit
+  path: custom-rabbitmq/target/ssb-rabbitmq.war
+  buildpack: https://github.com/cloudfoundry/java-buildpack.git
+## Elasticsearch Service Broker
+- name: elasticsearch
+  host: elasticsearch
+  path: custom-elasticsearch/target/ssb-elasticsearch.war
+  buildpack: https://github.com/cloudfoundry/java-buildpack.git

@@ -1,10 +1,11 @@
 package de.evoila.cf.broker.service.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.ServiceInstance;
@@ -14,6 +15,8 @@ import de.evoila.cf.broker.service.PlatformService;
 
 @Service
 public class AsyncDeploymentServiceImpl implements AsyncDeploymentService {
+
+	Logger log = LoggerFactory.getLogger(AsyncDeploymentServiceImpl.class);
 
 	@Autowired
 	private JobProgressService progressService;
@@ -26,9 +29,9 @@ public class AsyncDeploymentServiceImpl implements AsyncDeploymentService {
 
 		try {
 			deploymentService.syncCreateInstance(serviceInstance, plan, platformService);
-		} catch (ServiceBrokerException e) {
+		} catch (Exception e) {
 			progressService.failJob(serviceInstance);
-			e.printStackTrace();
+			log.error("Exception during Instance creation", e);
 			return;
 		}
 		progressService.succeedProgress(serviceInstance);
@@ -43,9 +46,9 @@ public class AsyncDeploymentServiceImpl implements AsyncDeploymentService {
 
 		try {
 			deploymentService.syncDeleteInstance(serviceInstance, platformService);
-		} catch (ServiceBrokerException e) {
+		} catch (Exception e) {
 			progressService.failJob(serviceInstance);
-			e.printStackTrace();
+			log.error("Exception during Instance deletion", e);
 			return;
 		}
 		progressService.succeedProgress(serviceInstance);
@@ -53,7 +56,12 @@ public class AsyncDeploymentServiceImpl implements AsyncDeploymentService {
 
 	@Override
 	public String getProgress(String serviceInstanceId) {
-		return progressService.getProgress(serviceInstanceId);
+		try {
+			return progressService.getProgress(serviceInstanceId);
+		} catch (Exception e) {
+			log.error("Exception during Instance deletion", e);
+			return "";
+		}
 	}
 
 }

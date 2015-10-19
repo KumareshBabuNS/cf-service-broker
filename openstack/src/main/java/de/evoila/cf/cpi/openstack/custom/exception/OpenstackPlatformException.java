@@ -18,4 +18,8 @@ public class OpenstackPlatformException extends Exception {
 		super(e);
 	}
 
+	public OpenstackPlatformException(String string) {
+		super(string);
+	}
+
 }

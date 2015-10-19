@@ -1,12 +1,21 @@
 package de.evoila.config.web;
 
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
+import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
@@ -21,12 +30,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
+import org.yaml.snakeyaml.TypeDescription;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
 
 import de.evoila.cf.broker.model.Catalog;
 import de.evoila.cf.broker.model.Plan;
-import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceDefinition;
-import de.evoila.cf.broker.model.VolumeUnit;
+import de.evoila.cf.cpi.openstack.custom.props.DefaultDatabaseCustomPropertyHandler;
+import de.evoila.cf.cpi.openstack.custom.props.DomainBasedCustomPropertyHandler;
 
 /**
  * @author Johannes Hiemer.
@@ -35,8 +47,12 @@ import de.evoila.cf.broker.model.VolumeUnit;
 @Configuration
 @EnableWebMvc
 @EnableAsync
-@ComponentScan(basePackages = { "de.evoila.cf.broker", "de.evoila.cf.cpi" })
+@ComponentScan(basePackages = { "de.evoila.cf.broker", "de.evoila.cf.cpi" }, excludeFilters = {
+		@ComponentScan.Filter(type = FilterType.REGEX, pattern = {
+				"de.evoila.cf.cpi.openstack.custom.OpenstackPlatformService" }) })
 public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements AsyncConfigurer {
+
+	Logger log = LoggerFactory.getLogger(CustomMvcConfiguration.class);
 
 	@Override
 	public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
@@ -45,23 +61,58 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 
 	@Override
 	public Executor getAsyncExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(7);
-        executor.setMaxPoolSize(42);
-        executor.setQueueCapacity(11);
-        executor.setThreadNamePrefix("MyExecutor-");
-        executor.initialize();
-        return executor;
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setCorePoolSize(7);
+		executor.setMaxPoolSize(42);
+		executor.setQueueCapacity(11);
+		executor.setThreadNamePrefix("MyExecutor-");
+		executor.initialize();
+		return executor;
+	}
+
+	@Override
+	public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+		return new SimpleAsyncUncaughtExceptionHandler();
 	}
 
 	@Bean
-	public PropertyPlaceholderConfigurer properties() {
-		PropertyPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertyPlaceholderConfigurer();
+	public PropertySourcesPlaceholderConfigurer standardProperties() {
+		PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertySourcesPlaceholderConfigurer();
 		Resource[] resources = new ClassPathResource[] { new ClassPathResource("persistence.properties"),
-				new ClassPathResource("openstack.properties"), new ClassPathResource("container.properites") };
+				new ClassPathResource("/cpi/openstack.properties"),
+				new ClassPathResource("/cpi/container.properties") };
+		propertyPlaceholderConfigurer.setOrder(PropertyPlaceholderConfigurer.HIGHEST_PRECEDENCE);
 		propertyPlaceholderConfigurer.setLocations(resources);
 		propertyPlaceholderConfigurer.setIgnoreUnresolvablePlaceholders(true);
 		return propertyPlaceholderConfigurer;
+	}
+
+	@Bean
+	public ServiceDefinition serviceDefinition() {
+		ClassPathResource classPathResource = new ClassPathResource("/plans/service-definition.yml");
+		Constructor constructor = new Constructor(ServiceDefinition.class);
+		TypeDescription serviceDefictionDescription = new TypeDescription(ServiceDefinition.class);
+		serviceDefictionDescription.putListPropertyType("plans", Plan.class);
+		constructor.addTypeDescription(serviceDefictionDescription);
+
+		Yaml yaml = new Yaml(constructor);
+
+		ServiceDefinition serviceDefinition = null;
+		try {
+			serviceDefinition = (ServiceDefinition) yaml.load(classPathResource.getInputStream());
+		} catch (IOException e) {
+			log.error("Could not find service defintion .yml file. Caused by ", e);
+		}
+		serviceDefinition.setRequires(Arrays.asList("syslog_drain"));
+
+		return serviceDefinition;
+	}
+
+	@Bean(name = "customProperties")
+	public Map<String, String> customProperties() {
+		Map<String, String> customProperties = new HashMap<String, String>();
+
+		return customProperties;
 	}
 
 	@Override
@@ -93,18 +144,8 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 	}
 
 	@Bean
-	public ServiceDefinition serviceDefinition() {
-		Plan dockerPlan = new Plan("docker-postgresql-25mb", "PostgreSQL-Docker-25MB",
-				"The most basic PostgreSQL plan currently available. Providing"
-						+ "25 MB of capcity in a PostgreSQL DB.", Platform.DOCKER, 25, VolumeUnit.M, null, 4);
-		Plan openstackPlan = new Plan("openstack-postgresql-500mb", "PostgreSQL-VM-500MB",
-				"The most basic PostgreSQL plan currently available. Providing"
-						+ "500 MB of capcity in a PostgreSQL DB.", Platform.OPENSTACK, 1, VolumeUnit.G, "3", 10);
-
-		ServiceDefinition serviceDefinition = new ServiceDefinition("postgres", "PostgreSQL", "PostgreSQL Instances",
-				true, Arrays.asList(dockerPlan, openstackPlan), Arrays.asList("syslog_drain"));
-
-		return serviceDefinition;
+	public DomainBasedCustomPropertyHandler domainPropertyHandler() {
+		return new DefaultDatabaseCustomPropertyHandler();
 	}
-	
+
 }

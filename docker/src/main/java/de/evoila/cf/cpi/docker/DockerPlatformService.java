@@ -1,5 +1,7 @@
 package de.evoila.cf.cpi.docker;
 
+import java.util.Map;
+
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,7 +68,7 @@ public class DockerPlatformService extends DockerServiceFactory {
 	}
 
 	@Override
-	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan) {
+	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan, Map<String, String> customProperties) throws Exception {
 		String instanceId = serviceInstance.getId();
 		String vhost = instanceId;
 		String username = instanceId;

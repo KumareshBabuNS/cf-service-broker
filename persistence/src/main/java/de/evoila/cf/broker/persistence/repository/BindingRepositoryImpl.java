@@ -12,7 +12,7 @@ import de.evoila.cf.broker.repository.BindingRepository;
  *
  */
 @Repository
-public class BindingRepositoryImpl extends StringCrudRepositoryImpl implements BindingRepository {
+public class BindingRepositoryImpl extends StringCrudRepository implements BindingRepository {
 
 	/*
 	 * (non-Javadoc)
@@ -47,6 +47,15 @@ public class BindingRepositoryImpl extends StringCrudRepositoryImpl implements B
 	@Override
 	public boolean containsInternalBindingId(String bindingId) {
 		return exists(bindingId);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see de.evoila.cf.broker.repository.BindingRepository#deleteBinding(java.lang.String)
+	 */
+	@Override
+	public void deleteBinding(String bindingId) {
+		this.delete(bindingId);
 	}
 
 }

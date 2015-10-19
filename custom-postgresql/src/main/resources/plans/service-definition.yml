@@ -1,0 +1,52 @@
+id: postgres
+name: PostgreSQL
+description: PostgreSQL Instances
+bindable: true
+plans:
+  - id: postgresql-s
+    name: S
+    description: The most basic PostgreSQL plan currently available. Providing 25 MB of capacity in a PostgreSQL DB.
+    volumeSize: 25
+    volumeUnit: M
+    platform: DOCKER
+    connections: 4
+  - id: postgresql-m
+    name: M
+    description: The default PostgreSQL plan. Providing 2GB of capcity in a PostgreSQL DB. Ideal for common usage in test stages.
+    volumeSize: 2
+    volumeUnit: G
+    platform: OPENSTACK
+    flavorId: 786d7670-44fd-426b-b9a6-b822e7c6b4f3
+    connections: 20
+  - id: postgresql-l
+    name: L
+    description: The small production stage suited PostgreSQL plan. Providing 100GB of capcity in a PostgreSQL DB. Ideal for small usage in production stages.
+    volumeSize: 100
+    volumeUnit: G
+    platform: OPENSTACK
+    flavorId: f2b4347f-1096-4fc8-9c05-fbcb19314e31
+    connections: 300
+  - id: postgresql-xl
+    name: XL
+    description: The default production stage suited PostgreSQL plan with more capacity. Providing 1TB of capcity in a PostgreSQL DB. Ideal for common usage in production stages.
+    volumeSize: 1
+    volumeUnit: T
+    platform: OPENSTACK
+    flavorId: f2b4347f-1096-4fc8-9c05-fbcb19314e31
+    connections: 300
+  - id: postgresql-xxl
+    name: XXL
+    description: A production stage suited PostgreSQL plan with more capacity. Providing 5TB of capcity in a PostgreSQL DB. Ideal for common advanced usage in production stages.
+    volumeSize: 5
+    volumeUnit: T
+    platform: OPENSTACK
+    flavorId: f2b4347f-1096-4fc8-9c05-fbcb19314e31
+    connections: 300
+  - id: postgresql-xxxl
+    name: XXXL
+    description: The maximum production stage suited PostgreSQL plan currently available. Providing 10TB of capcity in a PostgreSQL DB. Ideal for heavy weight usage in production stages.
+    volumeSize: 10
+    volumeUnit: T
+    platform: OPENSTACK
+    flavorId: f2b4347f-1096-4fc8-9c05-fbcb19314e31
+    connections: 300

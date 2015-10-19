@@ -21,7 +21,7 @@ import org.springframework.data.redis.core.RedisTemplate;
  * @param <ID>
  *            ID type
  */
-public class StringCrudRepositoryImpl {
+public class StringCrudRepository {
 
 	@Autowired
 	@Qualifier("stringRedisTemplate")

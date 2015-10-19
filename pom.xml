@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.evoila.cf.broker</groupId>
@@ -15,18 +14,20 @@
 		<module>openstack</module>
 		<module>custom-mongodb</module>
 		<module>custom-postgresql</module>
+		<module>custom-rabbitmq</module>
+		<module>custom-redis</module>
 		<module>persistence</module>
-	</modules>
+	    <module>custom-elasticsearch</module>
+	 </modules>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-		<org.springframework>4.0.1.RELEASE</org.springframework>
-		<org.springframework.security>3.2.0.RELEASE</org.springframework.security>
-		<org.springframework.mongodb>1.4.0.M1</org.springframework.mongodb>
+		<org.springframework>4.2.2.RELEASE</org.springframework>
+		<org.springframework.security>4.0.2.RELEASE</org.springframework.security>
 
-		<org.springframework.rest.docs>1.0.0.M1</org.springframework.rest.docs>
+		<org.springframework.rest.docs>1.0.0.RELEASE</org.springframework.rest.docs>
 
 		<org.hibernate.validator>5.0.2.Final</org.hibernate.validator>
 		<org.javax.validation>1.1.0.Final</org.javax.validation>
@@ -50,10 +51,21 @@
 			</dependency>
 
 			<dependency>
+				<groupId>org.yaml</groupId>
+				<artifactId>snakeyaml</artifactId>
+				<version>1.16</version>
+			</dependency>
+
+			<dependency>
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-test</artifactId>
 				<version>${org.springframework}</version>
 				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-aop</artifactId>
+				<version>${org.springframework}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
@@ -143,10 +155,10 @@
 
 			<!-- Testing -->
 			<dependency>
-			    <groupId>org.springframework.restdocs</groupId>
-			    <artifactId>spring-restdocs</artifactId>
-			    <version>${org.springframework.rest.docs}</version>
-			    <scope>test</scope>
+				<groupId>org.springframework.restdocs</groupId>
+				<artifactId>spring-restdocs-mockmvc</artifactId>
+				<version>${org.springframework.rest.docs}</version>
+				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>junit</groupId>
@@ -185,6 +197,18 @@
 					<configuration>
 						<argLine>-Xmx512m -XX:MaxPermSize=256m</argLine>
 					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<executions>
+						<execution>
+							<id>attach-javadocs</id>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
 				</plugin>
 			</plugins>
 		</pluginManagement>
