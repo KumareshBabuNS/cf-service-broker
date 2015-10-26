@@ -58,8 +58,7 @@ public class DockerPlatformService extends DockerServiceFactory {
 	@Override
 	public void deleteServiceInstance(ServiceInstance serviceInstance)
 			throws ServiceBrokerException, ServiceInstanceDoesNotExistException {
-		// TODO Auto-generated method stub
-
+		this.removeDockerContainer(serviceInstance.getInternalId());
 	}
 
 	@Override
