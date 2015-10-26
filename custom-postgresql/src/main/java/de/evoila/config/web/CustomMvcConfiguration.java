@@ -37,8 +37,6 @@ import org.yaml.snakeyaml.constructor.Constructor;
 import de.evoila.cf.broker.model.Catalog;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.ServiceDefinition;
-import de.evoila.cf.cpi.openstack.custom.props.DefaultDatabaseCustomPropertyHandler;
-import de.evoila.cf.cpi.openstack.custom.props.DomainBasedCustomPropertyHandler;
 
 /**
  * @author Johannes Hiemer.
