@@ -16,37 +16,37 @@ plans:
     volumeSize: 2
     volumeUnit: G
     platform: OPENSTACK
-    flavorId: 786d7670-44fd-426b-b9a6-b822e7c6b4f3
+    flavorId: 1
     connections: 20
   - id: postgresql-l
     name: L
-    description: The small production stage suited PostgreSQL plan. Providing 100GB of capcity in a PostgreSQL DB. Ideal for small usage in production stages.
-    volumeSize: 100
+    description: The small production stage suited PostgreSQL plan. Providing 10GB of capcity in a PostgreSQL DB. Ideal for small usage in production stages.
+    volumeSize: 10
     volumeUnit: G
     platform: OPENSTACK
-    flavorId: f2b4347f-1096-4fc8-9c05-fbcb19314e31
+    flavorId: 2
     connections: 300
   - id: postgresql-xl
     name: XL
-    description: The default production stage suited PostgreSQL plan with more capacity. Providing 1TB of capcity in a PostgreSQL DB. Ideal for common usage in production stages.
-    volumeSize: 1
-    volumeUnit: T
+    description: The default production stage suited PostgreSQL plan with more capacity. Providing 50GB of capcity in a PostgreSQL DB. Ideal for common usage in production stages.
+    volumeSize: 50
+    volumeUnit: G
     platform: OPENSTACK
-    flavorId: f2b4347f-1096-4fc8-9c05-fbcb19314e31
+    flavorId: 3
     connections: 300
   - id: postgresql-xxl
     name: XXL
-    description: A production stage suited PostgreSQL plan with more capacity. Providing 5TB of capcity in a PostgreSQL DB. Ideal for common advanced usage in production stages.
-    volumeSize: 5
-    volumeUnit: T
+    description: A production stage suited PostgreSQL plan with more capacity. Providing 500GB of capcity in a PostgreSQL DB. Ideal for common advanced usage in production stages.
+    volumeSize: 500
+    volumeUnit: G
     platform: OPENSTACK
-    flavorId: f2b4347f-1096-4fc8-9c05-fbcb19314e31
+    flavorId: 4
     connections: 300
   - id: postgresql-xxxl
     name: XXXL
-    description: The maximum production stage suited PostgreSQL plan currently available. Providing 10TB of capcity in a PostgreSQL DB. Ideal for heavy weight usage in production stages.
-    volumeSize: 10
+    description: The maximum production stage suited PostgreSQL plan currently available. Providing 2TB of capcity in a PostgreSQL DB. Ideal for heavy weight usage in production stages.
+    volumeSize: 2
     volumeUnit: T
     platform: OPENSTACK
-    flavorId: f2b4347f-1096-4fc8-9c05-fbcb19314e31
+    flavorId: 4
     connections: 300
