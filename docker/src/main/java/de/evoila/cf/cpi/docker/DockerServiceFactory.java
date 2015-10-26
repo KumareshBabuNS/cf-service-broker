@@ -1,16 +1,11 @@
 package de.evoila.cf.cpi.docker;
 
-import java.io.Closeable;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Random;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
@@ -22,18 +17,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.async.ResultCallback;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.InspectContainerCmd;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.ExposedPort;
-import com.github.dockerjava.api.model.Filters;
-import com.github.dockerjava.api.model.Frame;
-import com.github.dockerjava.api.model.Info;
 import com.github.dockerjava.api.model.PortBinding;
-import com.github.dockerjava.api.model.Container.Port;
 import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.api.model.Ports.Binding;
 import com.github.dockerjava.core.DockerClientBuilder;
@@ -41,7 +31,6 @@ import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig.DockerClientConfigBuilder;
 import com.github.dockerjava.core.LocalDirectorySSLConfig;
 import com.github.dockerjava.core.SSLConfig;
-import com.github.dockerjava.core.command.LogContainerResultCallback;
 
 import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.service.PlatformService;
