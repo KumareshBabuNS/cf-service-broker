@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.evoila.cf.broker</groupId>
@@ -12,13 +13,14 @@
 		<module>model</module>
 		<module>docker</module>
 		<module>openstack</module>
+		<module>custom-elasticsearch</module>
 		<module>custom-mongodb</module>
 		<module>custom-postgresql</module>
 		<module>custom-rabbitmq</module>
 		<module>custom-redis</module>
 		<module>persistence</module>
-	    <module>custom-elasticsearch</module>
-	 </modules>
+		<module>registry</module>
+	</modules>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -83,7 +85,7 @@
 				<version>${org.springframework}</version>
 				<scope>test</scope>
 			</dependency>
-
+			
 			<!-- Spring Security -->
 			<dependency>
 				<groupId>org.springframework.security</groupId>

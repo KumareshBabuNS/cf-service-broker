@@ -32,17 +32,22 @@ import com.github.dockerjava.core.DockerClientConfig.DockerClientConfigBuilder;
 import com.github.dockerjava.core.LocalDirectorySSLConfig;
 import com.github.dockerjava.core.SSLConfig;
 
+import de.evoila.cf.broker.cpi.endpoint.EndpointAvailabilityService;
 import de.evoila.cf.broker.exception.ServiceBrokerException;
+import de.evoila.cf.broker.model.cpi.AvailabilityState;
+import de.evoila.cf.broker.model.cpi.EndpointServiceState;
 import de.evoila.cf.broker.service.PlatformService;
 
 /**
  * 
- * @author Dennis Mueller, evoila GmbH, Aug 26, 2015
+ * @author Dennis Mueller.
  *
  */
 public abstract class DockerServiceFactory implements PlatformService {
 
 	private static final int PORT = 2345;
+	
+	private final static String DOCKER_SERVICE_KEY = "dockerFactoryService";
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -87,14 +92,15 @@ public abstract class DockerServiceFactory implements PlatformService {
 	@Autowired
 	private DockerVolumeServiceBroker dockerVolumeServiceBroker;
 	
+	@Autowired
+	private EndpointAvailabilityService endpointAvailabilityService;
+	
 	private List<Integer> availablePorts = new ArrayList<Integer>();
 
 	private List<Integer> usedPorts = new ArrayList<Integer>();
 	
-	
-
 	@PostConstruct
-	public void init() throws ServiceBrokerException {
+	public void initialize() throws ServiceBrokerException {
 		this.updateAvailablePorts();
 	}
 	
@@ -132,7 +138,6 @@ public abstract class DockerServiceFactory implements PlatformService {
 		return availablePorts.get(0);
 	}
 
-
 	private void initAvailablePorts() {
 		availablePorts = new ArrayList<Integer>();
 		for (int i = this.portRangeStart; i <= this.portRangeEnd; i++) {
@@ -142,21 +147,29 @@ public abstract class DockerServiceFactory implements PlatformService {
 
 	private DockerClient createDockerClientInstance()
 			throws ServiceBrokerException {
-
-		String certsPath = this.getClass().getResource("/docker/").getPath();
-		SSLConfig sslConfig = new LocalDirectorySSLConfig(certsPath);
-		DockerClientConfigBuilder dockerClientConfigBuilder = new DockerClientConfigBuilder();
-		String protocol = "http";
-		if (dockerSSLEnabled) {
-			dockerClientConfigBuilder = dockerClientConfigBuilder
-					.withSSLConfig(sslConfig);
-			protocol = "https";
+		DockerClient dockerClient = null;
+		try {
+			if (endpointAvailabilityService.isAvailable(DOCKER_SERVICE_KEY)) {
+				String certsPath = this.getClass().getResource("/docker/").getPath();
+				SSLConfig sslConfig = new LocalDirectorySSLConfig(certsPath);
+				DockerClientConfigBuilder dockerClientConfigBuilder = new DockerClientConfigBuilder();
+				String protocol = "http";
+				if (dockerSSLEnabled) {
+					dockerClientConfigBuilder = dockerClientConfigBuilder
+							.withSSLConfig(sslConfig);
+					protocol = "https";
+				}
+				
+				DockerClientConfig dockerClientConfig = dockerClientConfigBuilder
+						.withUri(protocol + "://" + dockerHost + ":" + dockerPort)
+						.build();
+				dockerClient = DockerClientBuilder.getInstance(dockerClientConfig).build();
+			}
+		} catch(Exception ex) {
+			endpointAvailabilityService.add(DOCKER_SERVICE_KEY, 
+					new EndpointServiceState(DOCKER_SERVICE_KEY, AvailabilityState.ERROR, ex.toString()));
 		}
-		
-		DockerClientConfig dockerClientConfig = dockerClientConfigBuilder
-				.withUri(protocol + "://" + dockerHost + ":" + dockerPort)
-				.build();
-		return DockerClientBuilder.getInstance(dockerClientConfig).build();
+		return dockerClient;
 	}
 
 
@@ -167,22 +180,25 @@ public abstract class DockerServiceFactory implements PlatformService {
 	private CreateContainerResponse createDockerContainer(String vhost,
 			String username, String password) throws ServiceBrokerException {
 		DockerClient dockerClient = this.createDockerClientInstance();
-		// XXX: port mapping
+
 		Binding binding = new Binding(this.resolveNextAvailablePort());
 		ExposedPort exposedPort = new ExposedPort(this.containerPort);
 		PortBinding portBinding = new PortBinding(binding, exposedPort);
 		CreateContainerCmd containerCmd = dockerClient.createContainerCmd(
 				imageName).withPortBindings(portBinding);
-		if (usernameEnv != null) {
+	
+		if (usernameEnv != null) 
 			containerCmd.withEnv(getEnviornment(usernameEnv, username));
-		}
-		if (passwordEnv != null) {
+		
+		
+		if (passwordEnv != null) 
 			containerCmd.withEnv(getEnviornment(passwordEnv, password));
-		}
-		if (vHostEnv != null) {
+		
+		if (vHostEnv != null) 
 			containerCmd.withEnv(getEnviornment(vHostEnv, vhost));
-		}
+		
 		logger.trace(containerCmd.toString());
+		
 		CreateContainerResponse container = containerCmd.exec();
 		try {
 			dockerClient.close();
@@ -219,7 +235,6 @@ public abstract class DockerServiceFactory implements PlatformService {
 		} catch (IOException e) {
 			logger.warn("Cannot close docker client at starting docker container!");
 		}
-
 	}
 
 	public void killContainer(String containerId) throws ServiceBrokerException {
@@ -276,7 +291,6 @@ public abstract class DockerServiceFactory implements PlatformService {
 		startContainer(container);
 
 		Map<String, Object> credentials = new HashMap<String, Object>();
-		// credentials.put("uri", getUri());
 		credentials.put("hostname", dockerHost);
 		credentials.put("port", DockerServiceFactory.PORT);
 		credentials.put("name", container.getId());
@@ -288,8 +302,6 @@ public abstract class DockerServiceFactory implements PlatformService {
 
 		return container;
 	}
-	
-	
 
 	public void removeDockerContainer(String containerId)
 			throws ServiceBrokerException {
@@ -300,8 +312,6 @@ public abstract class DockerServiceFactory implements PlatformService {
 		try {
 			dockerVolumeServiceBroker.deleteVolume(nodeName, mountPoint);
 		} catch (Exception e) {
-			logger.error("Cannot delete volume");
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		this.removeContainer(containerId);

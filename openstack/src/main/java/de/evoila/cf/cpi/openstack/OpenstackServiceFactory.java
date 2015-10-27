@@ -23,6 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
 
+import de.evoila.cf.broker.cpi.endpoint.EndpointAvailabilityService;
+import de.evoila.cf.broker.model.cpi.AvailabilityState;
+import de.evoila.cf.broker.model.cpi.EndpointServiceState;
 import de.evoila.cf.broker.service.PlatformService;
 import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
 import de.evoila.cf.cpi.openstack.custom.exception.OpenstackPlatformException;
@@ -38,6 +41,8 @@ import de.evoila.cf.cpi.openstack.fluent.connection.OpenstackConnectionFactory;
 public abstract class OpenstackServiceFactory implements PlatformService {
 
 	private static final String CREATE_IN_PROGRESS = "CREATE_IN_PROGRESS";
+	
+	private final static String OPENSTACK_SERVICE_KEY = "openstackFactoryService";
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -91,23 +96,32 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 
 	private static long DEFAULT_TIMEOUT_MINUTES = 10;
 
+	@Autowired
+	private EndpointAvailabilityService endpointAvailabilityService;
+	
 	@PostConstruct
 	public void initialize() {
 		log.debug("Initializing Openstack Connection Factory");
-
-		OpenstackConnectionFactory.getInstance().setCredential(username, password).authenticate(endpoint, tenant);
-
-		log.debug("Reading heat template definition for openstack");
-
-		URL url = this.getClass().getResource("/openstack/template.yml");
-
 		try {
-			heatTemplate = this.readTemplateFile(url);
-		} catch (IOException | URISyntaxException e) {
-			log.info("Failed to load heat template", e);
+			if (endpointAvailabilityService.isAvailable(OPENSTACK_SERVICE_KEY)) {
+				OpenstackConnectionFactory.getInstance().setCredential(username, password).authenticate(endpoint, tenant);
+		
+				log.debug("Reading heat template definition for openstack");
+		
+				URL url = this.getClass().getResource("/openstack/template.yml");
+		
+				try {
+					heatTemplate = this.readTemplateFile(url);
+				} catch (IOException | URISyntaxException e) {
+					log.info("Failed to load heat template", e);
+				}
+		
+				Assert.notNull(url, "Heat template definition must be provided.");
+			}
+		} catch(Exception ex) {
+			endpointAvailabilityService.add(OPENSTACK_SERVICE_KEY, 
+					new EndpointServiceState(OPENSTACK_SERVICE_KEY, AvailabilityState.ERROR, ex.toString()));
 		}
-
-		Assert.notNull(url, "Heat template definition must be provided.");
 	}
 
 	private String readTemplateFile(URL url) throws IOException, URISyntaxException {

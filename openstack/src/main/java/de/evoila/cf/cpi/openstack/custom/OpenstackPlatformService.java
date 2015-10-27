@@ -38,8 +38,8 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 	@Autowired
 	private DomainBasedCustomPropertyHandler domainPropertyHandler;
 
-	@PostConstruct
 	@Override
+	@PostConstruct
 	public void registerCustomPlatformServie() {
 		platformRepositroy.addPlatform(Platform.OPENSTACK, this);
 	}

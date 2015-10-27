@@ -1,5 +1,7 @@
 package de.evoila.cf.broker.controller;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,27 +10,27 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import de.evoila.cf.broker.model.Catalog;
-import de.evoila.cf.broker.service.CatalogService;
+import de.evoila.cf.broker.cpi.endpoint.EndpointAvailabilityService;
+import de.evoila.cf.broker.model.cpi.EndpointServiceState;
 
 /**
- * See: Source: http://docs.cloudfoundry.com/docs/running/architecture/services/writing-service.html
  * 
- * @author sgreenberg@gopivotal.com
+ * @author Johannes Hiemer.
+ *
  */
 @Controller
-@RequestMapping(value = "/v2/catalog")
+@RequestMapping(value = "/v2/endpoint")
 public class CatalogController extends BaseController {
 	
+	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(CatalogController.class);
 	
 	@Autowired 
-	private CatalogService service;
+	private EndpointAvailabilityService endpointAvailabilityService;
 	
 	@RequestMapping(value = { "/", "" }, method = RequestMethod.GET)
-	public @ResponseBody Catalog getCatalog() {
-		logger.debug("GET: getCatalog()");
-		return service.getCatalog();
+	public @ResponseBody Map<String, EndpointServiceState> getCatalog() {
+		return endpointAvailabilityService.getServices();
 	}
 	
 }

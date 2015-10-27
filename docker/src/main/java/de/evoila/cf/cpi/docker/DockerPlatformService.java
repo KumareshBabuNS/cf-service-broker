@@ -14,14 +14,19 @@ import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.repository.PlatformRepository;
 
+/**
+ * 
+ * @author Dennis Mueller.
+ *
+ */
 @Service
 public class DockerPlatformService extends DockerServiceFactory {
 
 	@Autowired
 	private PlatformRepository platformRepository;
 
-	@PostConstruct
 	@Override
+	@PostConstruct
 	public void registerCustomPlatformServie() {
 		platformRepository.addPlatform(Platform.DOCKER, this);
 	}
@@ -75,7 +80,6 @@ public class DockerPlatformService extends DockerServiceFactory {
 		String internalId = this.createDockerContainer(instanceId, plan.getVolumeSize(), vhost, username, password)
 				.getId();
 		return new ServiceInstance(serviceInstance, "http://currently.not/available", internalId);
-
 	}
 
 }

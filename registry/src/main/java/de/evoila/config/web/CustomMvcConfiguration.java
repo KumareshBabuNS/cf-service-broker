@@ -4,22 +4,18 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
-import org.springframework.aop.interceptor.SimpleAsyncUncaughtExceptionHandler;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -36,8 +32,6 @@ import org.yaml.snakeyaml.constructor.Constructor;
 import de.evoila.cf.broker.model.Catalog;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.ServiceDefinition;
-import de.evoila.cf.cpi.openstack.custom.props.DefaultDatabaseCustomPropertyHandler;
-import de.evoila.cf.cpi.openstack.custom.props.DomainBasedCustomPropertyHandler;
 
 /**
  * @author Johannes Hiemer.
@@ -46,30 +40,16 @@ import de.evoila.cf.cpi.openstack.custom.props.DomainBasedCustomPropertyHandler;
 @Configuration
 @EnableWebMvc
 @EnableAsync
-@ComponentScan(basePackages = { "de.evoila.cf.broker", "de.evoila.cf.cpi" })
-public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements AsyncConfigurer {
+@ComponentScan(basePackages = { "de.evoila.cf.broker", "de.evoila.cf.cpi" }, excludeFilters = {
+		@ComponentScan.Filter(type = FilterType.REGEX, pattern = {
+				"de.evoila.cf.cpi.openstack.custom.OpenstackPlatformService" }) })
+public class CustomMvcConfiguration extends WebMvcConfigurerAdapter {
 
 	Logger log = LoggerFactory.getLogger(CustomMvcConfiguration.class);
 
 	@Override
 	public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
 		configurer.enable();
-	}
-
-	@Override
-	public Executor getAsyncExecutor() {
-		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-		executor.setCorePoolSize(7);
-		executor.setMaxPoolSize(42);
-		executor.setQueueCapacity(11);
-		executor.setThreadNamePrefix("MyExecutor-");
-		executor.initialize();
-		return executor;
-	}
-
-	@Override
-	public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
-		return new SimpleAsyncUncaughtExceptionHandler();
 	}
 
 	@Bean
@@ -138,11 +118,6 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 		Catalog catalog = new Catalog(Arrays.asList(serviceDefinition()));
 
 		return catalog;
-	}
-
-	@Bean
-	public DomainBasedCustomPropertyHandler domainPropertyHandler() {
-		return new DefaultDatabaseCustomPropertyHandler();
 	}
 
 }
