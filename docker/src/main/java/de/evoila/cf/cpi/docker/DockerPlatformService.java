@@ -13,7 +13,6 @@ import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.repository.PlatformRepository;
-import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
 
 /**
  * 
@@ -94,7 +93,10 @@ public class DockerPlatformService extends DockerServiceFactory {
 		String password = instanceId;
 		String internalId = this.createDockerContainer(instanceId, plan.getVolumeSize(), vhost, username, password)
 				.getId();
-		return new ServiceInstance(serviceInstance, "http://currently.not/available", internalId);
+		Map<String, Object> credentials  = containerCredentialMap.get(instanceId);
+		String host = (String) credentials.get("host");
+		int port = (int) credentials.get("port");
+		return new ServiceInstance(serviceInstance, "http://currently.not/available", internalId, host, port);
 	}
 
 }
