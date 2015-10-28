@@ -7,12 +7,12 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import de.evoila.cf.broker.exception.ServiceBrokerException;
-import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
+import de.evoila.cf.broker.exception.PlatformException;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.repository.PlatformRepository;
+import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
 
 /**
  * 
@@ -47,18 +47,18 @@ public class DockerPlatformService extends DockerServiceFactory {
 	}
 
 	@Override
-	public ServiceInstance postProvisioning(ServiceInstance serviceInstance, Plan plan) throws ServiceBrokerException {
+	public ServiceInstance postProvisioning(ServiceInstance serviceInstance, Plan plan) throws PlatformException {
 		boolean available = false;
 		try {
 			available = ServicePortAvailabilityVerifier
 					.verifyServiceAvailability(serviceInstance.getHost(), serviceInstance.getPort());
 		} catch (Exception e) {
-			throw new ServiceBrokerException(
+			throw new PlatformException(
 					"Service instance is not reachable. Service may not be started on instance.", e);
 		}
 
 		if (!available) {
-			throw new ServiceBrokerException(
+			throw new PlatformException(
 					"Service instance is not reachable. Service may not be started on instance.");
 		}
 
@@ -76,7 +76,7 @@ public class DockerPlatformService extends DockerServiceFactory {
 
 	@Override
 	public void deleteServiceInstance(ServiceInstance serviceInstance)
-			throws ServiceBrokerException, ServiceInstanceDoesNotExistException {
+			throws PlatformException {
 		this.removeDockerContainer(serviceInstance.getInternalId());
 	}
 
@@ -86,7 +86,7 @@ public class DockerPlatformService extends DockerServiceFactory {
 	}
 
 	@Override
-	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan, Map<String, String> customProperties) throws Exception {
+	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan, Map<String, String> customProperties) throws PlatformException {
 		String instanceId = serviceInstance.getId();
 		String vhost = instanceId;
 		String username = instanceId;
