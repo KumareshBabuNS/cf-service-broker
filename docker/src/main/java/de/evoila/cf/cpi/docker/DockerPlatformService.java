@@ -51,8 +51,8 @@ public class DockerPlatformService extends DockerServiceFactory {
 	public ServiceInstance postProvisioning(ServiceInstance serviceInstance, Plan plan) throws ServiceBrokerException {
 		boolean available = false;
 		try {
-			//available = ServicePortAvailabilityVerifier
-				//	.verifyServiceAvailability(, serviceInstance.getPort());
+			available = ServicePortAvailabilityVerifier
+					.verifyServiceAvailability(serviceInstance.getHost(), serviceInstance.getPort());
 		} catch (Exception e) {
 			throw new ServiceBrokerException(
 					"Service instance is not reachable. Service may not be started on instance.", e);
@@ -94,7 +94,10 @@ public class DockerPlatformService extends DockerServiceFactory {
 		String password = instanceId;
 		String internalId = this.createDockerContainer(instanceId, plan.getVolumeSize(), vhost, username, password)
 				.getId();
-		return new ServiceInstance(serviceInstance, "http://currently.not/available", internalId);
+		Map<String, Object> credentials  = containerCredentialMap.get(instanceId);
+		String host = (String) credentials.get("host");
+		int port = (int) credentials.get("port");
+		return new ServiceInstance(serviceInstance, "http://currently.not/available", internalId, host, port);
 	}
 
 }

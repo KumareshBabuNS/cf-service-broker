@@ -44,12 +44,12 @@ import de.evoila.cf.broker.service.PlatformService;
  *
  */
 public abstract class DockerServiceFactory implements PlatformService {
-
-	private static final int PORT = 2345;
 	
 	private final static String DOCKER_SERVICE_KEY = "dockerFactoryService";
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
+	
+	Map<String, Map<String, Object>> containerCredentialMap = new HashMap<String, Map<String, Object>>();
 
 	@Value("${docker.offset}")
 	private int offset;
@@ -68,8 +68,6 @@ public abstract class DockerServiceFactory implements PlatformService {
 
 	@Value("${docker.vhostEnv}")
 	private String vHostEnv;
-
-	private Map<String, Map<String, Object>> containerCredentialMap = new HashMap<String, Map<String, Object>>();
 
 	@Value("${docker.ssl.enabled:false}")
 	private boolean dockerSSLEnabled;
@@ -125,6 +123,11 @@ public abstract class DockerServiceFactory implements PlatformService {
 					usedPorts.add(b.getHostPort());
 				}
 			}
+		}
+		try {
+			dockerClient.close();
+		} catch (IOException e) {
+			logger.warn("Cannot close docker client at listing used ports!");
 		}
 	}
 
@@ -216,6 +219,11 @@ public abstract class DockerServiceFactory implements PlatformService {
 		DockerClient dockerClient = this.createDockerClientInstance();
 		InspectContainerResponse i = dockerClient.inspectContainerCmd(
 				containerId).exec();
+		try {
+			dockerClient.close();
+		} catch (IOException e) {
+			logger.warn("Cannot close docker client at getting container's volume host path!");
+		}
 		return i.getMounts().get(0).getSource();
 	}
 
@@ -225,7 +233,28 @@ public abstract class DockerServiceFactory implements PlatformService {
 		InspectContainerCmd inspectContainerCmd = dockerClient.inspectContainerCmd(
 				containerId);
 		InspectContainerResponse i = inspectContainerCmd.exec();
+		try {
+			dockerClient.close();
+		} catch (IOException e) {
+			logger.warn("Cannot close docker client at getting container's node name!");
+		}
 		return i.getNode().getName();
+	}
+	
+	private Integer getContainerExposedPort(String containerId) throws ServiceBrokerException {
+		DockerClient dockerClient = this.createDockerClientInstance();
+		InspectContainerCmd inspectContainerCmd = dockerClient.inspectContainerCmd(
+				containerId);
+		InspectContainerResponse i = inspectContainerCmd.exec();
+		try {
+			dockerClient.close();
+		} catch (IOException e) {
+			logger.warn("Cannot close docker client at getting container's exposed port!");
+		}
+		for (ExposedPort exposedPort : i.getHostConfig().getPortBindings().getBindings().keySet()) {
+			return exposedPort.getPort();
+		}
+		return null;
 	}
 
 	private void startContainer(CreateContainerResponse container)
@@ -240,7 +269,7 @@ public abstract class DockerServiceFactory implements PlatformService {
 		}
 	}
 
-	public void killContainer(String containerId) throws ServiceBrokerException {
+	private void killContainer(String containerId) throws ServiceBrokerException {
 		DockerClient dockerClient = createDockerClientInstance();
 		dockerClient.killContainerCmd(containerId).exec();
 
@@ -294,15 +323,15 @@ public abstract class DockerServiceFactory implements PlatformService {
 		startContainer(container);
 
 		Map<String, Object> credentials = new HashMap<String, Object>();
-		credentials.put("hostname", dockerHost);
-		credentials.put("port", DockerServiceFactory.PORT);
+		credentials.put("host", dockerHost);
+		credentials.put("port", this.getContainerExposedPort(container.getId()));
 		credentials.put("name", container.getId());
 		credentials.put("vhost", vhost);
 		credentials.put("username", username);
 		credentials.put("password", password);
 
 		containerCredentialMap.put(container.getId(), credentials);
-
+		
 		return container;
 	}
 
