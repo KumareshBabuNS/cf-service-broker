@@ -11,6 +11,7 @@ import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import de.evoila.cf.broker.exception.PlatformException;
 import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.exception.ServiceDefinitionDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
@@ -98,14 +99,22 @@ public class DeploymentServiceImpl implements DeploymentService {
 		ServiceInstance createdServiceInstance;
 		try {
 			createdServiceInstance = platformService.createInstance(serviceInstance, plan, customProperties);
-		} catch (Exception e) {
+		} catch (PlatformException e) {
+			serviceInstanceRepository.deleteServiceInstance(serviceInstance.getId());
+			
 			throw new ServiceBrokerException("Could not create instance due to: " + e.getMessage());
 		}
 
-		createdServiceInstance = platformService.postProvisioning(createdServiceInstance, plan);
+		try {
+			createdServiceInstance = platformService.postProvisioning(createdServiceInstance, plan);
+		} catch (PlatformException e) {
+			new ServiceBrokerException("Error during service availability verification", e);
+		}
 		if (createdServiceInstance.getInternalId() != null)
 			serviceInstanceRepository.addServiceInstance(createdServiceInstance.getId(), createdServiceInstance);
 		else {
+			serviceInstanceRepository.deleteServiceInstance(serviceInstance.getId());
+			
 			throw new ServiceBrokerException(
 					"Internal error. Service instance was not created. ID was: " + serviceInstance.getId());
 		}
@@ -154,7 +163,11 @@ public class DeploymentServiceImpl implements DeploymentService {
 			throws ServiceBrokerException, ServiceInstanceDoesNotExistException {
 		platformService.preDeprovisionServiceInstance(serviceInstance);
 
-		platformService.deleteServiceInstance(serviceInstance);
+		try {
+			platformService.deleteServiceInstance(serviceInstance);
+		} catch (PlatformException e) {
+			throw new ServiceBrokerException("Error during deletion of service", e);
+		}
 
 		serviceInstanceRepository.deleteServiceInstance(serviceInstance.getId());
 	}

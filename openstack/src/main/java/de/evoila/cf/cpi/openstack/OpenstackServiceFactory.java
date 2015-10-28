@@ -24,10 +24,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
 
 import de.evoila.cf.broker.cpi.endpoint.EndpointAvailabilityService;
+import de.evoila.cf.broker.exception.PlatformException;
 import de.evoila.cf.broker.model.cpi.AvailabilityState;
 import de.evoila.cf.broker.model.cpi.EndpointServiceState;
 import de.evoila.cf.broker.service.PlatformService;
-import de.evoila.cf.cpi.openstack.custom.exception.OpenstackPlatformException;
 import de.evoila.cf.cpi.openstack.fluent.HeatFluent;
 import de.evoila.cf.cpi.openstack.fluent.NeutronFluent;
 import de.evoila.cf.cpi.openstack.fluent.NovaFluent;
@@ -40,6 +40,8 @@ import de.evoila.cf.cpi.openstack.fluent.connection.OpenstackConnectionFactory;
 public abstract class OpenstackServiceFactory implements PlatformService {
 
 	private static final String CREATE_IN_PROGRESS = "CREATE_IN_PROGRESS";
+	
+	private static final String CREATE_FAILED = "CREATE_FAILED";
 	
 	private final static String OPENSTACK_SERVICE_KEY = "openstackFactoryService";
 
@@ -88,7 +90,7 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 
 	private static String DEFAULT_ENCODING = "UTF-8";
 
-	private static boolean DEFAULT_DISABLE_ROLLBACK = true;
+	private static boolean DEFAULT_DISABLE_ROLLBACK = false;
 
 	private static long DEFAULT_TIMEOUT_MINUTES = 10;
 
@@ -128,7 +130,7 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 		return new String(encoded, DEFAULT_ENCODING);
 	}
 
-	protected Stack create(String instanceId, Map<String, String> customParameters) throws Exception {
+	protected Stack create(String instanceId, Map<String, String> customParameters) throws PlatformException {
 		Map<String, String> completeParameters = new HashMap<String, String>();
 		completeParameters.putAll(defaultParameters());
 		completeParameters.putAll(customParameters);
@@ -138,13 +140,25 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 		Stack stack = heatFluent.create(name, heatTemplate, completeParameters, DEFAULT_DISABLE_ROLLBACK,
 				DEFAULT_TIMEOUT_MINUTES);
 
-		Thread.sleep(5000);
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			throw new PlatformException(e);
+		}
 
 		stack = heatFluent.get(name);
+		
+		if (stack.getStatus().equals(CREATE_FAILED))
+			throw new PlatformException(stack.getStackStatusReason());
+		
 		while (stack.getStatus().equals(CREATE_IN_PROGRESS)) {
 			stack = heatFluent.get(name);
 
-			Thread.sleep(5000);
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				throw new PlatformException(e);
+			}
 		}
 
 		return stack;
@@ -156,7 +170,7 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 		heatFluent.delete(stack.getName(), stack.getId());
 	}
 
-	protected Server details(String instanceId) throws OpenstackPlatformException {
+	protected Server details(String instanceId) throws PlatformException {
 		List<Server> servers = servers(instanceId);
 
 		if (servers.size() == 1)
@@ -165,16 +179,16 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 			return null;
 	}
 
-	private List<Server> servers(String instanceId) throws OpenstackPlatformException {
+	private List<Server> servers(String instanceId) throws PlatformException {
 		Stack stack = heatFluent.get(uniqueName(instanceId));
 
 		return heatFluent.servers(stack.getName(), stack.getId(), HeatFluent.NOVA_INSTANCE_TYPE);
 	}
 
-	protected String primaryIp(String instanceId) throws OpenstackPlatformException {
+	protected String primaryIp(String instanceId) throws PlatformException {
 		Subnet subnet = neutronFluent.subnet(networkId, subnetId);
 
-		return novaFluent.ip(this.details(instanceId), subnet.getCidr());
+		return novaFluent.ip(this.details(instanceId), subnet.getName());
 	}
 
 	protected String uniqueName(String instanceId) {

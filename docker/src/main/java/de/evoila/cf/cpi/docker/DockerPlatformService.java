@@ -13,7 +13,6 @@ import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.repository.PlatformRepository;
-import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
 
 /**
  * 

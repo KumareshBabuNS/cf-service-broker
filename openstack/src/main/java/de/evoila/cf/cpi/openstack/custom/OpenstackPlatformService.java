@@ -13,8 +13,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import de.evoila.cf.broker.exception.ServiceBrokerException;
-import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
+import de.evoila.cf.broker.exception.PlatformException;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceInstance;
@@ -22,7 +21,6 @@ import de.evoila.cf.broker.model.VolumeUnit;
 import de.evoila.cf.broker.repository.PlatformRepository;
 import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
 import de.evoila.cf.cpi.openstack.OpenstackServiceFactory;
-import de.evoila.cf.cpi.openstack.custom.exception.OpenstackPlatformException;
 import de.evoila.cf.cpi.openstack.custom.props.DomainBasedCustomPropertyHandler;
 
 /**
@@ -61,19 +59,19 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 	}
 
 	@Override
-	public ServiceInstance postProvisioning(ServiceInstance serviceInstance, Plan plan) throws ServiceBrokerException {
+	public ServiceInstance postProvisioning(ServiceInstance serviceInstance, Plan plan) throws PlatformException {
 		
 		boolean available;
 		try {
 			available = ServicePortAvailabilityVerifier
 					.verifyServiceAvailability(this.primaryIp(serviceInstance.getId()), serviceInstance.getPort());
 		} catch (Exception e) {
-			throw new ServiceBrokerException(
+			throw new PlatformException(
 					"Service instance is not reachable. Service may not be started on instance.", e);
 		}
 
 		if (!available) {
-			throw new ServiceBrokerException(
+			throw new PlatformException(
 					"Service instance is not reachable. Service may not be started on instance.");
 		}
 
@@ -82,7 +80,7 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 
 	@Override
 	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan,
-			Map<String, String> customParameters) throws OpenstackPlatformException {
+			Map<String, String> customParameters) throws PlatformException {
 		String instanceId = serviceInstance.getId();
 
 		Map<String, String> platformParameters = new HashMap<String, String>();
@@ -96,7 +94,7 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 		try {
 			this.create(instanceId, platformParameters);
 		} catch (Exception e) {
-			throw new OpenstackPlatformException(e);
+			throw new PlatformException(e);
 		}
 
 		return new ServiceInstance(serviceInstance, "http://currently.not/available", this.uniqueName(instanceId),
@@ -124,7 +122,7 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 
 	@Override
 	public void deleteServiceInstance(ServiceInstance serviceInstance)
-			throws ServiceBrokerException, ServiceInstanceDoesNotExistException {
+			throws PlatformException {
 		this.delete(serviceInstance.getId());
 	}
 

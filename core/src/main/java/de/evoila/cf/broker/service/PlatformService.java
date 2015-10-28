@@ -5,6 +5,7 @@ package de.evoila.cf.broker.service;
 
 import java.util.Map;
 
+import de.evoila.cf.broker.exception.PlatformException;
 import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.model.Plan;
@@ -15,18 +16,10 @@ import de.evoila.cf.broker.model.ServiceInstance;
  *
  */
 public abstract interface PlatformService {
-	
+
 	/**
-	 * @return All known ServiceInstances
+	 * 
 	 */
-	// List<ServiceInstance> getAllServiceInstances();
-	/**
-	 * @param id
-	 * @return The ServiceInstance with the given id or null if one does not
-	 *         exist
-	 */
-	// ServiceInstance getServiceInstance(String id);
-	
 	public void registerCustomPlatformServie();
 	
 	/**
@@ -53,9 +46,10 @@ public abstract interface PlatformService {
 	 * @param plan
 	 * @return
 	 * @throws ServiceBrokerException
+	 * @throws PlatformException 
 	 */
 	public ServiceInstance postProvisioning(ServiceInstance serviceInstance, Plan plan)
-			throws ServiceBrokerException;
+			throws PlatformException;
 	
 	/**
 	 * 
@@ -69,7 +63,7 @@ public abstract interface PlatformService {
 	 * @return new ServiceInstance with updated fields
 	 * @throws Exception 
 	 */
-	public ServiceInstance createInstance(ServiceInstance instance, Plan plan, Map<String, String> customParameters) throws Exception;
+	public ServiceInstance createInstance(ServiceInstance instance, Plan plan, Map<String, String> customParameters) throws PlatformException;
 
 	/**
 	 * Same result as in PlatformService.createInstance(), but without creating
@@ -87,7 +81,7 @@ public abstract interface PlatformService {
 	 * @throws ServiceInstanceDoesNotExistException 
 	 * @throws ServiceBrokerException 
 	 */
-	public void deleteServiceInstance(ServiceInstance serviceInstance) throws ServiceBrokerException, ServiceInstanceDoesNotExistException;
+	public void deleteServiceInstance(ServiceInstance serviceInstance) throws PlatformException;
 
 	/**
 	 * @param instance

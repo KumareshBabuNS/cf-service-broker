@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import de.evoila.cf.broker.exception.PlatformException;
 import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.model.Plan;
@@ -19,7 +20,6 @@ import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.VolumeUnit;
 import de.evoila.cf.cpi.BaseIntegrationTest;
-import de.evoila.cf.cpi.openstack.custom.exception.OpenstackPlatformException;
 
 /**
  * @author Johannes Hiemer.
@@ -71,13 +71,13 @@ public class OpenstackPlatformServiceTest extends BaseIntegrationTest {
 	}
 	
 	@Test
-	public void createInstanceTest() throws InterruptedException, OpenstackPlatformException {
+	public void createInstanceTest() throws InterruptedException, PlatformException {
 		openstackPlatformService.createInstance(serviceInstance, plan, customProperties);
 	}
 	
 	@Test
 	public void deleteInstanceTest() throws ServiceBrokerException, 
-		ServiceInstanceDoesNotExistException, OpenstackPlatformException {
+		ServiceInstanceDoesNotExistException, PlatformException {
 		openstackPlatformService.createInstance(serviceInstance, plan, customProperties);
 		
 		openstackPlatformService.deleteServiceInstance(serviceInstance);

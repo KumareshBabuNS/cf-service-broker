@@ -15,7 +15,7 @@ import org.openstack4j.model.heat.Resource;
 import org.openstack4j.model.heat.Stack;
 import org.springframework.stereotype.Component;
 
-import de.evoila.cf.cpi.openstack.custom.exception.OpenstackPlatformException;
+import de.evoila.cf.broker.exception.PlatformException;
 import de.evoila.cf.cpi.openstack.fluent.connection.OpenstackConnectionFactory;
 
 /**
@@ -76,14 +76,14 @@ public class HeatFluent {
 		return filteredResources;
 	}
 
-	public List<Server> servers(String name, String stackId, String type) throws OpenstackPlatformException {
+	public List<Server> servers(String name, String stackId, String type) throws PlatformException {
 		List<Server> servers = new ArrayList<Server>();
 		List<? extends Resource> resources = filter(name, stackId, type);
 
 		for (Resource resource : resources) {
 			Server server = client().compute().servers().get(resource.getPhysicalResourceId());
 			if (server == null) {
-				throw new OpenstackPlatformException("Server " + name + " does not exist");
+				throw new PlatformException("Server " + name + " does not exist");
 			}
 			servers.add(server);
 		}
