@@ -10,6 +10,8 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.evoila.cf.broker.exception.PlatformException;
+
 /**
  * @author Johannes Hiemer.
  *
@@ -19,6 +21,9 @@ public class ServicePortAvailabilityVerifier {
 	private static final int SOCKET_TIMEOUT = 10000;
 
 	private static final int INITIAL_TIMEOUT = 60 * 1000;
+	
+	//@Value("${backend.connection.timeouts}")
+	private static final int connectionTimeouts = 18;
 
 	private static Logger log = LoggerFactory.getLogger(ServicePortAvailabilityVerifier.class);
 
@@ -48,6 +53,22 @@ public class ServicePortAvailabilityVerifier {
 				} catch (IOException e) {
 					log.info("Could not close port", e);
 				}
+			}
+		}
+		return available;
+	}
+	
+	public static boolean verifyServiceAvailability(String ip, int port) throws PlatformException {
+		boolean available = false;
+
+		ServicePortAvailabilityVerifier.initialSleep();
+		for (int i = 0; i < connectionTimeouts; i++) {
+			available = ServicePortAvailabilityVerifier.execute(ip, port);
+			
+			log.info("Service Port availability: " + available);
+
+			if (available) {
+				break;
 			}
 		}
 		return available;

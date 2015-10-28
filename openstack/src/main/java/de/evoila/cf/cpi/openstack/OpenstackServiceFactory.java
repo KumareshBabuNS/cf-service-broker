@@ -27,7 +27,6 @@ import de.evoila.cf.broker.cpi.endpoint.EndpointAvailabilityService;
 import de.evoila.cf.broker.model.cpi.AvailabilityState;
 import de.evoila.cf.broker.model.cpi.EndpointServiceState;
 import de.evoila.cf.broker.service.PlatformService;
-import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
 import de.evoila.cf.cpi.openstack.custom.exception.OpenstackPlatformException;
 import de.evoila.cf.cpi.openstack.fluent.HeatFluent;
 import de.evoila.cf.cpi.openstack.fluent.NeutronFluent;
@@ -85,9 +84,6 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 	@Value("${backend.default.port}")
 	protected int defaultPort;
 
-	@Value("${backend.connection.timeouts}")
-	protected int connectionTimeouts;
-
 	private String heatTemplate;
 
 	private static String DEFAULT_ENCODING = "UTF-8";
@@ -117,6 +113,9 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 				}
 		
 				Assert.notNull(url, "Heat template definition must be provided.");
+				
+				endpointAvailabilityService.add(OPENSTACK_SERVICE_KEY, new EndpointServiceState(OPENSTACK_SERVICE_KEY, 
+						AvailabilityState.AVAILABLE));
 			}
 		} catch(Exception ex) {
 			endpointAvailabilityService.add(OPENSTACK_SERVICE_KEY, 
@@ -164,22 +163,6 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 			return servers.get(0);
 		else
 			return null;
-	}
-
-	protected boolean verifyServiceAvailability(String instanceId, int port) throws OpenstackPlatformException {
-		boolean available = false;
-
-		ServicePortAvailabilityVerifier.initialSleep();
-		for (int i = 0; i < this.connectionTimeouts; i++) {
-			available = ServicePortAvailabilityVerifier.execute(this.primaryIp(instanceId), port);
-			
-			log.info("Service Port availability: " + available);
-
-			if (available) {
-				break;
-			}
-		}
-		return available;
 	}
 
 	private List<Server> servers(String instanceId) throws OpenstackPlatformException {

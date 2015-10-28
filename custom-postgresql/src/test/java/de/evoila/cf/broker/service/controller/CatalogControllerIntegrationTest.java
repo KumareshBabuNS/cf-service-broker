@@ -21,7 +21,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import de.evoila.cf.broker.controller.CatalogController;
+import de.evoila.cf.broker.cpi.endpoint.controller.EndpointController;
 import de.evoila.cf.broker.model.fixture.CatalogFixture;
 import de.evoila.cf.broker.model.fixture.ServiceFixture;
 import de.evoila.cf.broker.service.CatalogService;
@@ -36,7 +36,7 @@ public class CatalogControllerIntegrationTest {
 	private MockMvc mockMvc;
 
 	@InjectMocks
-	private CatalogController controller;
+	private EndpointController controller;
 
 	@Mock
 	private CatalogService catalogService;

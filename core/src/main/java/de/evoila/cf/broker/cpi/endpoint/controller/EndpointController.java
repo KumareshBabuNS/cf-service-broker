@@ -1,5 +1,7 @@
 package de.evoila.cf.broker.cpi.endpoint.controller;
 
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import de.evoila.cf.broker.controller.BaseController;
-import de.evoila.cf.broker.model.Catalog;
-import de.evoila.cf.broker.service.CatalogService;
+import de.evoila.cf.broker.cpi.endpoint.EndpointAvailabilityService;
+import de.evoila.cf.broker.model.cpi.EndpointServiceState;
 
 /**
  * 
@@ -18,18 +20,18 @@ import de.evoila.cf.broker.service.CatalogService;
  *
  */
 @Controller
-@RequestMapping(value = "/v2/catalog")
+@RequestMapping(value = "/v2/endpoint")
 public class EndpointController extends BaseController {
 	
+	@SuppressWarnings("unused")
 	private static final Logger logger = LoggerFactory.getLogger(EndpointController.class);
 	
 	@Autowired 
-	private CatalogService service;
+	private EndpointAvailabilityService endpointAvailabilityService;
 	
 	@RequestMapping(value = { "/", "" }, method = RequestMethod.GET)
-	public @ResponseBody Catalog getCatalog() {
-		logger.debug("GET: getCatalog()");
-		return service.getCatalog();
+	public @ResponseBody Map<String, EndpointServiceState> getCatalog() {
+		return endpointAvailabilityService.getServices();
 	}
 	
 }

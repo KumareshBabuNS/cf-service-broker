@@ -101,7 +101,7 @@ public abstract class DockerServiceFactory implements PlatformService {
 	
 	@PostConstruct
 	public void initialize() throws ServiceBrokerException {
-		this.updateAvailablePorts();
+		createDockerClientInstance();
 	}
 	
 	private void updateAvailablePorts() throws ServiceBrokerException {
@@ -164,6 +164,9 @@ public abstract class DockerServiceFactory implements PlatformService {
 						.withUri(protocol + "://" + dockerHost + ":" + dockerPort)
 						.build();
 				dockerClient = DockerClientBuilder.getInstance(dockerClientConfig).build();
+				
+				endpointAvailabilityService.add(DOCKER_SERVICE_KEY, new EndpointServiceState(DOCKER_SERVICE_KEY, 
+						AvailabilityState.AVAILABLE));
 			}
 		} catch(Exception ex) {
 			endpointAvailabilityService.add(DOCKER_SERVICE_KEY, 

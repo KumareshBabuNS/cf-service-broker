@@ -20,6 +20,7 @@ import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.VolumeUnit;
 import de.evoila.cf.broker.repository.PlatformRepository;
+import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
 import de.evoila.cf.cpi.openstack.OpenstackServiceFactory;
 import de.evoila.cf.cpi.openstack.custom.exception.OpenstackPlatformException;
 import de.evoila.cf.cpi.openstack.custom.props.DomainBasedCustomPropertyHandler;
@@ -61,9 +62,11 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 
 	@Override
 	public ServiceInstance postProvisioning(ServiceInstance serviceInstance, Plan plan) throws ServiceBrokerException {
+		
 		boolean available;
 		try {
-			available = super.verifyServiceAvailability(serviceInstance.getId(), serviceInstance.getPort());
+			available = ServicePortAvailabilityVerifier
+					.verifyServiceAvailability(this.primaryIp(serviceInstance.getId()), serviceInstance.getPort());
 		} catch (Exception e) {
 			throw new ServiceBrokerException(
 					"Service instance is not reachable. Service may not be started on instance.", e);

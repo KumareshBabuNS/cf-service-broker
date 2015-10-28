@@ -13,6 +13,7 @@ import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.repository.PlatformRepository;
+import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
 
 /**
  * 
@@ -48,7 +49,21 @@ public class DockerPlatformService extends DockerServiceFactory {
 
 	@Override
 	public ServiceInstance postProvisioning(ServiceInstance serviceInstance, Plan plan) throws ServiceBrokerException {
-		return new ServiceInstance(serviceInstance, serviceInstance.getDashboardUrl(), serviceInstance.getInternalId());
+		boolean available = false;
+		try {
+			//available = ServicePortAvailabilityVerifier
+				//	.verifyServiceAvailability(, serviceInstance.getPort());
+		} catch (Exception e) {
+			throw new ServiceBrokerException(
+					"Service instance is not reachable. Service may not be started on instance.", e);
+		}
+
+		if (!available) {
+			throw new ServiceBrokerException(
+					"Service instance is not reachable. Service may not be started on instance.");
+		}
+
+		return serviceInstance;
 	}
 
 	@Override
