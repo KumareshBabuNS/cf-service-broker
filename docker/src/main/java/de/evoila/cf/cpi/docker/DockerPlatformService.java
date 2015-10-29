@@ -93,7 +93,7 @@ public class DockerPlatformService extends DockerServiceFactory {
 		String password = instanceId;
 		String internalId = this.createDockerContainer(instanceId, plan.getVolumeSize(), vhost, username, password)
 				.getId();
-		Map<String, Object> credentials  = containerCredentialMap.get(instanceId);
+		Map<String, Object> credentials  = containerCredentialMap.get(internalId);
 		String host = (String) credentials.get("host");
 		int port = (int) credentials.get("port");
 		return new ServiceInstance(serviceInstance, "http://currently.not/available", internalId, host, port);
