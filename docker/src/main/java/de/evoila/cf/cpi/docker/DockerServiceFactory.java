@@ -247,14 +247,19 @@ public abstract class DockerServiceFactory implements PlatformService {
 		InspectContainerCmd inspectContainerCmd = dockerClient.inspectContainerCmd(
 				containerId);
 		InspectContainerResponse i = inspectContainerCmd.exec();
+		
 		try {
 			dockerClient.close();
 		} catch (IOException e) {
 			logger.warn("Cannot close docker client at getting container's exposed port!");
 		}
-		for (ExposedPort exposedPort : i.getHostConfig().getPortBindings().getBindings().keySet()) {
-			return exposedPort.getPort();
+		
+		for (Binding[] binding : i.getHostConfig().getPortBindings().getBindings().values()) {
+			for (Binding b : binding) {
+				return b.getHostPort();
+			}
 		}
+		
 		return null;
 	}
 
