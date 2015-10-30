@@ -207,7 +207,7 @@ public abstract class DockerServiceFactory implements PlatformService {
 		LogConfig logConfig = new LogConfig();
 		logConfig.setType(LoggingType.SYSLOG);
 		Map<String, String> config = new HashMap<String, String>();
-		config.put("syslog-addres", syslogAddress);
+		config.put("syslog-address", syslogAddress);
 		logConfig.setConfig(config);
 		CreateContainerCmd containerCmd = dockerClient
 				.createContainerCmd(imageName).withPortBindings(portBinding)
