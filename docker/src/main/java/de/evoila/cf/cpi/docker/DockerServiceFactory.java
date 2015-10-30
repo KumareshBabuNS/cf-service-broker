@@ -23,6 +23,8 @@ import com.github.dockerjava.api.command.InspectContainerCmd;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.LogConfig;
+import com.github.dockerjava.api.model.LogConfig.LoggingType;
 import com.github.dockerjava.api.model.PortBinding;
 import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.api.model.Ports.Binding;
@@ -45,11 +47,11 @@ import de.evoila.cf.broker.service.PlatformService;
  *
  */
 public abstract class DockerServiceFactory implements PlatformService {
-	
+
 	private final static String DOCKER_SERVICE_KEY = "dockerFactoryService";
 
 	private Logger logger = LoggerFactory.getLogger(getClass());
-	
+
 	Map<String, Map<String, Object>> containerCredentialMap = new HashMap<String, Map<String, Object>>();
 
 	@Value("${docker.offset}")
@@ -88,21 +90,24 @@ public abstract class DockerServiceFactory implements PlatformService {
 	@Value("${docker.portRange.end}")
 	private int portRangeEnd;
 
+	@Value("${docker.syslogAddress}")
+	private String syslogAddress;
+
 	@Autowired
 	private DockerVolumeServiceBroker dockerVolumeServiceBroker;
-	
+
 	@Autowired
 	private EndpointAvailabilityService endpointAvailabilityService;
-	
+
 	private List<Integer> availablePorts = new ArrayList<Integer>();
 
 	private List<Integer> usedPorts = new ArrayList<Integer>();
-	
+
 	@PostConstruct
 	public void initialize() throws PlatformException {
 		createDockerClientInstance();
 	}
-	
+
 	private void updateAvailablePorts() throws PlatformException {
 		this.listUsedPort();
 		this.intersect();
@@ -111,15 +116,20 @@ public abstract class DockerServiceFactory implements PlatformService {
 	private void listUsedPort() throws PlatformException {
 		usedPorts = new ArrayList<Integer>();
 		DockerClient dockerClient = this.createDockerClientInstance();
-		List<Container> containers = dockerClient.listContainersCmd().withShowAll(true).exec();
+		List<Container> containers = dockerClient.listContainersCmd()
+				.withShowAll(true).exec();
 		for (Container container : containers) {
-			InspectContainerResponse i = dockerClient.inspectContainerCmd(container.getId()).exec();
+			InspectContainerResponse i = dockerClient.inspectContainerCmd(
+					container.getId()).exec();
 			Ports portBindings = i.getHostConfig().getPortBindings();
-			if(portBindings == null) continue; 
-			Set<Entry<ExposedPort, Binding[]>> bindings = portBindings.getBindings().entrySet();
+			if (portBindings == null)
+				continue;
+			Set<Entry<ExposedPort, Binding[]>> bindings = portBindings
+					.getBindings().entrySet();
 			for (Entry<ExposedPort, Binding[]> binding : bindings) {
 				Binding[] bs = binding.getValue();
-				if(bs == null) continue;
+				if (bs == null)
+					continue;
 				for (Binding b : bs) {
 					usedPorts.add(b.getHostPort());
 				}
@@ -149,12 +159,12 @@ public abstract class DockerServiceFactory implements PlatformService {
 		}
 	}
 
-	private DockerClient createDockerClientInstance()
-			throws PlatformException {
+	private DockerClient createDockerClientInstance() throws PlatformException {
 		DockerClient dockerClient = null;
 		try {
 			if (endpointAvailabilityService.isAvailable(DOCKER_SERVICE_KEY)) {
-				String certsPath = this.getClass().getResource("/docker/").getPath();
+				String certsPath = this.getClass().getResource("/docker/")
+						.getPath();
 				SSLConfig sslConfig = new LocalDirectorySSLConfig(certsPath);
 				DockerClientConfigBuilder dockerClientConfigBuilder = new DockerClientConfigBuilder();
 				String protocol = "http";
@@ -163,22 +173,25 @@ public abstract class DockerServiceFactory implements PlatformService {
 							.withSSLConfig(sslConfig);
 					protocol = "https";
 				}
-				
+
 				DockerClientConfig dockerClientConfig = dockerClientConfigBuilder
-						.withUri(protocol + "://" + dockerHost + ":" + dockerPort)
-						.build();
-				dockerClient = DockerClientBuilder.getInstance(dockerClientConfig).build();
-				
-				endpointAvailabilityService.add(DOCKER_SERVICE_KEY, new EndpointServiceState(DOCKER_SERVICE_KEY, 
-						AvailabilityState.AVAILABLE));
+						.withUri(
+								protocol + "://" + dockerHost + ":"
+										+ dockerPort).build();
+				dockerClient = DockerClientBuilder.getInstance(
+						dockerClientConfig).build();
+
+				endpointAvailabilityService.add(DOCKER_SERVICE_KEY,
+						new EndpointServiceState(DOCKER_SERVICE_KEY,
+								AvailabilityState.AVAILABLE));
 			}
-		} catch(Exception ex) {
-			endpointAvailabilityService.add(DOCKER_SERVICE_KEY, 
-					new EndpointServiceState(DOCKER_SERVICE_KEY, AvailabilityState.ERROR, ex.toString()));
+		} catch (Exception ex) {
+			endpointAvailabilityService.add(DOCKER_SERVICE_KEY,
+					new EndpointServiceState(DOCKER_SERVICE_KEY,
+							AvailabilityState.ERROR, ex.toString()));
 		}
 		return dockerClient;
 	}
-
 
 	private String getEnviornment(String key, String value) {
 		return key + "='" + value + "'";
@@ -191,21 +204,27 @@ public abstract class DockerServiceFactory implements PlatformService {
 		Binding binding = new Binding(this.resolveNextAvailablePort());
 		ExposedPort exposedPort = new ExposedPort(this.containerPort);
 		PortBinding portBinding = new PortBinding(binding, exposedPort);
-		CreateContainerCmd containerCmd = dockerClient.createContainerCmd(
-				imageName).withPortBindings(portBinding).withRestartPolicy(RestartPolicy.alwaysRestart());
-	
-		if (usernameEnv != null) 
+		LogConfig logConfig = new LogConfig();
+		logConfig.setType(LoggingType.SYSLOG);
+		Map<String, String> config = new HashMap<String, String>();
+		config.put("syslog-addres", syslogAddress);
+		logConfig.setConfig(config);
+		CreateContainerCmd containerCmd = dockerClient
+				.createContainerCmd(imageName).withPortBindings(portBinding)
+				.withRestartPolicy(RestartPolicy.alwaysRestart())
+				.withLogConfig(logConfig);
+
+		if (usernameEnv != null)
 			containerCmd.withEnv(getEnviornment(usernameEnv, username));
-		
-		
-		if (passwordEnv != null) 
+
+		if (passwordEnv != null)
 			containerCmd.withEnv(getEnviornment(passwordEnv, password));
-		
-		if (vHostEnv != null) 
+
+		if (vHostEnv != null)
 			containerCmd.withEnv(getEnviornment(vHostEnv, vhost));
-		
+
 		logger.trace(containerCmd.toString());
-		
+
 		CreateContainerResponse container = containerCmd.exec();
 		try {
 			dockerClient.close();
@@ -231,8 +250,8 @@ public abstract class DockerServiceFactory implements PlatformService {
 	private String getContainerNodeName(String containerId)
 			throws PlatformException {
 		DockerClient dockerClient = this.createDockerClientInstance();
-		InspectContainerCmd inspectContainerCmd = dockerClient.inspectContainerCmd(
-				containerId);
+		InspectContainerCmd inspectContainerCmd = dockerClient
+				.inspectContainerCmd(containerId);
 		InspectContainerResponse i = inspectContainerCmd.exec();
 		try {
 			dockerClient.close();
@@ -241,25 +260,27 @@ public abstract class DockerServiceFactory implements PlatformService {
 		}
 		return i.getNode().getName();
 	}
-	
-	private Integer getContainerExposedPort(String containerId) throws PlatformException {
+
+	private Integer getContainerExposedPort(String containerId)
+			throws PlatformException {
 		DockerClient dockerClient = this.createDockerClientInstance();
-		InspectContainerCmd inspectContainerCmd = dockerClient.inspectContainerCmd(
-				containerId);
+		InspectContainerCmd inspectContainerCmd = dockerClient
+				.inspectContainerCmd(containerId);
 		InspectContainerResponse i = inspectContainerCmd.exec();
-		
+
 		try {
 			dockerClient.close();
 		} catch (IOException e) {
 			logger.warn("Cannot close docker client at getting container's exposed port!");
 		}
-		
-		for (Binding[] binding : i.getHostConfig().getPortBindings().getBindings().values()) {
+
+		for (Binding[] binding : i.getHostConfig().getPortBindings()
+				.getBindings().values()) {
 			for (Binding b : binding) {
 				return b.getHostPort();
 			}
 		}
-		
+
 		return null;
 	}
 
@@ -286,8 +307,7 @@ public abstract class DockerServiceFactory implements PlatformService {
 		}
 	}
 
-	private void removeContainer(String containerId)
-			throws PlatformException {
+	private void removeContainer(String containerId) throws PlatformException {
 		DockerClient dockerClient = createDockerClientInstance();
 		dockerClient.removeContainerCmd(containerId).exec();
 
@@ -330,14 +350,15 @@ public abstract class DockerServiceFactory implements PlatformService {
 
 		Map<String, Object> credentials = new HashMap<String, Object>();
 		credentials.put("host", dockerHost);
-		credentials.put("port", this.getContainerExposedPort(container.getId()));
+		credentials
+				.put("port", this.getContainerExposedPort(container.getId()));
 		credentials.put("name", container.getId());
 		credentials.put("vhost", vhost);
 		credentials.put("username", username);
 		credentials.put("password", password);
 
 		containerCredentialMap.put(container.getId(), credentials);
-		
+
 		return container;
 	}
 
@@ -345,7 +366,7 @@ public abstract class DockerServiceFactory implements PlatformService {
 			throws PlatformException {
 		this.killContainer(containerId);
 		String nodeName = this.getContainerNodeName(containerId);
-		
+
 		String mountPoint = this.getContainerVolumeHostPath(containerId);
 		try {
 			dockerVolumeServiceBroker.deleteVolume(nodeName, mountPoint);
