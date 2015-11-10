@@ -6,7 +6,6 @@ package de.evoila.cf.broker.custom.elasticsearch;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -56,7 +55,7 @@ public class ElasticsearchBindingService extends BindingServiceImpl {
 
 	@Override
 	public ServiceInstanceBinding getServiceInstanceBinding(String id) {
-		throw new NotImplementedException();
+		throw new UnsupportedOperationException();
 	}
 
 }

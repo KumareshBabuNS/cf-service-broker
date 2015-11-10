@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,7 +134,7 @@ public class RabbitMqBindingService extends BindingServiceImpl {
 
 	@Override
 	public ServiceInstanceBinding getServiceInstanceBinding(String id) {
-		throw new NotImplementedException();
+		throw new UnsupportedOperationException();
 	}
 	
 	private void executeRequest(String url, HttpMethod method, String instanceId, String payload) {

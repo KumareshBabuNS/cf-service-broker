@@ -19,6 +19,10 @@ public class ServiceBrokerException extends Exception {
 	public ServiceBrokerException(String message, Exception e) {
 		super(message, e);
 	}
+	
+	public ServiceBrokerException(Throwable t) {
+		super(t);
+	}
 
 	@Override
 	public String getMessage() {

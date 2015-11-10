@@ -10,7 +10,6 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 
-import org.glassfish.jersey.internal.ServiceConfigurationError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -343,7 +342,7 @@ public abstract class DockerServiceFactory implements PlatformService {
 		} catch (Exception e) {
 			this.removeContainer(container.getId());
 			logger.error(e.getMessage());
-			throw new ServiceConfigurationError(e);
+			throw new PlatformException(e);
 		}
 
 		startContainer(container);
