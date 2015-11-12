@@ -1,0 +1,3 @@
+[submodule "docker-volume-service"]
+	path = docker-volume-service
+	url = https://github.com/evoila/cf-service-broker-docker-volume-service
