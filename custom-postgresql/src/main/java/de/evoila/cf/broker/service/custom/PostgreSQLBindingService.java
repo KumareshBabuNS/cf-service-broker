@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.model.Plan;
@@ -40,6 +41,11 @@ public class PostgreSQLBindingService extends BindingServiceImpl {
 		if (jdbcService.isConnected())
 			return true;
 		else {
+			Assert.notNull(serviceInstance, "ServiceInstance may not be null");
+			Assert.notNull(serviceInstance.getId(), "Id of ServiceInstance may not be null");
+			Assert.notNull(serviceInstance.getHost(), "Host of ServiceInstance may not be null");
+			Assert.notNull(serviceInstance.getPort(), "Port of ServiceInstance may not be null");
+			
 			return jdbcService.createConnection(serviceInstance.getId(), serviceInstance.getHost(),
 					serviceInstance.getPort());
 		}
