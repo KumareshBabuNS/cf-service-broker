@@ -3,4 +3,4 @@
 	url = https://github.com/evoila/cf-service-broker-docker-volume-service
 [submodule "docker-java"]
 	path = docker-java
-	url = /Users/dennismuller/git/cf-service-broker/docker-java
+url=https://github.com/evoila/docker-java
