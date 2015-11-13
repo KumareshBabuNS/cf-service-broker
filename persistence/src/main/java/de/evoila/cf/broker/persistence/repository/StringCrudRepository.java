@@ -32,7 +32,17 @@ public class StringCrudRepository {
 	}
 
 	public void delete(String id) {
-		redisTemplate.opsForValue().getOperations().delete(id);
+		String key = generateKey(id);
+		redisTemplate.opsForValue().getOperations().delete(key);
+	}
+
+	private String generateKey(String id) {
+		String key = getPrefix() + id.toString();
+		return key;
+	}
+
+	protected String getPrefix() {
+		return "";
 	}
 
 	public void delete(Iterable<? extends String> entities) {
@@ -56,7 +66,7 @@ public class StringCrudRepository {
 	private List<String> findAllAsList() {
 		List<String> entities = new ArrayList<>();
 
-		Set<String> keys = redisTemplate.keys("*");
+		Set<String> keys = redisTemplate.keys(getPrefix() + "*");
 		Iterator<String> it = keys.iterator();
 
 		while (it.hasNext()) {
@@ -69,16 +79,19 @@ public class StringCrudRepository {
 	public Iterable<String> findAll(Iterable<String> ids) {
 		List<String> keys = new ArrayList<String>();
 		for (String id : ids) {
-			keys.add(id.toString());
+			String key = generateKey(id);
+			keys.add(key);
 		}
 		return redisTemplate.opsForValue().multiGet(keys);
 	}
 
 	public String findOne(String id) {
-		return redisTemplate.opsForValue().get(id);
+		String key = generateKey(id);
+		return redisTemplate.opsForValue().get(key);
 	}
 
-	public String save(String key, String entity) {
+	public String save(String id, String entity) {
+		String key = generateKey(id);
 		redisTemplate.opsForValue().set(key, entity);
 		return entity;
 	}

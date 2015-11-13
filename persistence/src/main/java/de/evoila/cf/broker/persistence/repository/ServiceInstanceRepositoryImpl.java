@@ -16,6 +16,13 @@ import de.evoila.cf.broker.repository.ServiceInstanceRepository;
 public class ServiceInstanceRepositoryImpl extends CrudRepositoryImpl<ServiceInstance, String>
 		implements ServiceInstanceRepository {
 
+	private static final String PREFIX = "instance-";
+
+	@Override
+	protected String getPrefix() {
+		return PREFIX;
+	}
+
 	@Override
 	public ServiceInstance getServiceInstance(String instanceId) {
 		return findOne(instanceId);

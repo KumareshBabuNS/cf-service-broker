@@ -14,6 +14,13 @@ import de.evoila.cf.broker.repository.BindingRepository;
 @Repository
 public class BindingRepositoryImpl extends StringCrudRepository implements BindingRepository {
 
+	private static final String PREFIX = "binding-";
+
+	@Override
+	protected String getPrefix() {
+		return PREFIX;
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -51,7 +58,10 @@ public class BindingRepositoryImpl extends StringCrudRepository implements Bindi
 
 	/*
 	 * (non-Javadoc)
-	 * @see de.evoila.cf.broker.repository.BindingRepository#deleteBinding(java.lang.String)
+	 * 
+	 * @see
+	 * de.evoila.cf.broker.repository.BindingRepository#deleteBinding(java.lang.
+	 * String)
 	 */
 	@Override
 	public void deleteBinding(String bindingId) {
