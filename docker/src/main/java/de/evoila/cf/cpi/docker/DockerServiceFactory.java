@@ -259,6 +259,20 @@ public abstract class DockerServiceFactory implements PlatformService {
 		}
 		return i.getNode().getName();
 	}
+	
+	private String getContainerNodeIp(String containerId)
+			throws PlatformException {
+		DockerClient dockerClient = this.createDockerClientInstance();
+		InspectContainerCmd inspectContainerCmd = dockerClient
+				.inspectContainerCmd(containerId);
+		InspectContainerResponse i = inspectContainerCmd.exec();
+		try {
+			dockerClient.close();
+		} catch (IOException e) {
+			logger.warn("Cannot close docker client at getting container's node name!");
+		}
+		return i.getNode().getIp();
+	}
 
 	private Integer getContainerExposedPort(String containerId)
 			throws PlatformException {
@@ -348,7 +362,7 @@ public abstract class DockerServiceFactory implements PlatformService {
 		startContainer(container);
 
 		Map<String, Object> credentials = new HashMap<String, Object>();
-		credentials.put("host", dockerHost);
+		credentials.put("host", this.getContainerNodeIp(container.getId()));
 		credentials
 				.put("port", this.getContainerExposedPort(container.getId()));
 		credentials.put("name", container.getId());
