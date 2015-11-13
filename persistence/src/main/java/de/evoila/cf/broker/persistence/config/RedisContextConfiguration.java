@@ -46,6 +46,8 @@ public class RedisContextConfiguration {
 		jedisConnFactory.setHostName(hostname);
 		jedisConnFactory.setDatabase(database);
 		jedisConnFactory.setPort(port);
+		if (password != null && password.length() > 0)
+			jedisConnFactory.setPassword(password);
 		jedisConnFactory.setTimeout(Protocol.DEFAULT_TIMEOUT);
 
 		log.info("Connection to redis instance successfull");
