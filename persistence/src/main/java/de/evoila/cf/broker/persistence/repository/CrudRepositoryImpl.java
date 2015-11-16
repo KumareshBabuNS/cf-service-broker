@@ -37,13 +37,23 @@ public class CrudRepositoryImpl<T extends BaseEntity<ID>, ID extends Serializabl
 
 	@Override
 	public void delete(ID id) {
-		String key = id.toString();
+		String key = generateKey(id);
 		redisTemplate.opsForValue().getOperations().delete(key);
+	}
+
+	private String generateKey(ID id) {
+		String key = getPrefix() + id.toString();
+		return key;
+	}
+
+	protected String getPrefix() {
+		return "";
 	}
 
 	@Override
 	public void delete(T entity) {
-		String key = entity.getId().toString();
+		ID id = entity.getId();
+		String key = generateKey(id);
 		redisTemplate.opsForValue().getOperations().delete(key);
 	}
 
@@ -72,7 +82,7 @@ public class CrudRepositoryImpl<T extends BaseEntity<ID>, ID extends Serializabl
 	private List<T> findAllAsList() {
 		List<T> entities = new ArrayList<>();
 
-		Set<String> keys = redisTemplate.keys("*");
+		Set<String> keys = redisTemplate.keys(getPrefix() + "*");
 		Iterator<String> it = keys.iterator();
 
 		while (it.hasNext()) {
@@ -86,23 +96,25 @@ public class CrudRepositoryImpl<T extends BaseEntity<ID>, ID extends Serializabl
 	public Iterable<T> findAll(Iterable<ID> ids) {
 		List<String> keys = new ArrayList<String>();
 		for (ID id : ids) {
-			keys.add(id.toString());
+			keys.add(generateKey(id));
 		}
 		return redisTemplate.opsForValue().multiGet(keys);
 	}
 
 	@Override
 	public T findOne(ID id) {
-		return findOne(id.toString());
+		String key = generateKey(id);
+		return findOne(key);
 	}
 
-	private T findOne(String id) {
-		return redisTemplate.opsForValue().get(id);
+	private T findOne(String key) {
+		return redisTemplate.opsForValue().get(key);
 	}
 
 	@Override
 	public <S extends T> S save(S entity) {
-		redisTemplate.opsForValue().set(entity.getId().toString(), entity);
+		ID id = entity.getId();
+		redisTemplate.opsForValue().set(generateKey(id), entity);
 		return entity;
 	}
 
