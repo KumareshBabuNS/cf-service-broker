@@ -123,7 +123,7 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 	@Override
 	public void deleteServiceInstance(ServiceInstance serviceInstance)
 			throws PlatformException {
-		this.delete(serviceInstance.getId());
+		this.delete(serviceInstance.getInternalId());
 	}
 
 	@Override

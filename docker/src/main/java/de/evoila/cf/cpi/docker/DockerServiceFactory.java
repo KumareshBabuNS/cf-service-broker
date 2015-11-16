@@ -193,14 +193,14 @@ public abstract class DockerServiceFactory implements PlatformService {
 	}
 
 	private String getEnviornment(String key, String value) {
-		return key + "='" + value + "'";
+		return key + "=" + value + "";
 	}
 
 	private CreateContainerResponse createDockerContainer(String vhost,
 			String username, String password) throws PlatformException {
 		DockerClient dockerClient = this.createDockerClientInstance();
 
-		Binding binding = new Binding(this.resolveNextAvailablePort());
+		Binding binding = new Binding("0.0.0.0", this.resolveNextAvailablePort());
 		ExposedPort exposedPort = new ExposedPort(this.containerPort);
 		PortBinding portBinding = new PortBinding(binding, exposedPort);
 		LogConfig logConfig = new LogConfig();
@@ -213,14 +213,9 @@ public abstract class DockerServiceFactory implements PlatformService {
 				.withRestartPolicy(RestartPolicy.alwaysRestart())
 				.withLogConfig(logConfig);
 
-		if (usernameEnv != null)
-			containerCmd.withEnv(getEnviornment(usernameEnv, username));
-
-		if (passwordEnv != null)
-			containerCmd.withEnv(getEnviornment(passwordEnv, password));
-
-		if (vHostEnv != null)
-			containerCmd.withEnv(getEnviornment(vHostEnv, vhost));
+		containerCmd.withEnv(getEnviornment(usernameEnv, username),
+				getEnviornment(passwordEnv, password),
+				getEnviornment(vHostEnv, vhost));
 
 		logger.trace(containerCmd.toString());
 
@@ -328,11 +323,11 @@ public abstract class DockerServiceFactory implements PlatformService {
 			logger.error("Cannot create docker container");
 			throw e;
 		}
-		logger.trace("Docker container '" + container.getId()
+		logger.info("Docker container '" + container.getId()
 				+ "' created with: -p " + this.containerPort + ":" + "PORT"
-				+ " -e " + this.vHostEnv + "='" + vhost + "' -e "
-				+ this.usernameEnv + "='" + username + "' -e "
-				+ this.passwordEnv + "='" + password + this.imageName);
+				+ " -e " + this.vHostEnv + "=" + vhost + " -e "
+				+ this.usernameEnv + "=" + username + " -e "
+				+ this.passwordEnv + "=" + password + " " + this.imageName);
 
 		String nodeName = this.getContainerNodeName(container.getId());
 		String mountPoint = this.getContainerVolumeHostPath(container.getId());
@@ -349,8 +344,7 @@ public abstract class DockerServiceFactory implements PlatformService {
 
 		Map<String, Object> credentials = new HashMap<String, Object>();
 		credentials.put("host", dockerHost);
-		credentials
-				.put("port", this.getContainerExposedPort(container.getId()));
+		credentials.put("port", this.getContainerExposedPort(container.getId()));
 		credentials.put("name", container.getId());
 		credentials.put("vhost", vhost);
 		credentials.put("username", username);

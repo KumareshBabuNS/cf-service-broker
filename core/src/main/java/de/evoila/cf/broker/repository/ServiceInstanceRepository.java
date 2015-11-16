@@ -8,13 +8,10 @@ import de.evoila.cf.broker.model.ServiceInstance;
  */
 public interface ServiceInstanceRepository {
 
-	// Depl + Bind
 	ServiceInstance getServiceInstance(String instanceId);
 
-	// Depl
 	boolean containsServiceInstanceId(String serviceInstanceId);
 
-	// Depl + PGBindingTest
 	void addServiceInstance(String id, ServiceInstance serviceInstance);
 
 	void deleteServiceInstance(String serviceInstanceId);

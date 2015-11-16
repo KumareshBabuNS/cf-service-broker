@@ -7,6 +7,8 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.github.dockerjava.api.command.CreateContainerResponse;
+
 import de.evoila.cf.broker.exception.PlatformException;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.Platform;
@@ -88,15 +90,17 @@ public class DockerPlatformService extends DockerServiceFactory {
 	@Override
 	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan, Map<String, String> customProperties) throws PlatformException {
 		String instanceId = serviceInstance.getId();
-		String vhost = instanceId;
-		String username = instanceId;
-		String password = instanceId;
-		String internalId = this.createDockerContainer(instanceId, plan.getVolumeSize(), vhost, username, password)
-				.getId();
-		Map<String, Object> credentials  = containerCredentialMap.get(internalId);
+		
+		CreateContainerResponse container = this.createDockerContainer(instanceId, plan.getVolumeSize(), 
+				instanceId, instanceId, instanceId);
+		
+		Map<String, Object> credentials  = containerCredentialMap.get(container.getId());
 		String host = (String) credentials.get("host");
 		int port = (int) credentials.get("port");
-		return new ServiceInstance(serviceInstance, "http://currently.not/available", internalId, host, port);
+		
+		serviceInstance = new ServiceInstance(serviceInstance, "http://currently.not/available", container.getId(), host, port);
+		
+		return serviceInstance;
 	}
 
 }

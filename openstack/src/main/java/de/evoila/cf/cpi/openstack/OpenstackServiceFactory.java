@@ -164,8 +164,8 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 		return stack;
 	}
 
-	protected void delete(String instanceId) {
-		Stack stack = heatFluent.get(uniqueName(instanceId));
+	protected void delete(String internalId) {
+		Stack stack = heatFluent.get(internalId);
 
 		heatFluent.delete(stack.getName(), stack.getId());
 	}
