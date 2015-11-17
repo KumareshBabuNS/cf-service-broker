@@ -50,8 +50,10 @@ resources:
           template: |
             #!/bin/bash -v
             export PG_VERSION=9.3
-            export PATH=/usr/lib/postgresql/$PG_VERSION/bin:$PATH
-            export PGDATA=/var/lib/postgresql/data
+            export PGPATH=/usr/lib/postgresql/$PG_VERSION/bin
+            export PATH=$PGPATH:$PATH
+            export PG_CONF_PATH=/etc/postgresql/$PG_VERSION/main/
+            export PGDATA=/var/lib/postgresql/$PG_VERSION/main/
             
             wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Postgres/postgres-install.sh
             chmod +x postgres-install.sh

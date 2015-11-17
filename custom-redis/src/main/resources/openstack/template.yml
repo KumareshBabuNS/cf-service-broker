@@ -49,9 +49,9 @@ resources:
         str_replace:
           template: |
             #!/bin/bash -v
-            export REDIS_MAJOR=3.0
             export REDIS_VERSION=3.0.3
-            export REDIS_DATA_PATH=/data/db
+            export VOLUME=/data
+            export WORKDIR=/data
             
             wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Redis/redis-install.sh
             chmod +x redis-install.sh
