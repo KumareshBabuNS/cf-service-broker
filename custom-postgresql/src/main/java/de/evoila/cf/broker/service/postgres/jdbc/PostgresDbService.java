@@ -38,7 +38,7 @@ public class PostgresDbService {
 		this.port = port;
 		try {
 			Class.forName("org.postgresql.Driver");
-			String url = "jdbc:postgresql://" + host + ":" + port + "/postgres";
+			String url = "jdbc:postgresql://" + host + ":" + port + "/" + instanceId;
 			connection = DriverManager.getConnection(url, instanceId, instanceId);
 		} catch (ClassNotFoundException | SQLException e) {
 			log.info("Could not establish connection", e);
@@ -63,6 +63,7 @@ public class PostgresDbService {
 		Statement statement = connection.createStatement();
 
 		try {
+			log.debug("Executing the following query: " + query);
 			statement.execute(query);
 		} catch (SQLException e) {
 			log.error(e.toString());

@@ -48,8 +48,12 @@ public class PostgresCustomImplementation {
 		jdbcService.executeUpdate("CREATE ROLE \"" + bindingId + "\"");
 		jdbcService.executeUpdate("ALTER ROLE \"" + bindingId + "\" LOGIN password '" + passwd + "'");
 		jdbcService.executeUpdate("GRANT \"" + serviceInstanceId + "\" TO \"" + bindingId + "\"");
+		
 		jdbcService.executeUpdate("GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO \"" + bindingId + "\"");
+		jdbcService.executeUpdate("ALTER DEFAULT PRIVILEGES FOR ROLE \"" + bindingId + "\" IN SCHEMA public GRANT ALL ON TABLES TO \"" + bindingId + "\"");
 		jdbcService.executeUpdate("GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO \"" + bindingId + "\"");
+		jdbcService.executeUpdate("ALTER DEFAULT PRIVILEGES FOR ROLE \"" + bindingId + "\" IN SCHEMA public GRANT ALL ON SEQUENCES TO \"" + bindingId + "\"");
+		
 		return passwd;
 	}
 
