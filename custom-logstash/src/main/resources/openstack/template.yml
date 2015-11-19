@@ -1,0 +1,116 @@
+heat_template_version: 2013-05-23
+description: Deployment Description for Redis
+parameters:
+  image_id:
+    type: string
+    description: Image used for servers
+  keypair:
+    type: string
+    description: SSH key to connect to the servers
+  flavor:
+    type: string
+    description: flavor used by the web servers
+  network_id:
+    type: string
+    description: Network used by the server
+  subnet_id:
+    type: string
+    description: subnet on which the load balancer will be located
+  volume_size:
+    type: number
+    description: Size of the volume to be created.
+  availability_zone:
+    type: string
+    description: The Availability Zone to launch the instance.
+  database_name:
+    type: string
+    description: Database Name
+  database_user:
+    type: string
+    description: Database user
+  database_password:
+    type: string
+    description: Database password
+  database_number:
+    type: string
+    description: Number of databases
+resources:
+  nova_instance:
+    type: OS::Nova::Server
+    properties:
+      flavor: {get_param: flavor}
+      image: {get_param: image_id}
+      key_name: {get_param: keypair}
+      networks: [{network: {get_param: network_id} }]
+      user_data_format: RAW
+      security_groups:
+        - all
+      user_data:
+        str_replace:
+          template: |
+            #!/bin/bash -v
+            sudo apt-get update
+            sudo apt-get install software-properties-common -y
+            sudo apt-add-repository ppa:webupd8team/java -y
+            sudo apt-get update
+            echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections
+            echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections            
+            sudo apt-get install oracle-java8-installer -y
+            
+            echo "deb http://packages.elasticsearch.org/logstash/2.0/debian stable main" | sudo tee -a /etc/apt/sources.list
+            
+            sudo apt-get update 
+            sudo apt-get install logstash -y --force-yes
+            
+            echo "input {
+              tcp {
+                port => 5000
+                type => syslog
+              }
+              udp {
+                port => 5000
+                type => syslog
+              }
+            }
+            
+            filter {
+              if [type] == \"syslog\" {
+                grok {
+                  match => { \"message\" => \"%{SYSLOG5424PRI}%{NONNEGINT:syslog5424_ver} +(?:%{TIMESTAMP_ISO8601:syslog5424_ts}|-) +(?:%{HOSTNAME:syslog5424_host}|-) +(?:%{NOTSPACE:syslog5424_app}|-) +(?:%{NOTSPACE:syslog5424_proc}|-) +(?:%{WORD:syslog5424_msgid}|-) +(?:%{SYSLOG5424SD:syslog5424_sd}|-|) +%{GREEDYDATA:syslog5424_msg}\" }
+                }
+                syslog_pri { }
+                date {
+                  match => [ \"syslog_timestamp\", \"MMM  d HH:mm:ss\", \"MMM dd HH:mm:ss\" ]
+                }
+                if !(\"_grokparsefailure\" in [tags]) {
+                  mutate {
+                    replace => [ \"@source_host\", \"%{syslog_hostname}\" ]
+                    replace => [ \"@message\", \"%{syslog_message}\" ]
+                  }
+                }
+                mutate {
+                  remove_field => [ \"syslog_hostname\", \"syslog_message\", \"syslog_timestamp\" ]
+                }
+              }
+            }
+            
+            output {
+              elasticsearch { }
+            }" >> /etc/logstash/conf.d/syslog.conf
+            
+            sudo service logstash start 
+          params:
+            $db_number: {get_param: database_number}
+            $db_user: {get_param: database_user}
+            $db_password: {get_param: database_password}
+  cinder_volume:
+    type: OS::Cinder::Volume
+    properties:
+      size: { get_param: volume_size }
+      availability_zone: { get_param: availability_zone }
+  volume_attachment:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: { get_resource: cinder_volume }
+      instance_uuid: { get_resource: nova_instance }
+      mountpoint: /dev/vdc
