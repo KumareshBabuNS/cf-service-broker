@@ -1,5 +1,5 @@
 heat_template_version: 2013-05-23
-description: Deployment Description for Redis
+description: Deployment Description for Logstash
 parameters:
   image_id:
     type: string
@@ -22,18 +22,12 @@ parameters:
   availability_zone:
     type: string
     description: The Availability Zone to launch the instance.
-  database_name:
+  es_host:
     type: string
-    description: Database Name
-  database_user:
+    description: Elasticsearch Host
+  ls_port:
     type: string
-    description: Database user
-  database_password:
-    type: string
-    description: Database password
-  database_number:
-    type: string
-    description: Number of databases
+    description: Logstash Listening Port
 resources:
   nova_instance:
     type: OS::Nova::Server
@@ -49,60 +43,20 @@ resources:
         str_replace:
           template: |
             #!/bin/bash -v
-            sudo apt-get update
-            sudo apt-get install software-properties-common -y
-            sudo apt-add-repository ppa:webupd8team/java -y
-            sudo apt-get update
-            echo debconf shared/accepted-oracle-license-v1-1 select true | sudo debconf-set-selections
-            echo debconf shared/accepted-oracle-license-v1-1 seen true | sudo debconf-set-selections            
-            sudo apt-get install oracle-java8-installer -y
+            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Logstash/logstash-install.sh
+            chmod +x logstash-install.sh
+            ./logstash-install.sh
             
-            echo "deb http://packages.elasticsearch.org/logstash/2.0/debian stable main" | sudo tee -a /etc/apt/sources.list
+            # loads includes for the monit controlfile for this application
+            #mkdir -p /etc/monit.d/
+            #wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Logstash/logstash-monitrc -P /etc/monit.d/
             
-            sudo apt-get update 
-            sudo apt-get install logstash -y --force-yes
-            
-            echo "input {
-              tcp {
-                port => 5000
-                type => syslog
-              }
-              udp {
-                port => 5000
-                type => syslog
-              }
-            }
-            
-            filter {
-              if [type] == \"syslog\" {
-                grok {
-                  match => { \"message\" => \"%{SYSLOG5424PRI}%{NONNEGINT:syslog5424_ver} +(?:%{TIMESTAMP_ISO8601:syslog5424_ts}|-) +(?:%{HOSTNAME:syslog5424_host}|-) +(?:%{NOTSPACE:syslog5424_app}|-) +(?:%{NOTSPACE:syslog5424_proc}|-) +(?:%{WORD:syslog5424_msgid}|-) +(?:%{SYSLOG5424SD:syslog5424_sd}|-|) +%{GREEDYDATA:syslog5424_msg}\" }
-                }
-                syslog_pri { }
-                date {
-                  match => [ \"syslog_timestamp\", \"MMM  d HH:mm:ss\", \"MMM dd HH:mm:ss\" ]
-                }
-                if !(\"_grokparsefailure\" in [tags]) {
-                  mutate {
-                    replace => [ \"@source_host\", \"%{syslog_hostname}\" ]
-                    replace => [ \"@message\", \"%{syslog_message}\" ]
-                  }
-                }
-                mutate {
-                  remove_field => [ \"syslog_hostname\", \"syslog_message\", \"syslog_timestamp\" ]
-                }
-              }
-            }
-            
-            output {
-              elasticsearch { }
-            }" >> /etc/logstash/conf.d/syslog.conf
-            
-            sudo service logstash start 
+            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Logstash/logstash-entrypoint.sh
+            chmod +x logstash-entrypoint.sh
+            ./logstash-entrypoint.sh -d $es_host logstash
           params:
-            $db_number: {get_param: database_number}
-            $db_user: {get_param: database_user}
-            $db_password: {get_param: database_password}
+            $es_host: {get_param: es_host}
+            $ls_port: {get_param: ls_port}
   cinder_volume:
     type: OS::Cinder::Volume
     properties:

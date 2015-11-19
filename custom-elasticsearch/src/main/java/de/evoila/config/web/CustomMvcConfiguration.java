@@ -128,8 +128,9 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 		return new DomainBasedCustomPropertyHandler() {
 
 			@Override
-			public void addDomainBasedCustomProperties(Plan plan, Map<String, String> customParameters,
+			public Map<String, String> addDomainBasedCustomProperties(Plan plan, Map<String, String> customProperties,
 					ServiceInstance serviceInstance) {
+				return customProperties;
 			}
 		};
 	}

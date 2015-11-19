@@ -33,8 +33,8 @@ import org.yaml.snakeyaml.constructor.Constructor;
 import de.evoila.cf.broker.model.Catalog;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.ServiceDefinition;
-import de.evoila.cf.cpi.openstack.custom.props.DefaultDatabaseCustomPropertyHandler;
 import de.evoila.cf.cpi.openstack.custom.props.DomainBasedCustomPropertyHandler;
+import de.evoila.cf.cpi.openstack.custom.props.LogstashCustomPropertyHandler;
 
 /**
  * @author Johannes Hiemer.
@@ -130,13 +130,14 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 	@Bean(name = "customProperties")
 	public Map<String, String> customProperties() {
 		Map<String, String> customProperties = new HashMap<String, String>();
-
+		customProperties.put("es_host", "172.24.102.2:9200");
+		customProperties.put("ls_port", "5000");
 		return customProperties;
 	}
 
 	@Bean
 	public DomainBasedCustomPropertyHandler domainPropertyHandler() {
-		return new DefaultDatabaseCustomPropertyHandler();
+		return new LogstashCustomPropertyHandler();
 	}
 
 }

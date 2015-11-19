@@ -6,6 +6,8 @@ package de.evoila.cf.broker.custom;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -22,18 +24,19 @@ import de.evoila.cf.broker.service.impl.BindingServiceImpl;
  *
  */
 @Service
-public class RedisBindingService extends BindingServiceImpl {
+public class LogstashBindingService extends BindingServiceImpl {
+	
+	@Resource(name = "customProperties")
+	public Map<String, String> customProperties;
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	public void create(ServiceInstance serviceInstance, Plan plan) {
-		log.debug("created Binding");
-		// TODO
+		log.debug("No need to implement that for logstash");
 	}
 
 	public void delete(ServiceInstance serviceInstance, Plan plan) {
-		log.debug("deleted Binding");
-		// TODO
+		log.debug("No need to implement that for logstash");
 	}
 
 	@Override
@@ -42,17 +45,19 @@ public class RedisBindingService extends BindingServiceImpl {
 
 		log.debug("bind Service");
 
-		String dbURL = String.format("redis://:%s@%s:%d", serviceInstance.getId(), serviceInstance.getHost(), serviceInstance.getPort());
+		String url = String.format("syslog://%s:%s", serviceInstance.getHost(), customProperties.get("ls_port"));
 
 		Map<String, Object> credentials = new HashMap<String, Object>();
-		credentials.put("uri", dbURL);
+		credentials.put("uri", url);
+		
+		ServiceInstanceBindingResponse serviceInstanceBindingResponse = new ServiceInstanceBindingResponse(credentials, url);
 
-		return new ServiceInstanceBindingResponse(credentials);
+		return serviceInstanceBindingResponse;
 	}
 
 	@Override
 	protected void deleteBinding(String bindingId, ServiceInstance serviceInstance) throws ServiceBrokerException {
-		log.debug("unbind Service");
+		log.debug("No need to implement that for logstash");
 	}
 
 	@Override

@@ -3,6 +3,7 @@
  */
 package de.evoila.cf.broker.service.impl;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -98,7 +99,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 			PlatformService platformService) throws ServiceBrokerException {
 		ServiceInstance createdServiceInstance;
 		try {
-			createdServiceInstance = platformService.createInstance(serviceInstance, plan, customProperties);
+			createdServiceInstance = platformService.createInstance(serviceInstance, plan, new HashMap<String, String>(customProperties));
 		} catch (PlatformException e) {
 			serviceInstanceRepository.deleteServiceInstance(serviceInstance.getId());
 			

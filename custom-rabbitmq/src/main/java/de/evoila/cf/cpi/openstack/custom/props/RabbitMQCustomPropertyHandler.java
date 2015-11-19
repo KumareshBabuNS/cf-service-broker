@@ -23,11 +23,13 @@ public class RabbitMQCustomPropertyHandler implements DomainBasedCustomPropertyH
 	 * java.util.Map, java.lang.String)
 	 */
 	@Override
-	public void addDomainBasedCustomProperties(Plan plan, Map<String, String> customParameters,
+	public Map<String, String> addDomainBasedCustomProperties(Plan plan, Map<String, String> customProperties,
 			ServiceInstance serviceInstance) {
 		String id = serviceInstance.getId();
-		customParameters.put("rabbit_vhost", id);
-		customParameters.put("rabbit_user", id);
-		customParameters.put("rabbit_password", id);
+		customProperties.put("rabbit_vhost", id);
+		customProperties.put("rabbit_user", id);
+		customProperties.put("rabbit_password", id);
+		
+		return customProperties;
 	}
 }
