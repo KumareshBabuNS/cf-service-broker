@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.evoila.cf.broker.service.postgres.jdbc;
+package de.evoila.cf.broker.service.mysql.jdbc;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -23,9 +23,11 @@ import org.springframework.stereotype.Service;
  *
  */
 @Service
-public class PostgresDbService {
+public class MySQLDbService {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
+	
+	private static String ROOT_USER = "root";
 
 	private Connection connection;
 
@@ -37,10 +39,10 @@ public class PostgresDbService {
 		this.host = host;
 		this.port = port;
 		try {
-			Class.forName("org.postgresql.Driver");
-			String url = "jdbc:postgresql://" + host + ":" + port + "/" + instanceId;
-			connection = DriverManager.getConnection(url, instanceId, instanceId);
-		} catch (ClassNotFoundException | SQLException e) {
+			Class.forName("com.mysql.jdbc.Driver").newInstance();
+			String url = "jdbc:mysql://" + host + ":" + port + "/" + instanceId;
+			connection = DriverManager.getConnection(url, ROOT_USER, instanceId);
+		} catch (ClassNotFoundException | SQLException | InstantiationException | IllegalAccessException e) {
 			log.info("Could not establish connection", e);
 			return false;
 		}

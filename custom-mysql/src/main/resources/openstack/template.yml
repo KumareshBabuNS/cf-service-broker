@@ -49,19 +49,22 @@ resources:
         str_replace:
           template: |
             #!/bin/bash -v
-            export PG_VERSION=9.3
-            export PGPATH=/usr/lib/postgresql/$PG_VERSION/bin
-            export PATH=$PGPATH:$PATH
-            export PG_CONF_PATH=/etc/postgresql/$PG_VERSION/main/
-            export PGDATA=/var/lib/postgresql/$PG_VERSION/main/
+            export MYSQL_MAJOR=5.7
+            export MYSQL_VERSION=5.7
+            export DATADIR=/var/lib/mysql
             
-            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Postgres/postgres-install.sh
-            chmod +x postgres-install.sh
-            ./postgres-install.sh
+            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Mysql/mysql-install.sh
+            chmod +x mysql-install.sh
+            ./mysql-install.sh
             
-            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Postgres/docker-entrypoint.sh
-            chmod +x docker-entrypoint.sh
-            ./docker-entrypoint.sh -d $db_name -u $db_user -p $db_password postgres
+            # loads includes for the monit controlfile for this database
+            mkdir -p /etc/monit.d/
+            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Mysql/mysql-monitrc -P /etc/monit.d/
+            
+            
+            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Mysql/mysql-entrypoint.sh
+            chmod +x mysql-entrypoint.sh
+            ./mysql-entrypoint.sh -d $db_name -p $db_password mysqld
           params:
             $db_name: {get_param: database_name}
             $db_user: {get_param: database_user}

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.evoila.cf.broker.service.postgres;
+package de.evoila.cf.broker.service.mysql;
 
 import java.math.BigInteger;
 import java.security.SecureRandom;
@@ -11,17 +11,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.evoila.cf.broker.model.ServiceInstance;
-import de.evoila.cf.broker.service.postgres.jdbc.PostgresDbService;
+import de.evoila.cf.broker.service.mysql.jdbc.MySQLDbService;
 
 /**
  * @author Johannes Hiemer.
  *
  */
 @Service
-public class PostgresCustomImplementation {
+public class MySQLCustomImplementation {
 
 	@Autowired
-	private PostgresDbService jdbcService;
+	private MySQLDbService jdbcService;
 
 	public void initServiceInstance(ServiceInstance serviceInstance, String[] databases) throws SQLException {
 		String serviceInstanceId = serviceInstance.getId();
@@ -40,25 +40,18 @@ public class PostgresCustomImplementation {
 	}
 
 	public String bindRoleToDatabase(String serviceInstanceId, String bindingId) throws SQLException {
-		jdbcService.checkValidUUID(bindingId);
-
 		SecureRandom random = new SecureRandom();
 		String passwd = new BigInteger(130, random).toString(32);
-
-		jdbcService.executeUpdate("CREATE ROLE \"" + bindingId + "\"");
-		jdbcService.executeUpdate("ALTER ROLE \"" + bindingId + "\" LOGIN password '" + passwd + "'");
-		jdbcService.executeUpdate("GRANT \"" + serviceInstanceId + "\" TO \"" + bindingId + "\"");
 		
-		jdbcService.executeUpdate("GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO \"" + bindingId + "\"");
-		jdbcService.executeUpdate("ALTER DEFAULT PRIVILEGES FOR ROLE \"" + bindingId + "\" IN SCHEMA public GRANT ALL ON TABLES TO \"" + bindingId + "\"");
-		jdbcService.executeUpdate("GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO \"" + bindingId + "\"");
-		jdbcService.executeUpdate("ALTER DEFAULT PRIVILEGES FOR ROLE \"" + bindingId + "\" IN SCHEMA public GRANT ALL ON SEQUENCES TO \"" + bindingId + "\"");
+		jdbcService.executeUpdate("CREATE USER \"" + bindingId + "\" IDENTIFIED BY \"" + passwd + "\"");
+		jdbcService.executeUpdate("GRANT ALL PRIVILEGES ON `" + serviceInstanceId + "`.* TO `" + bindingId + "`@\"%\"");
+		jdbcService.executeUpdate("FLUSH PRIVILEGES");	
 		
 		return passwd;
 	}
 
 	public void unbindRoleFromDatabase(String bindingId) throws SQLException {
-		jdbcService.checkValidUUID(bindingId);
-		jdbcService.executeUpdate("ALTER ROLE \"" + bindingId + "\" NOLOGIN");
+		jdbcService.executeUpdate("DROP USER \"" + bindingId + "\"");
 	}
+
 }

@@ -19,23 +19,23 @@ import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.ServiceInstanceBinding;
 import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
 import de.evoila.cf.broker.service.impl.BindingServiceImpl;
-import de.evoila.cf.broker.service.postgres.PostgresCustomImplementation;
-import de.evoila.cf.broker.service.postgres.jdbc.PostgresDbService;
+import de.evoila.cf.broker.service.mysql.MySQLCustomImplementation;
+import de.evoila.cf.broker.service.mysql.jdbc.MySQLDbService;
 
 /**
  * @author Johannes Hiemer.
  *
  */
 @Service
-public class PostgreSQLBindingService extends BindingServiceImpl {
+public class MySQLBindingService extends BindingServiceImpl {
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
-	private PostgresDbService jdbcService;
+	private MySQLDbService jdbcService;
 
 	@Autowired
-	private PostgresCustomImplementation postgresCustomImplementation;
+	private MySQLCustomImplementation mysqlCustomImplementation;
 
 	private boolean connection(ServiceInstance serviceInstance) throws SQLException {
 		if (jdbcService.isConnected())
@@ -86,6 +86,10 @@ public class PostgreSQLBindingService extends BindingServiceImpl {
 			throw new ServiceBrokerException("Could not remove from database");
 		}
 	}
+	
+	private String username(String bindingId) {
+		return bindingId.replace("-", "").substring(0, 10);
+	}
 
 	@Override
 	protected ServiceInstanceBindingResponse bindService(String bindingId, ServiceInstance serviceInstance, Plan plan)
@@ -96,16 +100,17 @@ public class PostgreSQLBindingService extends BindingServiceImpl {
 		} catch (SQLException e1) {
 			throw new ServiceBrokerException("Could not connect to database");
 		}
-
+		
+		String username = username(bindingId);
 		String password = "";
 		try {
-			password = postgresCustomImplementation.bindRoleToDatabase(serviceInstance.getId(), bindingId);
+			password = mysqlCustomImplementation.bindRoleToDatabase(serviceInstance.getId(), username);
 		} catch (SQLException e) {
 			log.error(e.toString());
 			throw new ServiceBrokerException("Could not update database");
 		}
 
-		String dbURL = String.format("postgres://%s:%s@%s:%d/%s", bindingId, password,
+		String dbURL = String.format("mysql://%s:%s@%s:%d/%s", username, password,
 				jdbcService.getHost(), jdbcService.getPort(), serviceInstance.getId());
 
 		Map<String, Object> credentials = new HashMap<String, Object>();
@@ -123,7 +128,8 @@ public class PostgreSQLBindingService extends BindingServiceImpl {
 		}
 
 		try {
-			postgresCustomImplementation.unbindRoleFromDatabase(bindingId);
+			String username = username(bindingId);
+			mysqlCustomImplementation.unbindRoleFromDatabase(username);
 		} catch (SQLException e) {
 			log.error(e.toString());
 			throw new ServiceBrokerException("Could not remove from database");
