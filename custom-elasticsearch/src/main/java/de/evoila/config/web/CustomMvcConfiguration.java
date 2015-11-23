@@ -2,6 +2,7 @@ package de.evoila.config.web;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
@@ -32,8 +33,8 @@ import org.yaml.snakeyaml.constructor.Constructor;
 import de.evoila.cf.broker.model.Catalog;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.ServiceDefinition;
-import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.cpi.openstack.custom.props.DomainBasedCustomPropertyHandler;
+import de.evoila.cf.cpi.openstack.custom.props.ElasticsearchCustomPropertyHandler;
 
 /**
  * @author Johannes Hiemer.
@@ -70,7 +71,7 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 	public PropertyPlaceholderConfigurer properties() {
 		PropertyPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertyPlaceholderConfigurer();
 		Resource[] resources = new ClassPathResource[] { new ClassPathResource("persistence.properties"),
-				new ClassPathResource("openstack.properties"), new ClassPathResource("container.properties") };
+				new ClassPathResource("/cpi/openstack.properties"), new ClassPathResource("/cpi/container.properties") };
 		propertyPlaceholderConfigurer.setLocations(resources);
 		propertyPlaceholderConfigurer.setIgnoreUnresolvablePlaceholders(true);
 		return propertyPlaceholderConfigurer;
@@ -106,7 +107,7 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 
 	@Bean
 	public ServiceDefinition serviceDefinition() {
-		ClassPathResource classPathResource = new ClassPathResource("servicedefinition.yml");
+		ClassPathResource classPathResource = new ClassPathResource("/plans/service-definition.yml");
 		Constructor constructor = new Constructor(ServiceDefinition.class);
 		TypeDescription serviceDefictionDescription = new TypeDescription(ServiceDefinition.class);
 		serviceDefictionDescription.putListPropertyType("plans", Plan.class);
@@ -122,36 +123,16 @@ public class CustomMvcConfiguration extends WebMvcConfigurerAdapter implements A
 		}
 		return serviceDefinition;
 	}
-
+	
+	@Bean(name = "customProperties")
+	public Map<String, String> customProperties() {
+		Map<String, String> customProperties = new HashMap<String, String>();
+		return customProperties;
+	}
+	
 	@Bean
 	public DomainBasedCustomPropertyHandler domainPropertyHandler() {
-		return new DomainBasedCustomPropertyHandler() {
-
-			@Override
-			public Map<String, String> addDomainBasedCustomProperties(Plan plan, Map<String, String> customProperties,
-					ServiceInstance serviceInstance) {
-				return customProperties;
-			}
-		};
+		return new ElasticsearchCustomPropertyHandler();
 	}
-
-	// @Bean
-	// public ServiceDefinition serviceDefinition() {
-	// Plan dockerPlan = new Plan("docker-mongodb-25mb", "MongoDB-Docker-25MB",
-	// "The most basic MongoDB plan currently available. Providing" + "25 MB of
-	// capcity in a MongoDB DB.",
-	// Platform.DOCKER, 25, VolumeUnit.M, null, 4);
-	// Plan openstackPlan = new Plan("openstack-mongodb-500mb",
-	// "MongoDB-VM-500MB",
-	// "The most basic MongoDB plan currently available. Providing" + "500 MB of
-	// capcity in a MongoDB DB.",
-	// Platform.OPENSTACK, 1, VolumeUnit.G, "3", 10);
-	//
-	// ServiceDefinition serviceDefinition = new ServiceDefinition("mongodb",
-	// "MongoDB", "MongoDB Instances", true,
-	// Arrays.asList(dockerPlan, openstackPlan), Arrays.asList("syslog_drain"));
-	//
-	// return serviceDefinition;
-	// }
 
 }

@@ -22,18 +22,6 @@ parameters:
   availability_zone:
     type: string
     description: The Availability Zone to launch the instance.
-#  database_name:
-#    type: string
-#    description: Database Name
-#  database_number:
-#    type: string
-#    description: Number of databases
-#  database_user:
-#    type: string
-#    description: Database user
-#  database_password:
-#    type: string
-#    description: Database password
 resources:
   nova_instance:
     type: OS::Nova::Server
@@ -43,10 +31,12 @@ resources:
       key_name: {get_param: keypair}
       networks: [{network: {get_param: network_id} }]
       user_data_format: RAW
+      security_groups:
+        - all
       user_data:
         str_replace:
           template: |
-            #!/bin/bash -v
+            #!/bin/bash
             export ELASTICSEARCH_MAJOR=1.7
             export ELASTICSEARCH_VERSION=1.7.1
             export PATH=/usr/share/elasticsearch/bin:$PATH
@@ -55,13 +45,15 @@ resources:
             chmod +x elasticsearch-install.sh
             ./elasticsearch-install.sh
             
-            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Elasticsearch/docker-entrypoint.sh
-            chmod +x docker-entrypoint.sh
-            ./docker-entrypoint.sh elasticsearch   
-#          params:
-#            $db_number: {get_param: database_number}
-#            $db_user: {get_param: database_user}
-#            $db_password: {get_param: database_password}
+            # loads includes for the monit controlfile for this database
+            mkdir -p /etc/monit.d/
+            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Elasticsearch/elasticsearch-monitrc -P /etc/monit.d/
+                   
+            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Elasticsearch/elasticsearch-entrypoint.sh
+            chmod +x elasticsearch-entrypoint.sh
+            ./elasticsearch-entrypoint.sh elasticsearch
+          params:
+            $setting: "sample123"
   cinder_volume:
     type: OS::Cinder::Volume
     properties:

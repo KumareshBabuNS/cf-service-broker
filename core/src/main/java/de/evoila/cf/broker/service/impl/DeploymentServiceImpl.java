@@ -103,7 +103,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 		} catch (PlatformException e) {
 			serviceInstanceRepository.deleteServiceInstance(serviceInstance.getId());
 			
-			throw new ServiceBrokerException("Could not create instance due to: " + e.getMessage());
+			throw new ServiceBrokerException("Could not create instance due to: ", e);
 		}
 
 		try {
