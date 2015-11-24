@@ -28,12 +28,10 @@ public class RedisBindingService extends BindingServiceImpl {
 
 	public void create(ServiceInstance serviceInstance, Plan plan) {
 		log.debug("created Binding");
-		// TODO
 	}
 
 	public void delete(ServiceInstance serviceInstance, Plan plan) {
 		log.debug("deleted Binding");
-		// TODO
 	}
 
 	@Override

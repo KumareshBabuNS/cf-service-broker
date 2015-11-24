@@ -7,8 +7,7 @@ env:
   SPRING_PROFILES_ACTIVE: development
   JAVA_OPTS: -Djava.security.egd=file:/dev/urandom
 applications:
-## MongoDB Service Broker
 - name: rabbit
   host: rabbit
-  path: target/ssb-rabbitmq.war
+  path: target/ssb-rabbitmq.jar
   buildpack: https://github.com/cloudfoundry/java-buildpack.git

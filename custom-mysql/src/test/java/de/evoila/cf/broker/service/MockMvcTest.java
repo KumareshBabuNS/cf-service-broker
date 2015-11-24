@@ -20,7 +20,6 @@ import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.Platform;
 import de.evoila.cf.broker.model.ServiceDefinition;
 import de.evoila.cf.config.security.CustomSecurityConfiguration;
-import de.evoila.config.web.CustomMvcConfiguration;
 
 /**
  * @author Johannes Hiemer.
@@ -28,7 +27,7 @@ import de.evoila.config.web.CustomMvcConfiguration;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
-@ContextConfiguration(classes = { CustomSecurityConfiguration.class, CustomMvcConfiguration.class })
+@ContextConfiguration(classes = { CustomSecurityConfiguration.class })
 public abstract class MockMvcTest {
 
 	protected MockMvc mockMvc;

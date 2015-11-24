@@ -8,8 +8,8 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.ws.rs.NotAcceptableException;
+import javax.ws.rs.NotSupportedException;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -128,7 +128,7 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 
 	@Override
 	public ServiceInstance updateInstance(ServiceInstance instance, Plan plan) {
-		throw new NotImplementedException("Updating Service Instances is currently not supported");
+		throw new NotSupportedException("Updating Service Instances is currently not supported");
 	}
 
 }

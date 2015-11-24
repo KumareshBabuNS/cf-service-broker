@@ -3,6 +3,7 @@
  */
 package de.evoila.cf.broker.custom.mongodb;
 
+import java.net.UnknownHostException;
 import java.util.Arrays;
 
 import org.springframework.stereotype.Service;
@@ -25,10 +26,10 @@ public class MongoDbService {
 	private MongoClient mongoClient;
 
 	public boolean isConnected() {
-		return mongoClient != null && mongoClient.listDatabases() != null;
+		return mongoClient != null && mongoClient.getUsedDatabases() != null;
 	}
 
-	public void createConnection(String id, String host, int port) {
+	public void createConnection(String id, String host, int port) throws UnknownHostException {
 		this.host = host;
 		this.port = port;
 		

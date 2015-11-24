@@ -6,7 +6,8 @@ package de.evoila.cf.cpi.openstack.custom;
 import java.util.Map;
 import java.util.UUID;
 
-import org.apache.commons.lang3.NotImplementedException;
+import javax.ws.rs.NotSupportedException;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -83,7 +84,7 @@ public class OpenstackPlatformServiceTest extends BaseIntegrationTest {
 		openstackPlatformService.deleteServiceInstance(serviceInstance);
 	}
 	
-	@Test(expected=NotImplementedException.class)
+	@Test(expected=NotSupportedException.class)
 	public void updateInstanceTest() {
 		openstackPlatformService.updateInstance(serviceInstance, plan);
 	}

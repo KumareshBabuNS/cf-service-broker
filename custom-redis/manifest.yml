@@ -9,5 +9,5 @@ env:
 applications:
 - name: redis
   host: redis
-  path: target/ssb-redis.war
+  path: target/ssb-redis.jar
   buildpack: https://github.com/cloudfoundry/java-buildpack.git

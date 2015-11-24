@@ -9,5 +9,5 @@ env:
 applications:
 - name: logstash
   host: logstash
-  path: target/ssb-logstash.war
+  path: target/ssb-logstash.jar
   buildpack: https://github.com/cloudfoundry/java-buildpack.git

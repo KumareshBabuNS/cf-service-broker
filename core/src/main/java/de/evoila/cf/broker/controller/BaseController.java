@@ -11,14 +11,15 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import de.evoila.cf.broker.model.ErrorMessage;
 
 /**
  * Base controller.
  * 
- * @author sgreenberg@gopivotal.com
+ * @author Johannes Hiemer.
  *
  */
 public abstract class BaseController {
@@ -26,12 +27,12 @@ public abstract class BaseController {
 	private static final Logger logger = LoggerFactory.getLogger(BaseController.class);
 	
 	@ExceptionHandler(HttpMessageNotReadableException.class)
-	@ResponseBody public ResponseEntity<ErrorMessage> handleException(HttpMessageNotReadableException ex, HttpServletResponse response) {
+	public ResponseEntity<ErrorMessage> handleException(HttpMessageNotReadableException ex, HttpServletResponse response) {
 	    return getErrorResponse(ex.getMessage(), HttpStatus.UNPROCESSABLE_ENTITY);
 	}
 	
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	@ResponseBody public ResponseEntity<ErrorMessage> handleException(MethodArgumentNotValidException ex, 
+	public ResponseEntity<ErrorMessage> handleException(MethodArgumentNotValidException ex, 
 			HttpServletResponse response) {
 	    BindingResult result = ex.getBindingResult();
 	    String message = "Missing required fields:";
@@ -42,7 +43,8 @@ public abstract class BaseController {
 	}
 	
 	@ExceptionHandler(Exception.class)
-	@ResponseBody public ResponseEntity<ErrorMessage> handleException(Exception ex, 
+	@RequestMapping(value = { "/error" }, method = RequestMethod.GET)
+	public ResponseEntity<ErrorMessage> handleException(Exception ex, 
 			HttpServletResponse response) {
 		logger.warn("Exception", ex);
 	    return getErrorResponse(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);

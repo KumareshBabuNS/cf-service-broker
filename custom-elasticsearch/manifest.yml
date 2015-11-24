@@ -9,5 +9,5 @@ env:
 applications:
 - name: elasticsearch
   host: elasticsearch
-  path: target/ssb-elasticsearch.war
+  path: target/ssb-elasticsearch.jar
   buildpack: https://github.com/cloudfoundry/java-buildpack.git

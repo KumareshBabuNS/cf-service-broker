@@ -4,6 +4,7 @@
 package de.evoila.cf.broker.custom;
 
 import java.math.BigInteger;
+import java.net.UnknownHostException;
 import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,8 +41,13 @@ public class MongoDbBindingService extends BindingServiceImpl {
 			return true;
 		else {
 			log.info("Opening connection to " + serviceInstance.getHost() + ":" + serviceInstance.getPort());
-			mongoDbService.createConnection(serviceInstance.getId(), serviceInstance.getHost(),
-					serviceInstance.getPort());
+			try {
+				mongoDbService.createConnection(serviceInstance.getId(), serviceInstance.getHost(),
+						serviceInstance.getPort());
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		return true;
 	}
@@ -51,7 +57,7 @@ public class MongoDbBindingService extends BindingServiceImpl {
 
 		String instanceId = serviceInstance.getId();
 
-		mongoDbService.mongoClient().getDatabase(instanceId);
+		mongoDbService.mongoClient().getDB(instanceId);
 	}
 
 	public void delete(ServiceInstance serviceInstance, Plan plan) {
@@ -59,7 +65,7 @@ public class MongoDbBindingService extends BindingServiceImpl {
 
 		String instanceId = serviceInstance.getId();
 
-		mongoDbService.mongoClient().getDatabase(instanceId).drop();
+		mongoDbService.mongoClient().dropDatabase(instanceId);
 	}
 
 	@Override
@@ -78,7 +84,7 @@ public class MongoDbBindingService extends BindingServiceImpl {
 		commandArguments.put("roles", roles);
 		BasicDBObject command = new BasicDBObject(commandArguments);
 
-		mongoDbService.mongoClient().getDatabase(serviceInstance.getId()).runCommand(command);
+		mongoDbService.mongoClient().getDB(serviceInstance.getId()).command(command);
 
 		String dbURL = String.format("mongodb://%s:%s@%s:%d/%s", bindingId, password, mongoDbService.getHost(),
 				mongoDbService.getPort(), serviceInstance.getId());
@@ -93,8 +99,8 @@ public class MongoDbBindingService extends BindingServiceImpl {
 	protected void deleteBinding(String bindingId, ServiceInstance serviceInstance) throws ServiceBrokerException {
 		connection(serviceInstance);
 		
-		mongoDbService.mongoClient().getDatabase(serviceInstance.getId())
-				.runCommand(new BasicDBObject("dropUser", bindingId));
+		mongoDbService.mongoClient().getDB(serviceInstance.getId())
+				.command(new BasicDBObject("dropUser", bindingId));
 	}
 
 	@Override

@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.JacksonJsonRedisSerializer;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import de.evoila.cf.broker.model.ServiceInstance;
@@ -67,7 +67,7 @@ public class RedisContextConfiguration {
 		RedisTemplate<String, ? extends Object> redisTemplate = new RedisTemplate<>();
 		redisTemplate.setConnectionFactory(jedisConnFactory());
 		redisTemplate.setKeySerializer(new StringRedisSerializer());
-		redisTemplate.setValueSerializer(new JacksonJsonRedisSerializer<>(ServiceInstance.class));
+		redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(ServiceInstance.class));
 		return redisTemplate;
 	}
 
