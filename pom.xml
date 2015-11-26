@@ -29,7 +29,10 @@
 		<module>custom-rabbitmq</module>
 		<module>custom-redis</module>
 		<module>persistence</module>
+		
 		<module>registry</module>
+		<module>config</module>
+		<!-- <module>registry</module>-->
 	</modules>
 
 	<properties>
@@ -55,7 +58,7 @@
 				<artifactId>jackson-annotations</artifactId>
 				<version>2.5.4</version>
 			</dependency>
-						
+
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-starter-test</artifactId>
@@ -101,22 +104,6 @@
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-starter-redis</artifactId>
-				<version>${org.springframework.boot}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-starter-config</artifactId>
-				<version>${org.springframework.boot}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-starter-eureka</artifactId>
-				<version>${org.springframework.boot}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-starter-eureka-server</artifactId>
 				<version>${org.springframework.boot}</version>
 			</dependency>
 
@@ -166,6 +153,10 @@
 			<name>Spring Maven SNAPSHOT Repository</name>
 			<url>http://repo.springsource.org/libs-snapshot</url>
 		</repository>
+		<repository>
+            <id>spring-repository</id>
+            <url>https://repo.spring.io/libs-release</url>
+        </repository>
 	</repositories>
 
 	<pluginRepositories>

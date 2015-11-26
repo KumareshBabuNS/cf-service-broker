@@ -1,0 +1,28 @@
+---
+spring:
+  profiles: default,development  
+server:
+  port: 8080
+eureka:
+  server: 
+    enable-self-preservation: false
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8082/eureka/
+      
+---
+spring:
+  profiles: cloud
+server:
+  port: 0
+eureka:
+  instance:
+    hostname: ${vcap.application.uris[0]}
+    non-secure-port-enabled: false
+    secure-port-enabled: true
+    secure-port: 443
+  server: 
+    enable-self-preservation: false
+  client:
+    serviceUrl:
+      defaultZone: https://registry.88.198.249.62.xip.io/eureka/      

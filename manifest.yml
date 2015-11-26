@@ -5,10 +5,30 @@ memory: 1024M
 domain: 88.198.249.62.xip.io
 buildpack: https://github.com/cloudfoundry/java-buildpack.git
 env:
-  SPRING_PROFILES_ACTIVE: development
+  SPRING_PROFILES_ACTIVE: cloud
+  CF_TARGET: https://api.88.198.249.62.xip.io
   JAVA_OPTS: -Djava.security.egd=file:/dev/urandom
 applications:
-
+## Postgres Service Broker
+- name: postgres
+  host: postgres
+  path: custom-postgresql/target/ssb-postgres.jar
+## MongoDB Service Broker
+- name: mongo
+  host: mongo
+  path: custom-mongodb/target/ssb-mongodb.jar
+## Redis Service Broker
+- name: redis
+  host: redis
+  path: custom-redis/target/ssb-redis.jar
+## RabbitMQ Service Broker
+- name: rabbit
+  host: rabbit
+  path: custom-rabbitmq/target/ssb-rabbitmq.jar
+## Elasticsearch Service Broker
+- name: elasticsearch
+  host: elasticsearch
+  path: custom-elasticsearch/target/ssb-elasticsearch.jar
 ## MySQL Service Broker
 - name: mysql
   host: mysql

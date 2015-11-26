@@ -51,7 +51,7 @@ public class BaseConfiguration {
 		return serviceDefinition;
 	}
 	
-	
+	/**
 	@Bean
 	public PropertyPlaceholderConfigurer properties() {
 		PropertyPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertyPlaceholderConfigurer();
@@ -62,6 +62,7 @@ public class BaseConfiguration {
 		propertyPlaceholderConfigurer.setIgnoreUnresolvablePlaceholders(true);
 		return propertyPlaceholderConfigurer;
 	}
+	**/
 	 
     @Bean
     public FilterRegistrationBean someFilterRegistration() {

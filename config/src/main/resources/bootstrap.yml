@@ -1,0 +1,9 @@
+---
+spring:  
+  application:
+    name: config
+info:
+  app:
+    name: Config-Server
+    description: Centralized Configuration Server for Cloud Foundry Service Brokerage
+    version: 0.0.1

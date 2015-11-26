@@ -3,11 +3,12 @@ instances: 1
 timeout: 180
 memory: 1024M
 domain: 88.198.249.62.xip.io
-env:
-  SPRING_PROFILES_ACTIVE: development
-  JAVA_OPTS: -Djava.security.egd=file:/dev/urandom
 applications:
 - name: mongo
   host: mongo
   path: target/ssb-mongodb.jar
   buildpack: https://github.com/cloudfoundry/java-buildpack.git
+  env:
+    CF_TARGET: https://api.88.198.249.62.xip.io
+    SPRING_PROFILES_ACTIVE: cloud
+    JAVA_OPTS: -Djava.security.egd=file:/dev/urandom

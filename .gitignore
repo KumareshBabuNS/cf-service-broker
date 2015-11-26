@@ -11,3 +11,9 @@ custom-elasticsearch/.project
 core/.factorypath
 */.springBeans
 .settings/
+
+config/.classpath
+config/.project
+
+registry/.classpath
+registry/.project
