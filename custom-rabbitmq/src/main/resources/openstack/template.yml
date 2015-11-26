@@ -53,9 +53,9 @@ resources:
             chmod +x rabbitmq-install.sh
             ./rabbitmq-install.sh
             
-            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Rabbitmq/docker-entrypoint.sh
-            chmod +x docker-entrypoint.sh
-            ./docker-entrypoint.sh -d $amqp_vhost -u $amqp_user -p $amqp_password rabbitmq-server            
+            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Rabbitmq/rabbitmq-entrypoint.sh
+            chmod +x rabbitmq-entrypoint.sh
+            ./rabbitmq-entrypoint.sh -d $amqp_vhost -u $amqp_user -p $amqp_password rabbitmq-server            
           params:
             $amqp_vhost: {get_param: rabbit_vhost}
             $amqp_user: {get_param: rabbit_user}

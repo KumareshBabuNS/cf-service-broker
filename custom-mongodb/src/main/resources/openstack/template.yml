@@ -57,9 +57,9 @@ resources:
             chmod +x mongo-install.sh
             ./mongo-install.sh
             
-            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Mongo/docker-entrypoint.sh
-            chmod +x docker-entrypoint.sh
-            ./docker-entrypoint.sh -d $db_name -u $db_user -p $db_password mongod            
+            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Mongo/mongo-entrypoint.sh
+            chmod +x mongo-entrypoint.sh
+            ./mongo-entrypoint.sh -d $db_name -u $db_user -p $db_password mongod            
           params:
             $db_name: {get_param: database_name}
             $db_user: {get_param: database_user}

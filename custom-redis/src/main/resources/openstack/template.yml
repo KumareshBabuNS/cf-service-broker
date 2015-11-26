@@ -57,9 +57,9 @@ resources:
             chmod +x redis-install.sh
             ./redis-install.sh
             
-            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Redis/docker-entrypoint.sh
-            chmod +x docker-entrypoint.sh
-            ./docker-entrypoint.sh -n $db_number -u $db_user -p $db_password redis-server            
+            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Redis/redis-entrypoint.sh
+            chmod +x redis-entrypoint.sh
+            ./redis-entrypoint.sh -n $db_number -u $db_user -p $db_password redis-server            
           params:
             $db_number: {get_param: database_number}
             $db_user: {get_param: database_user}
