@@ -49,19 +49,9 @@ resources:
         str_replace:
           template: |
             #!/bin/bash -v
-            export PG_VERSION=9.3
-            export PGPATH=/usr/lib/postgresql/$PG_VERSION/bin
-            export PATH=$PGPATH:$PATH
-            export PG_CONF_PATH=/etc/postgresql/$PG_VERSION/main/
-            export PGDATA=/var/lib/postgresql/$PG_VERSION/main/
-            
-            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Postgres/postgres-install.sh
-            chmod +x postgres-install.sh
-            ./postgres-install.sh
-            
-            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Postgres/postgres-entrypoint.sh
-            chmod +x postgres-entrypoint.sh
-            ./postgres-entrypoint.sh -d $db_name -u $db_user -p $db_password postgres
+            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Postgres2/postgres-template.sh
+            chmod +x postgres-template.sh
+            ./postgres-template.sh -d $db_name -u $db_user -p $db_password
           params:
             $db_name: {get_param: database_name}
             $db_user: {get_param: database_user}
