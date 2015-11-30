@@ -19,6 +19,6 @@ spring:
   profiles: cloud
   cloud:
     config:
-      uri: https://config.88.198.249.62.xip.io
+      uri: https://config.onevoila.rocks
       
             

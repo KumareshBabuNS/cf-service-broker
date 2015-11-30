@@ -10,6 +10,14 @@ env:
   JAVA_OPTS: -Djava.security.egd=file:/dev/urandom
 applications:
 ## Postgres Service Broker
+- name: registry
+  host: registry
+  path: registry/target/registry.jar
+## MongoDB Service Broker
+- name: config
+  host: config
+  path: config/target/config.jar
+## Postgres Service Broker
 - name: postgres
   host: postgres
   path: custom-postgresql/target/ssb-postgres.jar

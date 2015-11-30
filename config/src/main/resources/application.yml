@@ -36,4 +36,4 @@ eureka:
     enable-self-preservation: false
   client:
     serviceUrl:
-      defaultZone: https://registry.88.198.249.62.xip.io/eureka/     
+      defaultZone: https://registry.onevoila.rocks/eureka/     
