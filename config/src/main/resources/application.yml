@@ -5,9 +5,9 @@ spring:
     config:
       server:
         git:
-          uri: https://bitbucket.org/evoila/cf-service-broker-config
+          uri: https://bitbucket.org/evoila-boxer/cf-service-broker-config
           repos:            
-            redis: https://bitbucket.org/evoila/cf-service-broker-config
+            redis: https://bitbucket.org/evoila-boxer/cf-service-broker-config
             
 ---
 spring:
