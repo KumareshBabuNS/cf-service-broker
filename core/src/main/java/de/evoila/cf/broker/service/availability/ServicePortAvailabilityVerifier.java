@@ -20,7 +20,7 @@ public class ServicePortAvailabilityVerifier {
 
 	private static final int SOCKET_TIMEOUT = 10000;
 
-	private static final int INITIAL_TIMEOUT = 60 * 1000;
+	private static final int INITIAL_TIMEOUT = 90 * 1000;
 	
 	// @Value("${backend.connection.timeouts}")
 	private static final int connectionTimeouts = 18;
@@ -46,8 +46,10 @@ public class ServicePortAvailabilityVerifier {
 				available = true;
 			else
 				timeout(SOCKET_TIMEOUT);
-		} catch (Exception e) {
+		} catch (Exception e) {			
 			log.info("Service port could not be reached", e);
+			
+			timeout(SOCKET_TIMEOUT);
 		} finally {
 			if (socket != null && socket.isConnected()) {
 				try {
