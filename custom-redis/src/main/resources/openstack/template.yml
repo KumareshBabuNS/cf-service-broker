@@ -53,11 +53,11 @@ resources:
             export VOLUME=/data
             export WORKDIR=/data
             
-            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Redis/redis-install.sh
+            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Redis/redis-install.sh
             chmod +x redis-install.sh
             ./redis-install.sh
             
-            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Redis/redis-entrypoint.sh
+            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Redis/redis-entrypoint.sh
             chmod +x redis-entrypoint.sh
             ./redis-entrypoint.sh -n $db_number -u $db_user -p $db_password redis-server            
           params:

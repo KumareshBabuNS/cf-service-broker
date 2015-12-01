@@ -43,15 +43,15 @@ resources:
         str_replace:
           template: |
             #!/bin/bash -v
-            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Logstash/logstash-install.sh
+            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Logstash/logstash-install.sh
             chmod +x logstash-install.sh
             ./logstash-install.sh
             
             # loads includes for the monit controlfile for this application
             #mkdir -p /etc/monit.d/
-            #wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Logstash/logstash-monitrc -P /etc/monit.d/
+            #wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Logstash/logstash-monitrc -P /etc/monit.d/
             
-            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Logstash/logstash-entrypoint.sh
+            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Logstash/logstash-entrypoint.sh
             chmod +x logstash-entrypoint.sh
             ./logstash-entrypoint.sh -d $es_host logstash
           params:

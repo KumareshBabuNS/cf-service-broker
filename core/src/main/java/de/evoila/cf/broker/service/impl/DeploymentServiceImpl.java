@@ -109,7 +109,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 		try {
 			createdServiceInstance = platformService.postProvisioning(createdServiceInstance, plan);
 		} catch (PlatformException e) {
-			new ServiceBrokerException("Error during service availability verification", e);
+			throw new ServiceBrokerException("Error during service availability verification", e);
 		}
 		if (createdServiceInstance.getInternalId() != null)
 			serviceInstanceRepository.addServiceInstance(createdServiceInstance.getId(), createdServiceInstance);

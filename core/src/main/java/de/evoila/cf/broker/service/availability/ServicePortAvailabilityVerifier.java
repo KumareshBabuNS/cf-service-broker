@@ -21,17 +21,17 @@ public class ServicePortAvailabilityVerifier {
 	private static final int SOCKET_TIMEOUT = 10000;
 
 	private static final int INITIAL_TIMEOUT = 60 * 1000;
-
+	
 	// @Value("${backend.connection.timeouts}")
 	private static final int connectionTimeouts = 18;
 
 	private static Logger log = LoggerFactory.getLogger(ServicePortAvailabilityVerifier.class);
 
-	public static void initialSleep() {
+	public static void timeout(int timeout) {
 		try {
-			Thread.sleep(INITIAL_TIMEOUT);
+			Thread.sleep(timeout);
 		} catch (InterruptedException e1) {
-			log.info("Initial timeout was interrupted.", e1);
+			log.info("Starting new timeout interval was interrupted.", e1);
 		}
 	}
 
@@ -44,6 +44,8 @@ public class ServicePortAvailabilityVerifier {
 
 			if (socket.isConnected())
 				available = true;
+			else
+				timeout(SOCKET_TIMEOUT);
 		} catch (Exception e) {
 			log.info("Service port could not be reached", e);
 		} finally {
@@ -61,7 +63,7 @@ public class ServicePortAvailabilityVerifier {
 	public static boolean verifyServiceAvailability(String ip, int port) throws PlatformException {
 		boolean available = false;
 
-		ServicePortAvailabilityVerifier.initialSleep();
+		ServicePortAvailabilityVerifier.timeout(INITIAL_TIMEOUT);
 		for (int i = 0; i < connectionTimeouts; i++) {
 			available = ServicePortAvailabilityVerifier.execute(ip, port);
 

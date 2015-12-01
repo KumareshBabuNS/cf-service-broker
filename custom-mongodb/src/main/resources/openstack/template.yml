@@ -53,11 +53,11 @@ resources:
             export MONGO_VERSION=3.0.6
             export MONGO_DATA_PATH=/data/db
             
-            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Mongo/mongo-install.sh
+            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Mongo/mongo-install.sh
             chmod +x mongo-install.sh
             ./mongo-install.sh
             
-            wget https://bitbucket.org/evoila/deployment-scripts-docker-openstack/raw/master/Mongo/mongo-entrypoint.sh
+            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Mongo/mongo-entrypoint.sh
             chmod +x mongo-entrypoint.sh
             ./mongo-entrypoint.sh -d $db_name -u $db_user -p $db_password mongod            
           params:
