@@ -109,8 +109,11 @@ public class DeploymentServiceImpl implements DeploymentService {
 		try {
 			createdServiceInstance = platformService.postProvisioning(createdServiceInstance, plan);
 		} catch (PlatformException e) {
+			serviceInstanceRepository.deleteServiceInstance(serviceInstance.getId());
+			
 			throw new ServiceBrokerException("Error during service availability verification", e);
 		}
+		
 		if (createdServiceInstance.getInternalId() != null)
 			serviceInstanceRepository.addServiceInstance(createdServiceInstance.getId(), createdServiceInstance);
 		else {
@@ -119,6 +122,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 			throw new ServiceBrokerException(
 					"Internal error. Service instance was not created. ID was: " + serviceInstance.getId());
 		}
+		
 		return new ServiceInstanceResponse(createdServiceInstance, false);
 	}
 

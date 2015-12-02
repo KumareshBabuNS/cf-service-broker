@@ -31,7 +31,7 @@ import de.evoila.cf.broker.service.impl.BindingServiceImpl;
 @Service
 public class MongoDbBindingService extends BindingServiceImpl {
 
-	private Logger log = LoggerFactory.getLogger(getClass());
+	private Logger log = LoggerFactory.getLogger(MongoDbBindingService.class);
 
 	@Autowired
 	private MongoDbService mongoDbService;
@@ -45,8 +45,8 @@ public class MongoDbBindingService extends BindingServiceImpl {
 				mongoDbService.createConnection(serviceInstance.getId(), serviceInstance.getHost(),
 						serviceInstance.getPort());
 			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.info("Could not establish connection", e);
+				return false;
 			}
 		}
 		return true;
