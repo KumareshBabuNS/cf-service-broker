@@ -37,21 +37,9 @@ resources:
         str_replace:
           template: |
             #!/bin/bash
-            export ELASTICSEARCH_MAJOR=1.7
-            export ELASTICSEARCH_VERSION=1.7.1
-            export PATH=/usr/share/elasticsearch/bin:$PATH
-            
-            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Elasticsearch/elasticsearch-install.sh
-            chmod +x elasticsearch-install.sh
-            ./elasticsearch-install.sh
-            
-            # loads includes for the monit controlfile for this database
-            mkdir -p /etc/monit.d/
-            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Elasticsearch/elasticsearch-monitrc -P /etc/monit.d/
-                   
-            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Elasticsearch/elasticsearch-entrypoint.sh
-            chmod +x elasticsearch-entrypoint.sh
-            ./elasticsearch-entrypoint.sh elasticsearch
+            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Elasticsearch/elasticsearch-template.sh
+            chmod +x elasticsearch-template.sh
+            ./elasticsearch-template.sh
           params:
             $setting: "sample123"
   cinder_volume:

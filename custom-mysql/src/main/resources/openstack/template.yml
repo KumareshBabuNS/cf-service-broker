@@ -49,22 +49,9 @@ resources:
         str_replace:
           template: |
             #!/bin/bash -v
-            export MYSQL_MAJOR=5.7
-            export MYSQL_VERSION=5.7
-            export DATADIR=/var/lib/mysql
-            
-            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Mysql/mysql-install.sh
-            chmod +x mysql-install.sh
-            ./mysql-install.sh
-            
-            # loads includes for the monit controlfile for this database
-            mkdir -p /etc/monit.d/
-            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Mysql/mysql-monitrc -P /etc/monit.d/
-            
-            
-            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Mysql/mysql-entrypoint.sh
-            chmod +x mysql-entrypoint.sh
-            ./mysql-entrypoint.sh -d $db_name -p $db_password mysqld
+            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Mysql/mysql-template.sh
+            chmod +x mysql-template.sh
+            ./mysql-template.sh -d $db_name -p $db_password
           params:
             $db_name: {get_param: database_name}
             $db_user: {get_param: database_user}

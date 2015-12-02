@@ -22,12 +22,6 @@ parameters:
   availability_zone:
     type: string
     description: The Availability Zone to launch the instance.
-  database_name:
-    type: string
-    description: Database Name
-  database_user:
-    type: string
-    description: Database user
   database_password:
     type: string
     description: Database password
@@ -49,20 +43,11 @@ resources:
         str_replace:
           template: |
             #!/bin/bash -v
-            export REDIS_VERSION=3.0.3
-            export VOLUME=/data
-            export WORKDIR=/data
-            
-            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Redis/redis-install.sh
-            chmod +x redis-install.sh
-            ./redis-install.sh
-            
-            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Redis/redis-entrypoint.sh
-            chmod +x redis-entrypoint.sh
-            ./redis-entrypoint.sh -n $db_number -u $db_user -p $db_password redis-server            
+            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Redis/redis-template.sh
+            chmod +x redis-template.sh
+            ./redis-template.sh -n $db_number -p $db_password            
           params:
-            $db_number: {get_param: database_number}
-            $db_user: {get_param: database_user}
+            $db_number: {get_param: database_number}            
             $db_password: {get_param: database_password}
   cinder_volume:
     type: OS::Cinder::Volume

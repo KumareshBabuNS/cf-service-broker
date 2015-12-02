@@ -49,17 +49,9 @@ resources:
         str_replace:
           template: |
             #!/bin/bash -v
-            export MONGO_MAJOR=3.0
-            export MONGO_VERSION=3.0.6
-            export MONGO_DATA_PATH=/data/db
-            
-            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Mongo/mongo-install.sh
-            chmod +x mongo-install.sh
-            ./mongo-install.sh
-            
-            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Mongo/mongo-entrypoint.sh
-            chmod +x mongo-entrypoint.sh
-            ./mongo-entrypoint.sh -d $db_name -u $db_user -p $db_password mongod            
+            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Mongo/mongo-template.sh
+            chmod +x mongo-template.sh
+            ./mongo-template.sh -d $db_name -u $db_user -p $db_password            
           params:
             $db_name: {get_param: database_name}
             $db_user: {get_param: database_user}

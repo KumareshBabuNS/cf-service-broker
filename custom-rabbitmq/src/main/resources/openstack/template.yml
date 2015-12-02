@@ -45,17 +45,10 @@ resources:
       user_data:
         str_replace:
           template: |
-            #!/bin/bash -v
-            export RABBITMQ_VERSION=3.5.6-1
-            export PATH=/usr/lib/rabbitmq/bin:$PATH
-            
-            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Rabbitmq/rabbitmq-install.sh
-            chmod +x rabbitmq-install.sh
-            ./rabbitmq-install.sh
-            
-            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Rabbitmq/rabbitmq-entrypoint.sh
-            chmod +x rabbitmq-entrypoint.sh
-            ./rabbitmq-entrypoint.sh -d $amqp_vhost -u $amqp_user -p $amqp_password rabbitmq-server            
+            #!/bin/bash
+            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Rabbitmq/rabbitmq-template.sh
+            chmod +x rabbitmq-template.sh
+            ./rabbitmq-template.sh -d $amqp_vhost -u $amqp_user -p $amqp_password            
           params:
             $amqp_vhost: {get_param: rabbit_vhost}
             $amqp_user: {get_param: rabbit_user}
