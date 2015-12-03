@@ -1,0 +1,1 @@
+apt-get install -y wget && wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Postgres/postgres-template.sh && chmod +x postgres-template.sh  && ./postgres-template.sh -d $db_name -u $db_user -p $db_password
