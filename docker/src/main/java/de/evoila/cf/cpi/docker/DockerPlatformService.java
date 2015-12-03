@@ -90,9 +90,8 @@ public class DockerPlatformService extends DockerServiceFactory {
 	@Override
 	public ServiceInstance createInstance(ServiceInstance serviceInstance, Plan plan, Map<String, String> customProperties) throws PlatformException {
 		String instanceId = serviceInstance.getId();
-		
 		CreateContainerResponse container = this.createDockerContainer(instanceId, plan.getVolumeSize(), 
-				instanceId, instanceId, instanceId);
+				customProperties);
 		
 		Map<String, Object> credentials  = containerCredentialMap.get(container.getId());
 		String host = (String) credentials.get("host");
