@@ -51,7 +51,7 @@ public class ServiceInstanceBindingController extends BaseController {
 					ServiceBrokerException, ServiceDefinitionDoesNotExistException {
 
 		log.debug("PUT: " + SERVICE_INSTANCE_BINDING_BASE_PATH + "/{bindingId}"
-				+ ", bindServiceInstance(), serviceInstance.id = " + instanceId + ", bindingId = " + bindingId);
+				+ ", bindServiceInstance(), instanceId = " + instanceId + ", bindingId = " + bindingId);
 
 		ServiceInstanceBindingResponse response = bindingService.createServiceInstanceBinding(bindingId, instanceId,
 				request.getServiceDefinitionId(), request.getPlanId(), request.getAppGuid());
