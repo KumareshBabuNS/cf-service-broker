@@ -13,8 +13,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.util.Assert;
 
-import de.evoila.cf.cpi.custom.props.DefaultDatabaseCustomPropertyHandler;
-import de.evoila.cf.cpi.custom.props.DomainBasedCustomPropertyHandler;
+import de.evoila.cf.cpi.openstack.custom.props.DefaultDatabaseCustomPropertyHandler;
+import de.evoila.cf.cpi.openstack.custom.props.DomainBasedCustomPropertyHandler;
 
 /**
  * 
@@ -22,7 +22,6 @@ import de.evoila.cf.cpi.custom.props.DomainBasedCustomPropertyHandler;
  *
  */
 @SpringBootApplication
-//@EnableEurekaClient
 @EnableAutoConfiguration
 public class Application {
 

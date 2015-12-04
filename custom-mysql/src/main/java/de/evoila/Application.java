@@ -9,7 +9,6 @@ import java.util.Map;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.util.Assert;
@@ -23,7 +22,6 @@ import de.evoila.cf.cpi.custom.props.DomainBasedCustomPropertyHandler;
  *
  */
 @SpringBootApplication
-@EnableEurekaClient
 @EnableAutoConfiguration
 public class Application {
 
