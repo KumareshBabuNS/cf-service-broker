@@ -3,7 +3,6 @@
  */
 package de.evoila.cf.broker.service.impl;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
