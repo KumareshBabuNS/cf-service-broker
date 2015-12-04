@@ -1,0 +1,1 @@
+apt-get install -y wget && wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Mysql/mysql-template.sh && chmod +x mysql-template.shn && ./mysql-template.sh -d $db_name -p $db_password && top

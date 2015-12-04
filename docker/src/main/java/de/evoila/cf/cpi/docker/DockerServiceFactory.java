@@ -202,7 +202,7 @@ public abstract class DockerServiceFactory implements PlatformService {
 			throws PlatformException {
 		DockerClient dockerClient = this.createDockerClientInstance();
 
-		Binding binding = new Binding("0.0.0.0", this.resolveNextAvailablePort());
+		Binding binding = new Binding(this.resolveNextAvailablePort());
 		ExposedPort exposedPort = new ExposedPort(this.containerPort);
 		PortBinding portBinding = new PortBinding(binding, exposedPort);
 		LogConfig logConfig = new LogConfig();
@@ -213,8 +213,10 @@ public abstract class DockerServiceFactory implements PlatformService {
 		Volume volume = new Volume("/data");
 		CreateContainerCmd containerCmd = dockerClient.createContainerCmd(imageName)
 				.withPortBindings(portBinding)
-				//.withRestartPolicy(RestartPolicy.alwaysRestart())
+				.withExposedPorts(exposedPort)
+				.withRestartPolicy(RestartPolicy.alwaysRestart())
 				//.withLogConfig(logConfig)
+				.withTty(true)
 				.withEntrypoint("sh")
 				.withVolumes(volume)
 				.withCmd("-c",  parseContainerCmdWithCustomProperties(customProperties));
@@ -233,13 +235,13 @@ public abstract class DockerServiceFactory implements PlatformService {
 	}
 
 	private String parseContainerCmdWithCustomProperties(Map<String, String> customProperties) {
-		String[] dollarSplits = containerCmd.split("$");
+		String[] dollarSplits = containerCmd.split("\\$");
 		String parsedContainerCmd = dollarSplits[0];
 		for (int i = 1; i < dollarSplits.length; i++) {
 			String dollarSplit = dollarSplits[i];
 			int whiteSpaceIndex = dollarSplit.indexOf(' ');
-			String envVar = dollarSplit.substring(0, whiteSpaceIndex);
-			dollarSplit.replace(envVar, customProperties.get(envVar));
+			String envVar = dollarSplit.substring(0, whiteSpaceIndex==-1?dollarSplit.length():whiteSpaceIndex);
+			parsedContainerCmd+=dollarSplit.replace(envVar, customProperties.get(envVar));
 		}
 		return parsedContainerCmd;
 	}

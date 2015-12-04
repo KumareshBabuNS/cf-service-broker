@@ -7,6 +7,7 @@ import java.util.Map;
 
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.ServiceInstance;
+import de.evoila.cf.cpi.custom.props.DomainBasedCustomPropertyHandler;
 
 /**
  * @author Johannes Hiemer.

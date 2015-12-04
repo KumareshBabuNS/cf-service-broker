@@ -27,6 +27,7 @@ import de.evoila.cf.broker.repository.ServiceInstanceRepository;
 import de.evoila.cf.broker.service.AsyncDeploymentService;
 import de.evoila.cf.broker.service.DeploymentService;
 import de.evoila.cf.broker.service.PlatformService;
+import de.evoila.cf.cpi.custom.props.DomainBasedCustomPropertyHandler;
 
 /**
  * @author Christian Brinker.
@@ -34,6 +35,9 @@ import de.evoila.cf.broker.service.PlatformService;
  */
 @Service
 public class DeploymentServiceImpl implements DeploymentService {
+	
+	@Autowired
+	private DomainBasedCustomPropertyHandler domainPropertyHandler;
 
 	@Autowired
 	private PlatformRepository platformRepository;
@@ -99,7 +103,10 @@ public class DeploymentServiceImpl implements DeploymentService {
 			PlatformService platformService) throws ServiceBrokerException {
 		ServiceInstance createdServiceInstance;
 		try {
-			createdServiceInstance = platformService.createInstance(serviceInstance, plan, new HashMap<String, String>(customProperties));
+			Map<String, String> mergedProperties = domainPropertyHandler.addDomainBasedCustomProperties(plan, 
+					customProperties, serviceInstance);
+
+			createdServiceInstance = platformService.createInstance(serviceInstance, plan, mergedProperties);
 		} catch (PlatformException e) {
 			serviceInstanceRepository.deleteServiceInstance(serviceInstance.getId());
 			

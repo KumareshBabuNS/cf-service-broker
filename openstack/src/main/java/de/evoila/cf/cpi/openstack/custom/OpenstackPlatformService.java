@@ -20,8 +20,8 @@ import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.VolumeUnit;
 import de.evoila.cf.broker.repository.PlatformRepository;
 import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
+import de.evoila.cf.cpi.custom.props.DomainBasedCustomPropertyHandler;
 import de.evoila.cf.cpi.openstack.OpenstackServiceFactory;
-import de.evoila.cf.cpi.openstack.custom.props.DomainBasedCustomPropertyHandler;
 
 /**
  * 
@@ -33,9 +33,6 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 
 	@Autowired
 	private PlatformRepository platformRepositroy;
-
-	@Autowired
-	private DomainBasedCustomPropertyHandler domainPropertyHandler;
 
 	@Override
 	@PostConstruct
@@ -87,7 +84,6 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 		platformParameters.put("flavor", plan.getFlavorId());
 		platformParameters.put("volume_size", volumeSize(plan.getVolumeSize(), plan.getVolumeUnit()));
 
-		domainPropertyHandler.addDomainBasedCustomProperties(plan, customProperties, serviceInstance);
 
 		platformParameters.putAll(customProperties);
 

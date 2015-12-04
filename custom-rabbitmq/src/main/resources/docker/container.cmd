@@ -1,0 +1,1 @@
+apt-get install -y wget && wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Rabbitmq/rabbitmq-template.sh && chmod +x rabbitmq-template.sh && ./rabbitmq-template.sh -d $rabbit_vhost -u $rabbit_user -p $rabbit_password && top      

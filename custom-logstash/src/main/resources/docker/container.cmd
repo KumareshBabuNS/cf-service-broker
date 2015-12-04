@@ -1,0 +1,1 @@
+apt-get install -y wget && wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Logstash/logstash-template.sh && chmod +x logstash-template.sh && ./logstash-template.sh -d $es_host && top
