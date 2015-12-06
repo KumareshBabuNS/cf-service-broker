@@ -18,12 +18,11 @@ import de.evoila.cf.broker.exception.PlatformException;
  */
 public class ServicePortAvailabilityVerifier {
 
-	private static final int SOCKET_TIMEOUT = 10000;
+	private static final int SOCKET_TIMEOUT = 15000;
 
 	private static final int INITIAL_TIMEOUT = 90 * 1000;
 	
-	// @Value("${backend.connection.timeouts}")
-	private static final int connectionTimeouts = 18;
+	private static final int connectionTimeouts = 10;
 
 	private static Logger log = LoggerFactory.getLogger(ServicePortAvailabilityVerifier.class);
 
@@ -37,7 +36,8 @@ public class ServicePortAvailabilityVerifier {
 
 	public static boolean execute(String ip, int port) {
 		boolean available = false;
-
+		
+		log.info("Verifying port availability on: {}:{}", ip, port);
 		Socket socket = new Socket();
 		try {
 			socket.connect(new InetSocketAddress(ip, port), SOCKET_TIMEOUT);
@@ -69,13 +69,13 @@ public class ServicePortAvailabilityVerifier {
 		for (int i = 0; i < connectionTimeouts; i++) {
 			available = ServicePortAvailabilityVerifier.execute(ip, port);
 
-			log.info("Service Port availability: " + available);
+			log.info("Service Port availability: {}", available);
 
 			if (available) {
 				break;
 			}
 		}
-		log.info("Service Port availability (last status during request): " + available);
+		log.info("Service Port availability (last status during request): {}", available);
 		return available;
 	}
 

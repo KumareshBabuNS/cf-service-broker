@@ -16,6 +16,8 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,8 @@ import de.evoila.cf.cpi.docker.model.JobStatus;
  */
 @Service
 public class DockerVolumeServiceBroker {
+	
+	Logger log = LoggerFactory.getLogger(getClass());
 	
 	@Autowired
 	private MqttCallback mqttCallback;
@@ -101,6 +105,8 @@ public class DockerVolumeServiceBroker {
 	
 	public void createVolume(String nodeName, String mountPoint, int volumeSize)
 			throws TimeoutException, MqttException, InterruptedException  {
+		log.info("Creating volume {} from node {} and volume size {}", mountPoint, nodeName, volumeSize);
+		
 		UUID jobId = UUID.randomUUID();
 		
 		String payload = "{\"jobId\" : \""+ jobId.toString() 
@@ -114,7 +120,9 @@ public class DockerVolumeServiceBroker {
 
 	private void waitForJob(UUID jobId) throws TimeoutException, InterruptedException {
 		for (int i = 0; i < 12; i++) {
-			if(jobStatus.containsKey(jobId) && jobStatus.get(jobId)!=JobStatus.PENDING) return;
+			if(jobStatus.containsKey(jobId) && jobStatus.get(jobId)!=JobStatus.PENDING) 
+				return;
+			
 			Thread.sleep(10000);
 		}
 		throw new TimeoutException("Job is taking too long!");
@@ -129,14 +137,17 @@ public class DockerVolumeServiceBroker {
 	
 	public void deleteVolume(String nodeName, String mountPoint)
 			throws TimeoutException, MqttException, InterruptedException {
+		log.info("Deleting volume {} from node {}", mountPoint, nodeName);
+		
 		UUID jobId = UUID.randomUUID();
-		String payload = "{\"jobId\" : \"" + jobId.toString() 
-			+ "\", \"sipId\" : \"" +getSenderId() 
-			+ "\", \"mountPoint\" : \"" + mountPoint + "\"}";
+		String payload = "{\"jobId\" : \"" 
+				+ jobId.toString() 
+				+ "\", \"sipId\" : \"" +getSenderId() 
+				+ "\", \"mountPoint\" : \"" + mountPoint 
+			+ "\"}";
 		
 		publishPayloadToNode(nodeName, payload, DELETE_TOPIC);
 			waitForJob(jobId);
-		
 	}
 
 	public String getSenderId() {

@@ -97,7 +97,8 @@ public class DockerPlatformService extends DockerServiceFactory {
 		String host = (String) credentials.get("host");
 		int port = (int) credentials.get("port");
 		
-		serviceInstance = new ServiceInstance(serviceInstance, "http://currently.not/available", container.getId(), host, port);
+		serviceInstance = new ServiceInstance(serviceInstance, 
+				"http://currently.not/available", container.getId(), host, port);
 		
 		return serviceInstance;
 	}

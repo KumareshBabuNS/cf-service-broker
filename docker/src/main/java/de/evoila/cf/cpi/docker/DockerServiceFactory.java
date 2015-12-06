@@ -32,7 +32,6 @@ import com.github.dockerjava.api.model.LogConfig.LoggingType;
 import com.github.dockerjava.api.model.PortBinding;
 import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.api.model.Ports.Binding;
-import com.github.dockerjava.api.model.RestartPolicy;
 import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
@@ -57,7 +56,7 @@ public abstract class DockerServiceFactory implements PlatformService {
 	
 	private final static String DEFAULT_ENCODING = "UTF-8";
 
-	private Logger logger = LoggerFactory.getLogger(getClass());
+	Logger log = LoggerFactory.getLogger(getClass());
 
 	Map<String, Map<String, Object>> containerCredentialMap = new HashMap<String, Map<String, Object>>();
 
@@ -115,14 +114,14 @@ public abstract class DockerServiceFactory implements PlatformService {
 					new EndpointServiceState(DOCKER_SERVICE_KEY, AvailabilityState.ERROR, ex.toString()));
 		}
 		
-		logger.debug("Reading command definition for docker");
+		log.debug("Reading command definition for docker");
 		
 		URL url = this.getClass().getResource("/docker/container.cmd");
 
 		try {
 			this.containerCmd = this.readTemplateFile(url);
 		} catch (IOException | URISyntaxException e) {
-			logger.info("Failed to load heat template", e);
+			log.info("Failed to load heat template", e);
 		}
 
 		Assert.notNull(url, "Heat template definition must be provided.");
@@ -140,13 +139,17 @@ public abstract class DockerServiceFactory implements PlatformService {
 
 	private void listUsedPort() throws PlatformException {
 		usedPorts = new ArrayList<Integer>();
+		
 		DockerClient dockerClient = this.createDockerClientInstance();
 		List<Container> containers = dockerClient.listContainersCmd().withShowAll(true).exec();
+		
 		for (Container container : containers) {
 			InspectContainerResponse i = dockerClient.inspectContainerCmd(container.getId()).exec();
 			Ports portBindings = i.getHostConfig().getPortBindings();
+			
 			if (portBindings == null)
 				continue;
+			
 			Set<Entry<ExposedPort, Binding[]>> bindings = portBindings.getBindings().entrySet();
 			for (Entry<ExposedPort, Binding[]> binding : bindings) {
 				Binding[] bs = binding.getValue();
@@ -157,10 +160,11 @@ public abstract class DockerServiceFactory implements PlatformService {
 				}
 			}
 		}
+		
 		try {
 			dockerClient.close();
 		} catch (IOException e) {
-			logger.warn("Cannot close docker client at listing used ports!");
+			log.warn("Cannot close docker client at listing used ports!");
 		}
 	}
 
@@ -184,9 +188,12 @@ public abstract class DockerServiceFactory implements PlatformService {
 	private DockerClient createDockerClientInstance() throws PlatformException {
 		DockerClient dockerClient = null;
 		String certsPath = this.getClass().getResource("/docker/").getPath();
+		
 		SSLConfig sslConfig = new LocalDirectorySSLConfig(certsPath);
+		
 		DockerClientConfigBuilder dockerClientConfigBuilder = new DockerClientConfigBuilder();
 		String protocol = "http";
+		
 		if (dockerSSLEnabled) {
 			dockerClientConfigBuilder = dockerClientConfigBuilder.withSSLConfig(sslConfig);
 			protocol = "https";
@@ -195,6 +202,7 @@ public abstract class DockerServiceFactory implements PlatformService {
 		DockerClientConfig dockerClientConfig = dockerClientConfigBuilder
 				.withUri(protocol + "://" + dockerHost + ":" + dockerPort).build();
 		dockerClient = DockerClientBuilder.getInstance(dockerClientConfig).build();
+		
 		return dockerClient;
 	}
 
@@ -205,31 +213,30 @@ public abstract class DockerServiceFactory implements PlatformService {
 		Binding binding = new Binding(this.resolveNextAvailablePort());
 		ExposedPort exposedPort = new ExposedPort(this.containerPort);
 		PortBinding portBinding = new PortBinding(binding, exposedPort);
+		
 		LogConfig logConfig = new LogConfig();
 		logConfig.setType(LoggingType.SYSLOG);
+		
 		Map<String, String> config = new HashMap<String, String>();
 		config.put("syslog-address", syslogAddress);
 		logConfig.setConfig(config);
+		
 		Volume volume = new Volume("/data");
 		CreateContainerCmd containerCmd = dockerClient.createContainerCmd(imageName)
 				.withPortBindings(portBinding)
 				.withExposedPorts(exposedPort)
-				.withRestartPolicy(RestartPolicy.alwaysRestart())
-				//.withLogConfig(logConfig)
 				.withTty(true)
 				.withEntrypoint("sh")
 				.withVolumes(volume)
 				.withCmd("-c",  parseContainerCmdWithCustomProperties(customProperties));
 
-		logger.debug(containerCmd.toString());
-
 		CreateContainerResponse container = containerCmd.exec();
 		
-		logger.info("Docker container '" + container.getId());
+		log.info("Docker container '" + container.getId());
 		try {
 			dockerClient.close();
 		} catch (IOException e) {
-			logger.warn("Cannot close docker client at creating docker container!");
+			log.warn("Cannot close docker client at creating docker container!");
 		}
 		return container;
 	}
@@ -237,58 +244,96 @@ public abstract class DockerServiceFactory implements PlatformService {
 	private String parseContainerCmdWithCustomProperties(Map<String, String> customProperties) {
 		String[] dollarSplits = containerCmd.split("\\$");
 		String parsedContainerCmd = dollarSplits[0];
+		
 		for (int i = 1; i < dollarSplits.length; i++) {
 			String dollarSplit = dollarSplits[i];
+			
 			int whiteSpaceIndex = dollarSplit.indexOf(' ');
-			String envVar = dollarSplit.substring(0, whiteSpaceIndex==-1?dollarSplit.length():whiteSpaceIndex);
-			parsedContainerCmd+=dollarSplit.replace(envVar, customProperties.get(envVar));
+			String envVar = dollarSplit.substring(0, whiteSpaceIndex == -1 ? dollarSplit.length() : whiteSpaceIndex);
+			
+			parsedContainerCmd += dollarSplit.replace(envVar, customProperties.get(envVar));
 		}
 		return parsedContainerCmd;
 	}
 	
 	private String getContainerVolumeHostPath(String containerId) throws PlatformException {
 		DockerClient dockerClient = this.createDockerClientInstance();
-		InspectContainerResponse i = dockerClient.inspectContainerCmd(containerId).exec();
+		
+		InspectContainerCmd inspectContainerCmd = dockerClient.inspectContainerCmd(containerId);
+		InspectContainerResponse inspectContainerResponse = inspectContainerCmd.exec();
+		
 		try {
 			dockerClient.close();
 		} catch (IOException e) {
-			logger.warn("Cannot close docker client at getting container's volume host path!");
+			log.warn("Cannot close docker client at getting container's node name!");
 		}
-		return i.getMounts().get(0).getSource();
+		
+		return inspectContainerResponse.getMounts().get(0).getSource();
 	}
 
-	private String getContainerNodeName(String containerId) throws PlatformException {
+	private InspectContainerResponse getContainerDetails(String containerId) throws PlatformException {
 		DockerClient dockerClient = this.createDockerClientInstance();
+		
 		InspectContainerCmd inspectContainerCmd = dockerClient.inspectContainerCmd(containerId);
-		InspectContainerResponse i = inspectContainerCmd.exec();
+		InspectContainerResponse inspectContainerResponse = inspectContainerCmd.exec();
+		
 		try {
 			dockerClient.close();
 		} catch (IOException e) {
-			logger.warn("Cannot close docker client at getting container's node name!");
+			log.warn("Cannot close docker client at getting container's node name!");
 		}
-		return i.getNode().getName();
+		return inspectContainerResponse;
 	}
 
-	private Integer getContainerExposedPort(String containerId) throws PlatformException {
+	private Binding getContainerBinding(String containerId) throws PlatformException {
 		DockerClient dockerClient = this.createDockerClientInstance();
+		
 		InspectContainerCmd inspectContainerCmd = dockerClient.inspectContainerCmd(containerId);
-		InspectContainerResponse i = inspectContainerCmd.exec();
-
-		try {
-			dockerClient.close();
-		} catch (IOException e) {
-			logger.warn("Cannot close docker client at getting container's exposed port!");
-		}
-
-		for (Binding[] binding : i.getHostConfig().getPortBindings().getBindings().values()) {
-			for (Binding b : binding) {
-				return b.getHostPort();
-			}
+		InspectContainerResponse inspectContainerResponse = inspectContainerCmd.exec();
+		
+		for (Binding[] bindings : inspectContainerResponse.getHostConfig().getPortBindings().getBindings().values()) {
+			for (Binding binding : bindings) 
+				return binding;
 		}
 
 		return null;
 	}
 
+	public CreateContainerResponse createDockerContainer(String instanceId, int volumeSize,
+			Map<String, String> customProperties) throws PlatformException {
+		log.info("Creating container for {} with volume size {}", instanceId, volumeSize);
+		
+		CreateContainerResponse container;
+		try {
+			container = this.createDockerContainer(customProperties);
+		} catch (Exception e) {
+			throw new PlatformException(e);
+		}
+		
+		InspectContainerResponse containerDetails = this.getContainerDetails(container.getId());
+		Binding binding = this.getContainerBinding(container.getId());
+		
+		String nodeName = containerDetails.getName();
+		String mountPoint = this.getContainerVolumeHostPath(container.getId());
+		
+		try {
+			this.dockerVolumeServiceBroker.createVolume(nodeName, mountPoint, offset + volumeSize);
+		} catch (Exception e) {
+			throw new PlatformException(e);
+		}
+
+		startContainer(container);
+
+		Map<String, Object> credentials = new HashMap<String, Object>();
+		credentials.put("host", containerDetails.getNode().getIp());
+		credentials.put("port", binding.getHostPort());
+		credentials.put("name", container.getId());
+
+		containerCredentialMap.put(container.getId(), credentials);
+
+		return container;
+	}
+	
 	private void startContainer(CreateContainerResponse container) throws PlatformException {
 		DockerClient dockerClient = this.createDockerClientInstance();
 		dockerClient.startContainerCmd(container.getId()).exec();
@@ -296,69 +341,16 @@ public abstract class DockerServiceFactory implements PlatformService {
 		try {
 			dockerClient.close();
 		} catch (IOException e) {
-			logger.warn("Cannot close docker client at starting docker container!");
+			log.warn("Cannot close docker client at starting docker container!");
 		}
-	}
-
-	private void killContainer(String containerId) throws PlatformException {
-		DockerClient dockerClient = createDockerClientInstance();
-		dockerClient.killContainerCmd(containerId).exec();
-
-		try {
-			dockerClient.close();
-		} catch (IOException e) {
-			logger.warn("Cannot close docker client at killing docker container!");
-		}
-	}
-
-	private void removeContainer(String containerId) throws PlatformException {
-		DockerClient dockerClient = createDockerClientInstance();
-		dockerClient.removeContainerCmd(containerId).exec();
-
-		try {
-			dockerClient.close();
-		} catch (IOException e) {
-			logger.warn("Cannot close docker client at killing docker container!");
-		}
-	}
-
-	public CreateContainerResponse createDockerContainer(String instanceId, int voluneSize,
-			Map<String, String> customProperties) throws PlatformException {
-		CreateContainerResponse container;
-		try {
-			container = this.createDockerContainer(customProperties);
-
-		} catch (Exception e) {
-			logger.error("Cannot create docker container");
-			throw e;
-		}
-
-		String nodeName = this.getContainerNodeName(container.getId());
-		String mountPoint = this.getContainerVolumeHostPath(container.getId());
-		try {
-			this.dockerVolumeServiceBroker.createVolume(nodeName, mountPoint, offset + voluneSize);
-		} catch (Exception e) {
-			this.removeContainer(container.getId());
-			logger.error(e.getMessage());
-			throw new PlatformException(e);
-		}
-
-		startContainer(container);
-
-		Map<String, Object> credentials = new HashMap<String, Object>();
-		credentials.put("host", dockerHost);
-		credentials.put("port", this.getContainerExposedPort(container.getId()));
-		credentials.put("name", container.getId());
-
-		containerCredentialMap.put(container.getId(), credentials);
-
-		return container;
 	}
 
 	public void removeDockerContainer(String containerId) throws PlatformException {
 		this.killContainer(containerId);
-		String nodeName = this.getContainerNodeName(containerId);
-
+		
+		InspectContainerResponse containerResponse = this.getContainerDetails(containerId);
+		String nodeName = containerResponse.getNode().getName();
+		
 		String mountPoint = this.getContainerVolumeHostPath(containerId);
 		try {
 			dockerVolumeServiceBroker.deleteVolume(nodeName, mountPoint);
@@ -366,6 +358,35 @@ public abstract class DockerServiceFactory implements PlatformService {
 			e.printStackTrace();
 		}
 		this.removeContainer(containerId);
+	}
+	
+	private void killContainer(String containerId) throws PlatformException {
+		log.info("Killing container {}", containerId);
+		
+		DockerClient dockerClient = createDockerClientInstance();
+		
+		InspectContainerResponse container = this.getContainerDetails(containerId);
+		if (container.getState().isRunning())
+			dockerClient.killContainerCmd(containerId).exec();
+
+		try {
+			dockerClient.close();
+		} catch (IOException e) {
+			log.warn("Cannot close docker client at killing docker container!");
+		}
+	}
+
+	private void removeContainer(String containerId) throws PlatformException {
+		log.info("Removing container {}", containerId);
+		
+		DockerClient dockerClient = createDockerClientInstance();
+		dockerClient.removeContainerCmd(containerId).exec();
+
+		try {
+			dockerClient.close();
+		} catch (IOException e) {
+			log.warn("Cannot close docker client at killing docker container!");
+		}
 	}
 
 }
