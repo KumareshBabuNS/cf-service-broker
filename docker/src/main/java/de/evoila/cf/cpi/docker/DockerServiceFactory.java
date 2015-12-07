@@ -313,7 +313,7 @@ public abstract class DockerServiceFactory implements PlatformService {
 		InspectContainerResponse containerDetails = this.getContainerDetails(container.getId());
 		Binding binding = this.getContainerBinding(container.getId());
 		
-		String nodeName = containerDetails.getName();
+		String nodeName = containerDetails.getNode().getName();
 		String mountPoint = this.getContainerVolumeHostPath(container.getId());
 		
 		try {
