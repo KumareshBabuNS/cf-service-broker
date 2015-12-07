@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.evoila.cf.cpi.openstack.custom.props;
+package de.evoila.cf.cpi.custom.props;
 
 import java.util.Map;
 
@@ -10,11 +10,11 @@ import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.cpi.custom.props.DomainBasedCustomPropertyHandler;
 
 /**
- * @author Johannes Hiemer.
+ * @author Christian Brinker, evoila.
  *
  */
-public class LogstashCustomPropertyHandler implements DomainBasedCustomPropertyHandler {
-	
+public class MySQLCustomPropertyHandler implements DomainBasedCustomPropertyHandler {
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -26,7 +26,9 @@ public class LogstashCustomPropertyHandler implements DomainBasedCustomPropertyH
 	@Override
 	public Map<String, String> addDomainBasedCustomProperties(Plan plan, Map<String, String> customProperties,
 			ServiceInstance serviceInstance) {
-		customProperties.put("es_host", customProperties.get("es_host"));
+		String id = serviceInstance.getId();
+		customProperties.put("database_name", id);
+		customProperties.put("database_password", id);
 		
 		return customProperties;
 	}

@@ -20,7 +20,7 @@ public class ServicePortAvailabilityVerifier {
 
 	private static final int SOCKET_TIMEOUT = 15000;
 
-	private static final int INITIAL_TIMEOUT = 90 * 1000;
+	private static final int INITIAL_TIMEOUT = 120 * 1000;
 	
 	private static final int connectionTimeouts = 10;
 

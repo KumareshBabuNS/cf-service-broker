@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.evoila.cf.cpi.openstack.custom.props;
+package de.evoila.cf.cpi.custom.props;
 
 import java.util.Map;
 

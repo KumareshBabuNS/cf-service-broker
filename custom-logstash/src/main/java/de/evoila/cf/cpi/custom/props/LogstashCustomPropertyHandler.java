@@ -1,7 +1,7 @@
 /**
  * 
  */
-package de.evoila.cf.cpi.openstack.custom.props;
+package de.evoila.cf.cpi.custom.props;
 
 import java.util.Map;
 
@@ -10,11 +10,11 @@ import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.cpi.custom.props.DomainBasedCustomPropertyHandler;
 
 /**
- * @author Christian Brinker, evoila.
+ * @author Johannes Hiemer.
  *
  */
-public class RabbitMQCustomPropertyHandler implements DomainBasedCustomPropertyHandler {
-
+public class LogstashCustomPropertyHandler implements DomainBasedCustomPropertyHandler {
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -26,11 +26,9 @@ public class RabbitMQCustomPropertyHandler implements DomainBasedCustomPropertyH
 	@Override
 	public Map<String, String> addDomainBasedCustomProperties(Plan plan, Map<String, String> customProperties,
 			ServiceInstance serviceInstance) {
-		String id = serviceInstance.getId();
-		customProperties.put("rabbit_vhost", id);
-		customProperties.put("rabbit_user", id);
-		customProperties.put("rabbit_password", id);
+		customProperties.put("es_host", customProperties.get("es_host"));
 		
 		return customProperties;
 	}
+
 }

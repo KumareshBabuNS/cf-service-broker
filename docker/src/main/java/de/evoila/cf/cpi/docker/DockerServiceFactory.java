@@ -256,19 +256,8 @@ public abstract class DockerServiceFactory implements PlatformService {
 		return parsedContainerCmd;
 	}
 	
-	private String getContainerVolumeHostPath(String containerId) throws PlatformException {
-		DockerClient dockerClient = this.createDockerClientInstance();
-		
-		InspectContainerCmd inspectContainerCmd = dockerClient.inspectContainerCmd(containerId);
-		InspectContainerResponse inspectContainerResponse = inspectContainerCmd.exec();
-		
-		try {
-			dockerClient.close();
-		} catch (IOException e) {
-			log.warn("Cannot close docker client at getting container's node name!");
-		}
-		
-		return inspectContainerResponse.getMounts().get(0).getSource();
+	private String getContainerVolumeHostPath(InspectContainerResponse containerDetails) throws PlatformException {
+		return containerDetails.getMounts().get(0).getSource();
 	}
 
 	private InspectContainerResponse getContainerDetails(String containerId) throws PlatformException {
@@ -285,13 +274,8 @@ public abstract class DockerServiceFactory implements PlatformService {
 		return inspectContainerResponse;
 	}
 
-	private Binding getContainerBinding(String containerId) throws PlatformException {
-		DockerClient dockerClient = this.createDockerClientInstance();
-		
-		InspectContainerCmd inspectContainerCmd = dockerClient.inspectContainerCmd(containerId);
-		InspectContainerResponse inspectContainerResponse = inspectContainerCmd.exec();
-		
-		for (Binding[] bindings : inspectContainerResponse.getHostConfig().getPortBindings().getBindings().values()) {
+	private Binding getContainerBinding(InspectContainerResponse containerDetails) throws PlatformException {
+		for (Binding[] bindings : containerDetails.getHostConfig().getPortBindings().getBindings().values()) {
 			for (Binding binding : bindings) 
 				return binding;
 		}
@@ -311,10 +295,10 @@ public abstract class DockerServiceFactory implements PlatformService {
 		}
 		
 		InspectContainerResponse containerDetails = this.getContainerDetails(container.getId());
-		Binding binding = this.getContainerBinding(container.getId());
+		Binding binding = this.getContainerBinding(containerDetails);
 		
 		String nodeName = containerDetails.getNode().getName();
-		String mountPoint = this.getContainerVolumeHostPath(container.getId());
+		String mountPoint = this.getContainerVolumeHostPath(containerDetails);
 		
 		try {
 			this.dockerVolumeServiceBroker.createVolume(nodeName, mountPoint, offset + volumeSize);
@@ -351,13 +335,14 @@ public abstract class DockerServiceFactory implements PlatformService {
 		InspectContainerResponse containerResponse = this.getContainerDetails(containerId);
 		String nodeName = containerResponse.getNode().getName();
 		
-		String mountPoint = this.getContainerVolumeHostPath(containerId);
+		this.removeContainer(containerId);
+
+		String mountPoint = this.getContainerVolumeHostPath(containerResponse);
 		try {
 			dockerVolumeServiceBroker.deleteVolume(nodeName, mountPoint);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		this.removeContainer(containerId);
 	}
 	
 	private void killContainer(String containerId) throws PlatformException {

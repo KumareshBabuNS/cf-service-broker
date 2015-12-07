@@ -13,8 +13,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.util.Assert;
 
-import de.evoila.cf.cpi.custom.props.DefaultDatabaseCustomPropertyHandler;
 import de.evoila.cf.cpi.custom.props.DomainBasedCustomPropertyHandler;
+import de.evoila.cf.cpi.custom.props.MySQLCustomPropertyHandler;
 
 /**
  * 
@@ -34,7 +34,7 @@ public class Application {
 
 	@Bean
 	public DomainBasedCustomPropertyHandler domainPropertyHandler() {
-		return new DefaultDatabaseCustomPropertyHandler();
+		return new MySQLCustomPropertyHandler();
 	}
 
 	public static void main(String[] args) {

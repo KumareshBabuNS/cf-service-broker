@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.util.Assert;
 
 import de.evoila.cf.cpi.custom.props.DomainBasedCustomPropertyHandler;
-import de.evoila.cf.cpi.openstack.custom.props.LogstashCustomPropertyHandler;
+import de.evoila.cf.cpi.custom.props.LogstashCustomPropertyHandler;
 
 /**
  * 
