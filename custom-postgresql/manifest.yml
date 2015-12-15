@@ -12,3 +12,4 @@ applications:
     CF_TARGET: https://api.onevoila.rocks
     SPRING_PROFILES_ACTIVE: cloud
     JAVA_OPTS: -Djava.security.egd=file:/dev/urandom
+    

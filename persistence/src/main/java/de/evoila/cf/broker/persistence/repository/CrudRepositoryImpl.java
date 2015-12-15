@@ -9,8 +9,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 
 import de.evoila.cf.broker.model.BaseEntity;
@@ -23,19 +21,17 @@ import de.evoila.cf.broker.model.BaseEntity;
  * @param <ID>
  *            ID type
  */
-public class CrudRepositoryImpl<T extends BaseEntity<ID>, ID extends Serializable> {
+public abstract class CrudRepositoryImpl<T extends BaseEntity<ID>, ID extends Serializable> {
 
-	@Autowired
-	@Qualifier("jacksonRedisTemplate")
-	private RedisTemplate<String, T> redisTemplate;
-
+	protected abstract RedisTemplate<String, T> getRedisTemplate();
+	
 	public long count() {
 		return findAllAsList().size();
 	}
 
 	public void delete(ID id) {
 		String key = generateKey(id);
-		redisTemplate.opsForValue().getOperations().delete(key);
+		getRedisTemplate().opsForValue().getOperations().delete(key);
 	}
 
 	private String generateKey(ID id) {
@@ -50,7 +46,7 @@ public class CrudRepositoryImpl<T extends BaseEntity<ID>, ID extends Serializabl
 	public void delete(T entity) {
 		ID id = entity.getId();
 		String key = generateKey(id);
-		redisTemplate.opsForValue().getOperations().delete(key);
+		getRedisTemplate().opsForValue().getOperations().delete(key);
 	}
 
 	public void delete(Iterable<? extends T> entities) {
@@ -74,7 +70,7 @@ public class CrudRepositoryImpl<T extends BaseEntity<ID>, ID extends Serializabl
 	private List<T> findAllAsList() {
 		List<T> entities = new ArrayList<>();
 
-		Set<String> keys = redisTemplate.keys(getPrefix() + "*");
+		Set<String> keys = getRedisTemplate().keys(getPrefix() + "*");
 		Iterator<String> it = keys.iterator();
 
 		while (it.hasNext()) {
@@ -89,7 +85,7 @@ public class CrudRepositoryImpl<T extends BaseEntity<ID>, ID extends Serializabl
 		for (ID id : ids) {
 			keys.add(generateKey(id));
 		}
-		return redisTemplate.opsForValue().multiGet(keys);
+		return getRedisTemplate().opsForValue().multiGet(keys);
 	}
 
 	public T findOne(ID id) {
@@ -98,12 +94,12 @@ public class CrudRepositoryImpl<T extends BaseEntity<ID>, ID extends Serializabl
 	}
 
 	private T findOne(String key) {
-		return redisTemplate.opsForValue().get(key);
+		return getRedisTemplate().opsForValue().get(key);
 	}
 
 	public <S extends T> S save(S entity) {
 		ID id = entity.getId();
-		redisTemplate.opsForValue().set(generateKey(id), entity);
+		getRedisTemplate().opsForValue().set(generateKey(id), entity);
 		return entity;
 	}
 

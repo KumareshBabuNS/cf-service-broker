@@ -3,45 +3,40 @@
  */
 package de.evoila.cf.broker.service;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import de.evoila.cf.broker.model.JobProgress;
 import de.evoila.cf.broker.model.ServiceInstance;
+import de.evoila.cf.broker.repository.JobRepository;
 
 /**
  * @author Christian Brinker, evoila.
  *
  */
 @Service
-public class JobProgressService {
+public class JobProgressService  {
 
-	private static final String SUCCESS = "succeeded";
+	@Autowired
+	private JobRepository jobRepository;
 
-	private static final String FAILED = "failed";
-
-	private static final String IN_PROGRESS = "in progress";
-
-	private Map<String, String> jobProgress = new ConcurrentHashMap<String, String>();
-
-	public String getProgress(String serviceInstanceId) {
-		return jobProgress.get(serviceInstanceId);
+	public JobProgress getProgress(String serviceInstanceId) {
+		return jobRepository.getJobProgress(serviceInstanceId);
 	}
 
 	public void startJob(ServiceInstance serviceInstance) {
-		changeStatus(serviceInstance, IN_PROGRESS);
+		changeStatus(serviceInstance, JobProgress.IN_PROGRESS);
 	}
 
-	public void failJob(ServiceInstance serviceInstance) {
-		changeStatus(serviceInstance, FAILED);
+	public void failJob(ServiceInstance serviceInstance, String description) {
+		changeStatus(serviceInstance, JobProgress.FAILED);
 	}
 
 	public void succeedProgress(ServiceInstance serviceInstance) {
-		changeStatus(serviceInstance, SUCCESS);
+		changeStatus(serviceInstance, JobProgress.SUCCESS);
 	}
 
-	private void changeStatus(ServiceInstance serviceInstance, final String newStatus) {
-		jobProgress.put(serviceInstance.getId(), newStatus);
+	private void changeStatus(ServiceInstance serviceInstance, String newStatus) {
+		jobRepository.saveOrUpdateJobProgress(serviceInstance.getId(), newStatus);
 	}
 }

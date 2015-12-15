@@ -3,6 +3,9 @@
  */
 package de.evoila.cf.broker.persistence.repository;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
 import de.evoila.cf.broker.model.ServiceInstance;
@@ -15,7 +18,16 @@ import de.evoila.cf.broker.repository.ServiceInstanceRepository;
 @Repository
 public class ServiceInstanceRepositoryImpl extends CrudRepositoryImpl<ServiceInstance, String>
 		implements ServiceInstanceRepository {
-
+	
+	@Autowired
+	@Qualifier("jacksonServiceInstanceRedisTemplate")
+	private RedisTemplate<String, ServiceInstance> redisTemplate;
+	
+	@Override
+	protected RedisTemplate<String, ServiceInstance> getRedisTemplate() {
+		return this.redisTemplate;
+	}
+	
 	private static final String PREFIX = "instance-";
 
 	@Override

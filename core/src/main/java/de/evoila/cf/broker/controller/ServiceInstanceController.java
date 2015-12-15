@@ -23,7 +23,7 @@ import de.evoila.cf.broker.exception.ServiceDefinitionDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceExistsException;
 import de.evoila.cf.broker.model.ErrorMessage;
-import de.evoila.cf.broker.model.JobProgress;
+import de.evoila.cf.broker.model.JobProgressResponse;
 import de.evoila.cf.broker.model.ServiceDefinition;
 import de.evoila.cf.broker.model.ServiceInstanceRequest;
 import de.evoila.cf.broker.model.ServiceInstanceResponse;
@@ -86,13 +86,13 @@ public class ServiceInstanceController extends BaseController {
 	}
 
 	@RequestMapping(value = "/service_instances/{instanceId}/last_operation", method = RequestMethod.GET)
-	public ResponseEntity<JobProgress> lastOperation(@PathVariable("instanceId") String serviceInstanceId)
+	public ResponseEntity<JobProgressResponse> lastOperation(@PathVariable("instanceId") String serviceInstanceId)
 			throws ServiceDefinitionDoesNotExistException, ServiceInstanceExistsException, ServiceBrokerException,
 			ServiceInstanceDoesNotExistException {
 
-		JobProgress serviceInstanceProcessingResponse = deploymentService.getLastOperation(serviceInstanceId);
+		JobProgressResponse serviceInstanceProcessingResponse = deploymentService.getLastOperation(serviceInstanceId);
 
-		return new ResponseEntity<JobProgress>(serviceInstanceProcessingResponse, HttpStatus.OK);
+		return new ResponseEntity<JobProgressResponse>(serviceInstanceProcessingResponse, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/service_instances/{instanceId}", method = RequestMethod.DELETE)

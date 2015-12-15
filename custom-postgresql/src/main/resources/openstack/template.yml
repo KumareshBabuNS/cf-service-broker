@@ -48,10 +48,13 @@ resources:
       user_data:
         str_replace:
           template: |
-            #!/bin/bash -v
-            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Postgres/postgres-template.sh
+            #!/bin/bash
+            export REPOSITORY_POSTGRES="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Postgres-v3"
+            export REPOSITORY_MAIN="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master"
+            
+            wget $REPOSITORY_POSTGRES/postgres-template.sh
             chmod +x postgres-template.sh
-            ./postgres-template.sh -d $db_name -u $db_user -p $db_password
+            ./postgres-template.sh -d $db_name -u $db_user -p $db_password -e openstack
           params:
             $db_name: {get_param: database_name}
             $db_user: {get_param: database_user}

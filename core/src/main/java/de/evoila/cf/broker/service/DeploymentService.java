@@ -10,7 +10,7 @@ import de.evoila.cf.broker.exception.ServiceDefinitionDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceExistsException;
 import de.evoila.cf.broker.model.ServiceInstanceResponse;
-import de.evoila.cf.broker.model.JobProgress;
+import de.evoila.cf.broker.model.JobProgressResponse;
 
 /**
  * @author Christian Brinker, evoila.
@@ -36,7 +36,7 @@ public abstract interface DeploymentService {
 	 * @throws ServiceInstanceDoesNotExistException
 	 * @throws ServiceBrokerException
 	 */
-	JobProgress getLastOperation(String serviceInstanceId)
+	JobProgressResponse getLastOperation(String serviceInstanceId)
 			throws ServiceInstanceDoesNotExistException, ServiceBrokerException;
 	
 	/**

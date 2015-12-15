@@ -7,6 +7,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
+import de.evoila.cf.broker.model.JobProgress;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.service.AsyncDeploymentService;
@@ -30,7 +31,8 @@ public class AsyncDeploymentServiceImpl implements AsyncDeploymentService {
 		try {
 			deploymentService.syncCreateInstance(serviceInstance, plan, platformService);
 		} catch (Exception e) {
-			progressService.failJob(serviceInstance);
+			progressService.failJob(serviceInstance, "Internal error during Instance creation, please contact our support.");
+			
 			log.error("Exception during Instance creation", e);
 			return;
 		}
@@ -47,7 +49,8 @@ public class AsyncDeploymentServiceImpl implements AsyncDeploymentService {
 		try {
 			deploymentService.syncDeleteInstance(serviceInstance, platformService);
 		} catch (Exception e) {
-			progressService.failJob(serviceInstance);
+			progressService.failJob(serviceInstance, "Internal error during Instance deletion, please contact our support.");
+			
 			log.error("Exception during Instance deletion", e);
 			return;
 		}
@@ -55,12 +58,12 @@ public class AsyncDeploymentServiceImpl implements AsyncDeploymentService {
 	}
 
 	@Override
-	public String getProgress(String serviceInstanceId) {
+	public JobProgress getProgress(String serviceInstanceId) {
 		try {
 			return progressService.getProgress(serviceInstanceId);
 		} catch (Exception e) {
-			log.error("Exception during Instance deletion", e);
-			return "";
+			log.error("Error during job progress retrieval", e);
+			return new JobProgress(JobProgress.UNKNOWN, "Error during job progress retrieval");
 		}
 	}
 

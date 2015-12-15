@@ -29,6 +29,7 @@ public class MySQLCustomPropertyHandler implements DomainBasedCustomPropertyHand
 		String id = serviceInstance.getId();
 		customProperties.put("database_name", id);
 		customProperties.put("database_password", id);
+		customProperties.put("database_number", "1");
 		
 		return customProperties;
 	}

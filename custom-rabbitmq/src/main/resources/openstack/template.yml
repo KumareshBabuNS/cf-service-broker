@@ -46,9 +46,12 @@ resources:
         str_replace:
           template: |
             #!/bin/bash
-            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Rabbitmq/rabbitmq-template.sh
+            export REPOSITORY_RABBITMQ="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Rabbitmq-v3"
+            export REPOSITORY_MAIN="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master"
+            
+            wget $REPOSITORY_RABBITMQ/rabbitmq-template.sh
             chmod +x rabbitmq-template.sh
-            ./rabbitmq-template.sh -d $amqp_vhost -u $amqp_user -p $amqp_password            
+            ./rabbitmq-template.sh  -d $amqp_vhost -u $amqp_user -p $amqp_password -e openstack          
           params:
             $amqp_vhost: {get_param: rabbit_vhost}
             $amqp_user: {get_param: rabbit_user}

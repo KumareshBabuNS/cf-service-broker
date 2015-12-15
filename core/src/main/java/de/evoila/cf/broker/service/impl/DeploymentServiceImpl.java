@@ -17,6 +17,7 @@ import de.evoila.cf.broker.exception.ServiceDefinitionDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceExistsException;
 import de.evoila.cf.broker.model.JobProgress;
+import de.evoila.cf.broker.model.JobProgressResponse;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.ServiceInstanceResponse;
@@ -54,13 +55,15 @@ public class DeploymentServiceImpl implements DeploymentService {
 	public Map<String, String> customProperties;
 
 	@Override
-	public JobProgress getLastOperation(String serviceInstanceId)
+	public JobProgressResponse getLastOperation(String serviceInstanceId)
 			throws ServiceInstanceDoesNotExistException, ServiceBrokerException {
-		String progress = asyncDeploymentService.getProgress(serviceInstanceId);
+		JobProgress progress = asyncDeploymentService.getProgress(serviceInstanceId);
+		
 		if (progress == null || !serviceInstanceRepository.containsServiceInstanceId(serviceInstanceId)) {
 			throw new ServiceInstanceDoesNotExistException("Service instance not found " + serviceInstanceId);
 		}
-		return new JobProgress(progress, "");
+		
+		return new JobProgressResponse(progress);
 	}
 
 	@Override

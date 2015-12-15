@@ -42,10 +42,13 @@ resources:
       user_data:
         str_replace:
           template: |
-            #!/bin/bash -v
-            wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Redis/redis-template.sh
+           #!/bin/bash
+            export REPOSITORY_REDIS="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Redis-v3"
+            export REPOSITORY_MAIN="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master"
+            
+            wget $REPOSITORY_REDIS/redis-template.sh
             chmod +x redis-template.sh
-            ./redis-template.sh -n $db_number -p $db_password            
+            ./redis-template.sh -n $db_number -p $db_password -e openstack        
           params:
             $db_number: {get_param: database_number}            
             $db_password: {get_param: database_password}
