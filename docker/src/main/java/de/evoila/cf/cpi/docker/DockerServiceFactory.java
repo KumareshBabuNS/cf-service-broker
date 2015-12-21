@@ -56,6 +56,8 @@ public abstract class DockerServiceFactory implements PlatformService {
 	
 	private final static String DEFAULT_ENCODING = "UTF-8";
 
+	private static final long MEMORY_LIMIT = 536870912;
+
 	Logger log = LoggerFactory.getLogger(getClass());
 
 	Map<String, Map<String, Object>> containerCredentialMap = new HashMap<String, Map<String, Object>>();
@@ -228,6 +230,7 @@ public abstract class DockerServiceFactory implements PlatformService {
 				.withTty(true)
 				.withEntrypoint("sh")
 				.withVolumes(volume)
+				.withMemoryLimit(MEMORY_LIMIT)
 				.withCmd("-c",  parseContainerCmdWithCustomProperties(customProperties));
 
 		CreateContainerResponse container = containerCmd.exec();
