@@ -18,9 +18,9 @@ import de.evoila.cf.broker.exception.PlatformException;
  */
 public class ServicePortAvailabilityVerifier {
 
-	private static final int SOCKET_TIMEOUT = 15000;
+	private static final int SOCKET_TIMEOUT = 30000;
 
-	private static final int INITIAL_TIMEOUT = 120 * 1000;
+	private static final int INITIAL_TIMEOUT = 150 * 1000;
 	
 	private static final int connectionTimeouts = 10;
 
