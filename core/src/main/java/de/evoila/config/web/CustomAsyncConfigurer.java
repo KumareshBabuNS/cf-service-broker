@@ -15,14 +15,15 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
  */
 @Configuration
 @EnableAsync
-public class CustomAsyncConfigurer  implements AsyncConfigurer {
+public class CustomAsyncConfigurer implements AsyncConfigurer {
 
 	@Override
 	public Executor getAsyncExecutor() {
 		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-		executor.setCorePoolSize(7);
-		executor.setMaxPoolSize(42);
-		executor.setQueueCapacity(11);
+		executor.setCorePoolSize(15);
+		executor.setMaxPoolSize(30);
+		executor.setQueueCapacity(15);
+		executor.setWaitForTasksToCompleteOnShutdown(true);
 		executor.setThreadNamePrefix("MyExecutor-");
 		executor.initialize();
 		return executor;
