@@ -5,12 +5,15 @@ package de.evoila.cf.cpi.openstack.custom;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
 import javax.ws.rs.NotAcceptableException;
 import javax.ws.rs.NotSupportedException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 
 import de.evoila.cf.broker.exception.PlatformException;
@@ -20,7 +23,6 @@ import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.VolumeUnit;
 import de.evoila.cf.broker.repository.PlatformRepository;
 import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
-import de.evoila.cf.cpi.custom.props.DomainBasedCustomPropertyHandler;
 import de.evoila.cf.cpi.openstack.OpenstackServiceFactory;
 
 /**
@@ -29,6 +31,8 @@ import de.evoila.cf.cpi.openstack.OpenstackServiceFactory;
  *
  */
 @Service
+@EnableConfigurationProperties
+@ConfigurationProperties(prefix = "backend")
 public class OpenstackPlatformService extends OpenstackServiceFactory {
 
 	@Autowired
@@ -93,8 +97,17 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 			throw new PlatformException(e);
 		}
 
-		return new ServiceInstance(serviceInstance, "http://currently.not/available", this.uniqueName(instanceId),
-				this.primaryIp(instanceId), this.defaultPort);
+		serviceInstance = new ServiceInstance(serviceInstance, "http://currently.not/available", this.uniqueName(instanceId),
+				this.primaryIp(instanceId), this.ports.get(0).intValue());
+		
+		if (ports.size() > 1) {
+			for (Entry<String, Integer> port : ports.entrySet())
+				if (!port.getKey().equals("default"))
+					serviceInstance.getParameters().put(port.getKey(), port.getValue().toString());
+		}
+			
+		
+		return serviceInstance;
 	}
 
 	private String volumeSize(int volumeSize, VolumeUnit volumeUnit) {

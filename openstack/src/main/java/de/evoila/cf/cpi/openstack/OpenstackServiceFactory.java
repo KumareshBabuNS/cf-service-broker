@@ -83,8 +83,15 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 	@Value("${openstack.cinder.az}")
 	private String availabilityZone;
 
-	@Value("${backend.default.port}")
-	protected int defaultPort;
+	protected Map<String, Integer> ports;
+	
+	public Map<String, Integer> getPorts() {
+		return ports;
+	}
+
+	public void setPorts(Map<String, Integer> ports) {
+		this.ports = ports;
+	}
 
 	private String heatTemplate;
 

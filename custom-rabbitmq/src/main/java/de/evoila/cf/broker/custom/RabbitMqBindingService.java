@@ -56,6 +56,8 @@ public class RabbitMqBindingService extends BindingServiceImpl {
 	private static final String IP_PORT_SEPARATOR = ":";
 	
 	private static final int API_PORT = 15672;
+	
+	private static final String PORT_KEY = "user";
 
 	private static final String URL_PATTERN = AMQP + STRING_URL_VALUE + USER_PASSWORD_SEPARATOR + STRING_URL_VALUE
 			+ CREDENTIAL_IP_SEPARATOR + STRING_URL_VALUE + IP_PORT_SEPARATOR + DOUBLE_URL_VALUE + PATH_SEPARATOR
@@ -89,8 +91,12 @@ public class RabbitMqBindingService extends BindingServiceImpl {
 		String userName = bindingId;
 		SecureRandom random = new SecureRandom();
 		String password = new BigInteger(130, random).toString(32);
+		
+		int port = API_PORT;
+		if (serviceInstance.getParameters().containsKey(PORT_KEY))
+			port = Integer.parseInt(serviceInstance.getParameters().get(PORT_KEY));
 
-		addUserToVHostAndSetPermissions(serviceInstance.getId(), userName, amqpHostAddress, password, vhostName);
+		addUserToVHostAndSetPermissions(serviceInstance.getId(), userName, amqpHostAddress, port, password, vhostName);
 
 		String rabbitMqUrl = String.format(URL_PATTERN, userName, password, amqpHostAddress, serviceInstance.getPort(),
 				vhostName);
@@ -107,13 +113,13 @@ public class RabbitMqBindingService extends BindingServiceImpl {
 		return new ServiceInstanceBindingResponse(credentials);
 	}
 
-	private void addUserToVHostAndSetPermissions(String instanceId, String userName, String amqpHostAddress, String password,
+	private void addUserToVHostAndSetPermissions(String instanceId, String userName, String amqpHostAddress, int port, String password,
 			String vhostName) {
 		
-		executeRequest(getAmqpApi(amqpHostAddress, API_PORT) + "/users/" + userName, 
+		executeRequest(getAmqpApi(amqpHostAddress, port) + "/users/" + userName, 
 				HttpMethod.PUT, instanceId, "{\"password\":\"" + password + "\", \"tags\" : \"none\"}");
 		
-		executeRequest(getAmqpApi(amqpHostAddress, API_PORT) + "/permissions/" + vhostName + PATH_SEPARATOR + userName,
+		executeRequest(getAmqpApi(amqpHostAddress, port) + "/permissions/" + vhostName + PATH_SEPARATOR + userName,
 				HttpMethod.PUT, instanceId, "{\"configure\":\".*\",\"write\":\".*\",\"read\":\".*\"}");
 	}
 
