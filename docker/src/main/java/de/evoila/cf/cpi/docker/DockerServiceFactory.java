@@ -36,6 +36,7 @@ import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig.DockerClientConfigBuilder;
+import com.google.common.collect.Lists;
 import com.github.dockerjava.core.LocalDirectorySSLConfig;
 import com.github.dockerjava.core.SSLConfig;
 
@@ -239,15 +240,18 @@ public abstract class DockerServiceFactory implements PlatformService {
 				.withCmd("-c",  parseContainerCmdWithCustomProperties(customProperties));
 		
 		int i = 0;
+		PortBinding[] portBindings = new PortBinding[ports.size()];
 		for (String key : ports.keySet()) {
 			this.resolveNextAvailablePort();
+
 			Binding binding = new Binding(this.availablePorts.get(i));
-			ExposedPort exposedPort = new ExposedPort(ports.get(key));
-			PortBinding portBinding = new PortBinding(binding, exposedPort);
-			containerCmd.withPortBindings(portBinding)
-				.withExposedPorts(exposedPort);
+
+			portBindings[i] = new PortBinding(binding, new ExposedPort(ports.get(key)));
+
 			i++;
 		}
+		
+		containerCmd.withPortBindings(portBindings);
 		CreateContainerResponse container = containerCmd.exec();
 		
 		log.info("Docker container '" + container.getId());
@@ -298,7 +302,7 @@ public abstract class DockerServiceFactory implements PlatformService {
 		Map<ExposedPort, Binding[]> containerBindings = containerDetails.getHostConfig().getPortBindings().getBindings();
 		for (ExposedPort exposedPort : containerBindings.keySet()) {
 			for (Binding binding : containerBindings.get(exposedPort)) {
-				bindingsMap.put(reservePorts.get(binding.getHostPort()), exposedPort.getPort());
+				bindingsMap.put(reservePorts.get(exposedPort.getPort()), binding.getHostPort());
 			}
 		}
 
