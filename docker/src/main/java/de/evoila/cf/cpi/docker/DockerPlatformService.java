@@ -25,7 +25,7 @@ import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
  */
 @Service
 @EnableConfigurationProperties
-@ConfigurationProperties(prefix = "docker")
+@ConfigurationProperties(prefix = "backend")
 public class DockerPlatformService extends DockerServiceFactory {
 
 	@Autowired
