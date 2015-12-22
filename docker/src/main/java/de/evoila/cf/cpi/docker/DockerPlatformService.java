@@ -5,6 +5,8 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 
 import com.github.dockerjava.api.command.CreateContainerResponse;
@@ -22,6 +24,8 @@ import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
  *
  */
 @Service
+@EnableConfigurationProperties
+@ConfigurationProperties(prefix = "docker")
 public class DockerPlatformService extends DockerServiceFactory {
 
 	@Autowired
@@ -99,6 +103,13 @@ public class DockerPlatformService extends DockerServiceFactory {
 		
 		serviceInstance = new ServiceInstance(serviceInstance, 
 				"http://currently.not/available", container.getId(), host, port);
+		
+		Map<String, Integer> bindingsMap = this.getContainerBindings(container.getId());
+		if(bindingsMap.keySet().size() > 1) {
+			for (String key : bindingsMap.keySet()) {
+				if(!key.equals("default")) serviceInstance.getParameters().put(key, bindingsMap.get(key).toString());
+			}
+		}
 		
 		return serviceInstance;
 	}

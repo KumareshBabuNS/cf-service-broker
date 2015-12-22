@@ -92,6 +92,8 @@ public abstract class DockerServiceFactory implements PlatformService {
 	@Value("${docker.syslogAddress}")
 	private String syslogAddress;
 
+	private Map<String, Integer> ports;
+	
 	@Autowired
 	private DockerVolumeServiceBroker dockerVolumeServiceBroker;
 
@@ -103,6 +105,8 @@ public abstract class DockerServiceFactory implements PlatformService {
 	private List<Integer> usedPorts = new ArrayList<Integer>();
 
 	private String containerCmd = null;
+
+	private Map<Integer, String> reservePorts;
 
 	@PostConstruct
 	public void initialize() throws PlatformException {
@@ -127,6 +131,11 @@ public abstract class DockerServiceFactory implements PlatformService {
 		}
 
 		Assert.notNull(url, "Heat template definition must be provided.");
+		
+		reservePorts = new HashMap<>();
+		for (String key : ports.keySet()) {
+			reservePorts.put(ports.get(key), key);
+		}
 	}
 	
 	private String readTemplateFile(URL url) throws IOException, URISyntaxException {
@@ -212,9 +221,7 @@ public abstract class DockerServiceFactory implements PlatformService {
 			throws PlatformException {
 		DockerClient dockerClient = this.createDockerClientInstance();
 
-		Binding binding = new Binding(this.resolveNextAvailablePort());
-		ExposedPort exposedPort = new ExposedPort(this.containerPort);
-		PortBinding portBinding = new PortBinding(binding, exposedPort);
+
 		
 		LogConfig logConfig = new LogConfig();
 		logConfig.setType(LoggingType.SYSLOG);
@@ -225,14 +232,22 @@ public abstract class DockerServiceFactory implements PlatformService {
 		
 		Volume volume = new Volume("/data");
 		CreateContainerCmd containerCmd = dockerClient.createContainerCmd(imageName)
-				.withPortBindings(portBinding)
-				.withExposedPorts(exposedPort)
 				.withTty(true)
 				.withEntrypoint("sh")
 				.withVolumes(volume)
 				.withMemoryLimit(MEMORY_LIMIT)
 				.withCmd("-c",  parseContainerCmdWithCustomProperties(customProperties));
-
+		
+		int i = 0;
+		for (String key : ports.keySet()) {
+			this.resolveNextAvailablePort();
+			Binding binding = new Binding(this.availablePorts.get(i));
+			ExposedPort exposedPort = new ExposedPort(ports.get(key));
+			PortBinding portBinding = new PortBinding(binding, exposedPort);
+			containerCmd.withPortBindings(portBinding)
+				.withExposedPorts(exposedPort);
+			i++;
+		}
 		CreateContainerResponse container = containerCmd.exec();
 		
 		log.info("Docker container '" + container.getId());
@@ -277,13 +292,17 @@ public abstract class DockerServiceFactory implements PlatformService {
 		return inspectContainerResponse;
 	}
 
-	private Binding getContainerBinding(InspectContainerResponse containerDetails) throws PlatformException {
-		for (Binding[] bindings : containerDetails.getHostConfig().getPortBindings().getBindings().values()) {
-			for (Binding binding : bindings) 
-				return binding;
+	protected Map<String, Integer> getContainerBindings(String containerId) throws PlatformException {
+		InspectContainerResponse containerDetails = this.getContainerDetails(containerId);
+		Map<String, Integer> bindingsMap = new HashMap<>();
+		Map<ExposedPort, Binding[]> containerBindings = containerDetails.getHostConfig().getPortBindings().getBindings();
+		for (ExposedPort exposedPort : containerBindings.keySet()) {
+			for (Binding binding : containerBindings.get(exposedPort)) {
+				bindingsMap.put(reservePorts.get(binding.getHostPort()), exposedPort.getPort());
+			}
 		}
 
-		return null;
+		return bindingsMap;
 	}
 
 	public CreateContainerResponse createDockerContainer(String instanceId, int volumeSize,
@@ -297,8 +316,8 @@ public abstract class DockerServiceFactory implements PlatformService {
 			throw new PlatformException(e);
 		}
 		
+		Map<String, Integer> bindingsMap = this.getContainerBindings(container.getId());
 		InspectContainerResponse containerDetails = this.getContainerDetails(container.getId());
-		Binding binding = this.getContainerBinding(containerDetails);
 		
 		String nodeName = containerDetails.getNode().getName();
 		String mountPoint = this.getContainerVolumeHostPath(containerDetails);
@@ -313,9 +332,9 @@ public abstract class DockerServiceFactory implements PlatformService {
 
 		Map<String, Object> credentials = new HashMap<String, Object>();
 		credentials.put("host", containerDetails.getNode().getIp());
-		credentials.put("port", binding.getHostPort());
+		credentials.put("port", bindingsMap.get("default"));
 		credentials.put("name", container.getId());
-
+		
 		containerCredentialMap.put(container.getId(), credentials);
 
 		return container;
@@ -375,6 +394,14 @@ public abstract class DockerServiceFactory implements PlatformService {
 		} catch (IOException e) {
 			log.warn("Cannot close docker client at killing docker container!");
 		}
+	}
+
+	public Map<String, Integer> getPorts() {
+		return ports;
+	}
+
+	public void setPorts(Map<String, Integer> ports) {
+		this.ports = ports;
 	}
 
 }
