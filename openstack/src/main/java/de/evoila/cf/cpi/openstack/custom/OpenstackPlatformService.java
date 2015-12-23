@@ -98,7 +98,7 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 		}
 
 		serviceInstance = new ServiceInstance(serviceInstance, "http://currently.not/available", this.uniqueName(instanceId),
-				this.primaryIp(instanceId), this.ports.get(0).intValue());
+				this.primaryIp(instanceId), this.ports.get("default"));
 		
 		if (ports.size() > 1) {
 			for (Entry<String, Integer> port : ports.entrySet())

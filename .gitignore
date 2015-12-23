@@ -17,3 +17,4 @@ config/.project
 
 registry/.classpath
 registry/.project
+*/paho*
