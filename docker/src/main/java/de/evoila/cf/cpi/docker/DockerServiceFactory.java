@@ -36,7 +36,6 @@ import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig.DockerClientConfigBuilder;
-import com.google.common.collect.Lists;
 import com.github.dockerjava.core.LocalDirectorySSLConfig;
 import com.github.dockerjava.core.SSLConfig;
 
@@ -222,36 +221,34 @@ public abstract class DockerServiceFactory implements PlatformService {
 			throws PlatformException {
 		DockerClient dockerClient = this.createDockerClientInstance();
 
-
-		
 		LogConfig logConfig = new LogConfig();
-		logConfig.setType(LoggingType.SYSLOG);
-		
+		logConfig.setType(LoggingType.SYSLOG);		
 		Map<String, String> config = new HashMap<String, String>();
 		config.put("syslog-address", syslogAddress);
 		logConfig.setConfig(config);
 		
 		Volume volume = new Volume("/data");
-		CreateContainerCmd containerCmd = dockerClient.createContainerCmd(imageName)
-				.withTty(true)
-				.withEntrypoint("sh")
-				.withVolumes(volume)
-				.withMemoryLimit(MEMORY_LIMIT)
-				.withCmd("-c",  parseContainerCmdWithCustomProperties(customProperties));
 		
 		int i = 0;
 		PortBinding[] portBindings = new PortBinding[ports.size()];
+		ExposedPort[] exposedPorts = new ExposedPort[ports.size()];
 		for (String key : ports.keySet()) {
 			this.resolveNextAvailablePort();
 
-			Binding binding = new Binding(this.availablePorts.get(i));
-
-			portBindings[i] = new PortBinding(binding, new ExposedPort(ports.get(key)));
+			exposedPorts[i] = new ExposedPort(ports.get(key));
+			portBindings[i] = new PortBinding(new Binding(this.availablePorts.get(i)), exposedPorts[i]);
 
 			i++;
 		}
 		
-		containerCmd.withPortBindings(portBindings);
+		CreateContainerCmd containerCmd = dockerClient.createContainerCmd(imageName)
+				.withCmd("-c",  parseContainerCmdWithCustomProperties(customProperties))
+				.withEntrypoint("sh")
+				.withExposedPorts(exposedPorts)
+				.withMemoryLimit(MEMORY_LIMIT)
+				.withPortBindings(portBindings)
+				.withTty(true)
+				.withVolumes(volume);
 		CreateContainerResponse container = containerCmd.exec();
 		
 		log.info("Docker container '" + container.getId());
