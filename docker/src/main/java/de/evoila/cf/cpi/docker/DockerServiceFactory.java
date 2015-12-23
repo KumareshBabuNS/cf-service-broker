@@ -68,9 +68,6 @@ public abstract class DockerServiceFactory implements PlatformService {
 	@Value("${docker.imageName}")
 	private String imageName;
 
-	@Value("${docker.containerPort}")
-	private int containerPort;
-
 	@Value("${docker.ssl.enabled:false}")
 	private boolean dockerSSLEnabled;
 
