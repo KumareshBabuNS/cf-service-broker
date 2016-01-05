@@ -1,0 +1,5 @@
+[source,shell]
+.template.sh
+----
+# here comes the code
+----
