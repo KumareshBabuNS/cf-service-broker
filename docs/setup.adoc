@@ -1,3 +1,154 @@
+image::stackport-landscape.png[Stackport Landscape]
+
 == Setup
 
-include::snippets/install-sh.adoc[]
+=== Installation and Configuration Scripts
+
+==== Type of Scripts
+scripts for automatic installation and configuration of different services for databases, logging and queueing
+
+Postgres, Redis, MongoDB, MySQL, RabbitMQ, Elasticsearch, Logstash and Monit
+
+Difference between Openstack (or other full Virtual Machine provider e.g. VMware etc.) and containerized on Docker
+
+include::snippets/setup/install-separation.adoc[]
+
+==== Parametrization
+
+For most services you can give parameters to the scripts for setting user, password and number of databases (or vhost)
+parameters
+
+
+==== Modularity
+
+All scripts for the Installation of the services are modularized and subdivided in 5 modules. This is important for an easier mantainability, further development and enhancements
+
+
+===== Module 1: Start Script
+
+the first skript is the start skript is only to set some very basic things like the path to the repositorys, loading and execution of the central template.
+
+TIP: you can use this script as a standalone script or embed in own code +
+additional this is the place for handing over the parameters to the set of scripts
+
+tasks of Start Script:
+
+specifing of used repositories (mainrepository and script specific subrepositorie)
+
+loading the Central Template
+
+place were you can embed your parameters for the central template
+
+
+===== Module 2: Central Template `[servicename]-template.sh`
+
+definition of variables
+
+.Variables defined in `[servicename]-template.sh`
+[format="csv",width="80%",cols="3"]
+[frame="topbot",grid="none"]
+|======
+Version of application,*,Version of the installed application
+configuration Path,*,
+datadirectory,*,Variable for the data directory (in the scripts set to `/data/` )
+check path,$CHECK_PATH,Path used for the scripts to check if it is a new installation or is the service still installed
+startcommand Openstack,$OPENSTACK_START,Command to start service on Openstack as environment
+stopcommand Openstack,$OPENSTACK_STOP,Command to stop service on Openstack as environment
+startcommand Docker,$DOCKER_START,Command to start service on Docker as environment
+stopcammand Docker,$DOCKER_STOP,Command to stop service on Docker as environment
+other service specific Variables,for parameters send from start script, for the environment
+|======
+
+*different for each service
+
+accepts parameters from the start script or the snippet of the start script you embeded in your code
+
+Central Template for "control" of all following steps
+
+loads and executes the child scripts in the nessasary order
+
+finaly it loads the
+
+the name sheme of the central template is always [servicename]-template.sh
+
+loading service specific "monit controll file" `[servicename]-monitrc` for later configuration of monit
+
+
+===== Module 3: Installation
+
+Installation of service
+
+.prepairs environment for installation
+- creates groups on the host
+
+- creates user for the service on the host
+
+- creates home directoies for the user
+
+- sets write/read permissions and ownership for created folders if needed
+
+the name sheme of the central template is always [servicename]-template.sh
+
+
+
+===== Module 4: Configuration
+
+Configuration of the service
+
+applying of databases
+
+generating the administrative user of the service
+
+configuring password for this user
+
+the name sheme of the central template is always [servicename]-template.sh
+
+===== Module 5: Run
+
+starts the ready configurated service
+
+the name sheme of the central template is always [servicename]-template.sh
+
+===== Module 6: Monit
+
+for monitoring and service recovery
+
+the names of the central monit template is monit-template.sh
+
+=== Platform specific
+
+we developt our scripts for running on different platforms
+
+most code is similar for both of the used platforms
+
+.Distinctions between openstack and docker
+[NOTE]
+subtile distinctions between openstack and docker embeded direct in the code to realize a easier mantainability and further development and enhancements
+
+==== Openstack
+
+==== Docker
+
+=== Service Specific
+
+==== Postgres
+
+==== Redis
+
+==== MongoDB
+
+==== MySQL
+
+==== RabbitMQ
+
+==== Elasticsearch
+
+==== Logstash
+
+==== Monit
+
+==== Ruby
+
+=== Central Logging
+
+In a next step a central logging for the services will be added.

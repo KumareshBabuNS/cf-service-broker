@@ -5,7 +5,6 @@ v0.1, 2016-01-01
 :imagesdir: assets/images
 :homepage: http://www.evoila.de/cloudfoundry-service-broker
 The following document contains the whole documentation for Cloud Foundry Service Broker by evoila GmbH.
-test123
 
 include::requirements.adoc[]
 
