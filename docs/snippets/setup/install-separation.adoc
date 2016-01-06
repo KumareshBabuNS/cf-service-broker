@@ -1,5 +1,5 @@
 [source,shell]
-.template.sh
+.test.sh
 ----
 # here comes the code
 ----

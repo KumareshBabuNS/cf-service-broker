@@ -1,0 +1,93 @@
+[source,shell]
+.exampleservice-template.sh
+----
+export SERVICE_VERSION=1.2.3
+export INSTALLPATH=/path/to/installation
+export DATADIR=/data
+
+#path used to check if service is installed
+export CHECK_PATH=/data/
+
+#different start/stop commands for openstack or docker as environment
+export OPENSTACK_START="service exampleservice start"
+export OPENSTACK_STOP="service exampleservice stop"
+export DOCKER_START="/path/to/file/exampleservice start"
+export DOCKER_STOP="/path/to/file/exampleservice stop"
+
+
+#parameters for dbname, user and password used in exampleservice-entrypoint.sh
+usage() { echo "Usage: $0 [-d <string>] [-u <string>] [-p <string>] [-e <string>]" 1>&2; exit 1; }
+
+while getopts ":d:u:p:e:" o; do
+    case "${o}" in
+        d)
+            EXAMPLESERVICE_DB=${OPTARG}
+            ;;
+        p)
+            EXAMPLESERVICE_PASSWORD=${OPTARG}
+            ;;
+        u)
+            EXAMPLESERVICE_USER=${OPTARG}
+            ;;
+        e)
+            ENVIRONMENT=${OPTARG}
+            ;;
+        *)
+            usage
+            ;;
+    esac
+done
+shift $((OPTIND-1))
+
+if [ -z "${EXAMPLESERVICE_DB}" ] || [ -z "${EXAMPLESERVICE_USER}" ] || [ -z "${EXAMPLESERVICE_PASSWORD}" ] || [ -z "${ENVIRONMENT}" ]; then
+    usage
+fi
+
+# the following parameters must be exported to work in the following child scripts
+export EXAMPLESERVICE_DB=${EXAMPLESERVICE_DB}
+export EXAMPLESERVICE_USER=${EXAMPLESERVICE_USER}
+export EXAMPLESERVICE_PASSWORD=${EXAMPLESERVICE_PASSWORD}
+export ENVIRONMENT=${ENVIRONMENT}
+
+# echo of some parameters for easier debugging (not nessasary)
+echo "exampleservice_db = ${EXAMPLESERVICE_DB}"
+echo "exampleservice_user = ${EXAMPLESERVICE_USER}"
+echo "environment = ${ENVIRONMENT}"
+echo "repository_exampleservice = ${REPOSITORY_EXAMPLESERVICE}"
+echo "check_path = ${CHECK_PATH}"
+
+# checks if service is installed
+if [ -a $CHECK_PATH* ]; then
+    # executes script for startup of exampleservice
+    chmod +x exampleservice-run.sh
+    ./exampleservice-run.sh exampleservice
+# if the service is not installed, the following scripts will install, configure and run the service
+else
+    # loads and executes script for automatic installation of exampleservice
+    wget $REPOSITORY_EXAMPLESERVICE/exampleservice-install.sh
+    chmod +x exampleservice-install.sh
+    ./exampleservice-install.sh
+
+    # loads includes for the monit controlfile for this exampleservice
+    mkdir -p /etc/monit.d/
+    wget $REPOSITORY_EXAMPLESERVICE/exampleservice-monitrc -P /etc/monit.d/
+
+    # loads and executes script for configuration of exampleservice
+    wget $REPOSITORY_EXAMPLESERVICE/exampleservice-configuration.sh
+    chmod +x exampleservice-configuration.sh
+    ./exampleservice-configuration.sh
+
+    # loads and executes script for startup of exampleservice
+    wget $REPOSITORY_EXAMPLESERVICE/exampleservice-run.sh
+    chmod +x exampleservice-run.sh
+    ./exampleservice-run.sh exampleservice
+fi
+
+# installs monit for openstack as environment (on docker it is not nessesary), if the service is still installed it will only be started
+if [ "$ENVIRONMENT" = 'openstack' ]; then
+  export REPOSITORY_MONIT="${REPOSITORY_MAIN}/Monit-v3"
+  wget $REPOSITORY_MONIT/monit-template.sh
+  chmod +x monit-template.sh
+  ./monit-template.sh -u evoila -p evoila
+fi
+----

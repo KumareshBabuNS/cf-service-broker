@@ -1,0 +1,13 @@
+[source,shell]
+.exampleservice-start-script.sh
+----
+#!/bin/bash
+export REPOSITORY_EXAMPLESERVICE="https://example.com.org/examplerepository/deployment-scripts-docker-openstack/exampleservice"
+export REPOSITORY_MAIN="https://example.com.org/examplerepository/deployment-scripts-docker-openstack/"
+
+wget $REPOSITORY_EXAMPLESERVICE/exampleservice-template.sh
+chmod +x exampleservice-template.sh
+
+# Replace "username", "password", "databesname" with your parameters. "environment" must changed to "openstack" or "docker".
+./exampleservice-template.sh -u username -p password -d databasename -e environment
+----

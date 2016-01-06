@@ -1,84 +1,88 @@
-image::stackport-landscape.png[Stackport Landscape]
 
 == Setup
 
 === Installation and Configuration Scripts
+In the following sections we describe the structur and functionality of the deployment scripts for services.
 
 ==== Type of Scripts
-scripts for automatic installation and configuration of different services for databases, logging and queueing
-
-Postgres, Redis, MongoDB, MySQL, RabbitMQ, Elasticsearch, Logstash and Monit
-
-Difference between Openstack (or other full Virtual Machine provider e.g. VMware etc.) and containerized on Docker
-
-include::snippets/setup/install-separation.adoc[]
+We developed scripts for automatic installation and configuration of different services for databases, logging and queueing.
+The services are avaiable at now are Postgres, Redis, MongoDB, MySQL, RabbitMQ, Elasticsearch and Logstash.
+Additionaly we created deployment scripts for monit for monitoring.
+All deployment scripts are working on different environments.
+In all deployment scripts is an build-in differentiation for the environment.
+So all scripts are working on Openstack (or other full Virtual Machine provider e.g. VMware etc.) and containerized on Docker
 
 ==== Parametrization
 
-For most services you can give parameters to the scripts for setting user, password and number of databases (or vhost)
-parameters
+Refer to <<bookmark-a>> for more information.
+Refer to <<o-1>> bla
 
+For most services you can give parameters to the scripts for setting user, password and number of databases (or vhost)
+parameters. The possible parameters for any deployment scripts you can find in the service speciffic topic.
 
 ==== Modularity
 
-All scripts for the Installation of the services are modularized and subdivided in 5 modules. This is important for an easier mantainability, further development and enhancements
+All deployment scripts for the Installation of the services are modularized and subdivided in 5 modules.
+This is important for an easier mantainability, further development and enhancements
+The modules are Start Script, Central Template, Installation, Configuration, Run and Monit.
+The module "Monit" has the same structure (without the module Monit).
+
+==== Central Data Path
 
 
-===== Module 1: Start Script
 
-the first skript is the start skript is only to set some very basic things like the path to the repositorys, loading and execution of the central template.
+===== Module 1: Start Script `[exampleservice]-start-script.sh`
 
-TIP: you can use this script as a standalone script or embed in own code +
-additional this is the place for handing over the parameters to the set of scripts
+The first skript is the start skript.
+Its only task is to set some very basic things like the path to the repositorys, loading and execution of the central template.
+The repositories are specified there is the main repository and the script specific subrepository.
+And this is the place were you can embed your parameters for the central template.
 
-tasks of Start Script:
+TIP: you can use this script as a standalone script or embed it as a snippet in your own code. +
+Additionaly this is the place for handing over the parameters to the Central Template.
 
-specifing of used repositories (mainrepository and script specific subrepositorie)
-
-loading the Central Template
-
-place were you can embed your parameters for the central template
+include::snippets/setup/start-script-sh.adoc[]
 
 
-===== Module 2: Central Template `[servicename]-template.sh`
+===== Module 2: Central Template `[exampleservice]-template.sh`
+All following steps in the deployment scrips are organized in the Central Template.
+In the Central Template the definition of the most needed variables are bundled.
+The following chart describes the common variables defined in `[exampleservice]-template.sh` and used in all scripts.
+Specific variables for some scripts are listed in the topic "Script Specific".
 
-definition of variables
-
-.Variables defined in `[servicename]-template.sh`
-[format="csv",width="80%",cols="3"]
+.common variables
+[width="80%",cols="3"]
 [frame="topbot",grid="none"]
+[options="header"]
 |======
-Version of application,*,Version of the installed application
-configuration Path,*,
-datadirectory,*,Variable for the data directory (in the scripts set to `/data/` )
-check path,$CHECK_PATH,Path used for the scripts to check if it is a new installation or is the service still installed
-startcommand Openstack,$OPENSTACK_START,Command to start service on Openstack as environment
-stopcommand Openstack,$OPENSTACK_STOP,Command to stop service on Openstack as environment
-startcommand Docker,$DOCKER_START,Command to start service on Docker as environment
-stopcammand Docker,$DOCKER_STOP,Command to stop service on Docker as environment
-other service specific Variables,for parameters send from start script, for the environment
+|Property|Name of variable|Description
+|Version of application|$EXAMPLESERVICE_VERSION [red]#*#|Version of the installed application
+|Configuration Path|$CONF_PATH [red]#*#| Path to the configuration files
+|Data directory|$DATA_DIR [red]#*#|Variable for the data directory (in the scripts set to `/data/` )
+|Check path|$CHECK_PATH|Path used for the scripts to check if it is a new installation or is the service still installed
+|Openstack start command|$OPENSTACK_START|Command to start service on Openstack as environment
+|Openstack stop command|$OPENSTACK_STOP|Command to stop service on Openstack as environment
+|Docker start command|$DOCKER_START|Command to start service on Docker as environment
+|Docker stop command|$DOCKER_STOP|Command to stop service on Docker as environment
+|Environment variable|$ENVIRONMENT| This variable is used for the differentioation between the environments used for the service instances
+|||[red]#_* the marked variables have different names in some services_#
 |======
 
-*different for each service
-
-accepts parameters from the start script or the snippet of the start script you embeded in your code
-
-Central Template for "control" of all following steps
-
-loads and executes the child scripts in the nessasary order
-
-finaly it loads the
-
-the name sheme of the central template is always [servicename]-template.sh
-
-loading service specific "monit controll file" `[servicename]-monitrc` for later configuration of monit
 
 
-===== Module 3: Installation
+As a second step the Central Template handles the parameters given from the start script or the snippet of the start script you embeded in your code.
+After that they will be exported for usage in following child scripts (modules).
+Then the different modules will be loaded and execuded in the appropriate order.
+In the same way a service specific "monit controll file" `[exampleservice]-monitrc` for the later following configuration of monit will be loaded.
+As last step monit will be installed or executed for monitoring and service recovery ( for detailed description read the topic "Module 6: Monit").
+include::snippets/setup/template-sh.adoc[]
 
-Installation of service
+===== Module 3: Installation `[exampleservice]-install.sh`
 
-.prepairs environment for installation
+Module 3 is the installation
+First this module prepairs environment for installation with the following steps.
+
+.Preinstall preperations:
 - creates groups on the host
 
 - creates user for the service on the host
@@ -87,49 +91,67 @@ Installation of service
 
 - sets write/read permissions and ownership for created folders if needed
 
-the name sheme of the central template is always [servicename]-template.sh
+After this is done this script installs the service itself.
+
+When all tasks of this module are done the Central Template resumes the controll to load and execute module 4 (Configuration).
+
+===== Module 4: Configuration `[exampleservice]-configuration.sh`
+
+When the installation is succesfully done this script can configure the service.
+
+.Typical steps of the scripts
+- generating the administrative user of the service
+- configuring password for this user
+- applying a database with a given name or a given quantity
+
+After all tasks are done the Central Template resumes the controll to load and execute the run script.
+
+===== Module 5: Run `[exampleservice]-run.sh`
+
+This Module starts the ready configurated service.
+When all tasks of this module are done the Central Template resumes the controll.
+
+IMPORTANT: An important point here is the differentiation between Openstack and Docker. +
+In detail it is described in "1.2. Platform specific"
+
+It is reallized directly in the scripts so you have nothing to do unless you have to set the environment parameter, described in module
+
+When all tasks of this module are done the Central Template resumes the controll for installing the monitoring tool for service recovery (monit).
+
+===== Module 6: Monit `monit-start-script.sh`
+
+[[bookmark-a]]module 6
 
 
+As last module this installs and runs a monit. Monit is here used for monitoring and service recovery.
+The installation of monit follows the same structure as it is described from Module 1 to 5.
+When it is allready installed it will be only execuded.
 
-===== Module 4: Configuration
+=== anchor:environment-specific[Environment specific]
 
-Configuration of the service
 
-applying of databases
+anchor:bookmark-a[Test]
 
-generating the administrative user of the service
 
-configuring password for this user
-
-the name sheme of the central template is always [servicename]-template.sh
-
-===== Module 5: Run
-
-starts the ready configurated service
-
-the name sheme of the central template is always [servicename]-template.sh
-
-===== Module 6: Monit
-
-for monitoring and service recovery
-
-the names of the central monit template is monit-template.sh
-
-=== Platform specific
-
-we developt our scripts for running on different platforms
-
-most code is similar for both of the used platforms
+We developt the scripts for running on different environments.
+Most code is similar for both of the used environments.
+A divergence is requiered for the execution of processes in docker as environment in mostly all scripts.
+Likewise in a few scripts there is a little differentiation in the configuration files nessesary.
 
 .Distinctions between openstack and docker
 [NOTE]
-subtile distinctions between openstack and docker embeded direct in the code to realize a easier mantainability and further development and enhancements
+Subtile distinctions between openstack and docker embeded direct in the code
+to realize an easier maintainability and further development and enhancements.
 
-==== Openstack
+==== Openstack anchor:o-1[§]
+On Openstack most processes are started as a service.
 
 ==== Docker
+On Docker
 
 === Service Specific
+
+Generally all deployment scripts have the same structure.
 
 ==== Postgres
 
@@ -138,6 +160,12 @@ subtile distinctions between openstack and docker embeded direct in the code to 
 ==== MongoDB
 
 ==== MySQL
+
+Custom apparmor configuration
+
+CAUTION: If you change any pathes of the MySQL installation you have to apapt the apparmor configuration appropriate. +
+Otherwise Apparmor will prevent MySQL to use to this folders.
+
 
 ==== RabbitMQ
 
