@@ -14,11 +14,10 @@ So all scripts are working on Openstack (or other full Virtual Machine provider 
 
 ==== Parametrization
 
-Refer to <<bookmark-a>> for more information.
-Refer to <<o-1>> bla
-
 For most services you can give parameters to the scripts for setting user, password and number of databases (or vhost)
-parameters. The possible parameters for any deployment scripts you can find in the service speciffic topic.
+parameters. The possible parameters for any deployment scripts you can find in the section <<servicespecific>>.
+
+==== Central Data Path
 
 ==== Modularity
 
@@ -27,11 +26,10 @@ This is important for an easier mantainability, further development and enhancem
 The modules are Start Script, Central Template, Installation, Configuration, Run and Monit.
 The module "Monit" has the same structure (without the module Monit).
 
-==== Central Data Path
 
+===== Module 1: Start Script
 
-
-===== Module 1: Start Script `[exampleservice]-start-script.sh`
+`[exampleservice]-start-script.sh`
 
 The first skript is the start skript.
 Its only task is to set some very basic things like the path to the repositorys, loading and execution of the central template.
@@ -44,11 +42,14 @@ Additionaly this is the place for handing over the parameters to the Central Tem
 include::snippets/setup/start-script-sh.adoc[]
 
 
-===== Module 2: Central Template `[exampleservice]-template.sh`
+===== Module 2: Central Template
+
+`[exampleservice]-template.sh`
+
 All following steps in the deployment scrips are organized in the Central Template.
 In the Central Template the definition of the most needed variables are bundled.
 The following chart describes the common variables defined in `[exampleservice]-template.sh` and used in all scripts.
-Specific variables for some scripts are listed in the topic "Script Specific".
+Specific variables for some scripts are listed in the section <<servicespecific>>.
 
 .common variables
 [width="80%",cols="3"]
@@ -74,10 +75,14 @@ As a second step the Central Template handles the parameters given from the star
 After that they will be exported for usage in following child scripts (modules).
 Then the different modules will be loaded and execuded in the appropriate order.
 In the same way a service specific "monit controll file" `[exampleservice]-monitrc` for the later following configuration of monit will be loaded.
-As last step monit will be installed or executed for monitoring and service recovery ( for detailed description read the topic "Module 6: Monit").
+As last step monit will be installed or executed for monitoring and service recovery (for detailed description read the topic <<monit>>).
+
 include::snippets/setup/template-sh.adoc[]
 
-===== Module 3: Installation `[exampleservice]-install.sh`
+
+===== Module 3: Installation
+
+`[exampleservice]-install.sh`
 
 Module 3 is the installation
 First this module prepairs environment for installation with the following steps.
@@ -106,36 +111,36 @@ When the installation is succesfully done this script can configure the service.
 
 After all tasks are done the Central Template resumes the controll to load and execute the run script.
 
-===== Module 5: Run `[exampleservice]-run.sh`
+[[run]]
+===== Module 5: Run
+
+`[exampleservice]-run.sh`
 
 This Module starts the ready configurated service.
 When all tasks of this module are done the Central Template resumes the controll.
 
 IMPORTANT: An important point here is the differentiation between Openstack and Docker. +
-In detail it is described in "1.2. Platform specific"
+In detail it is described in the section "<<environment>>" of the documentation.
 
-It is reallized directly in the scripts so you have nothing to do unless you have to set the environment parameter, described in module
+It is reallized directly in the scripts so you have nothing to do unless you have to set the environment parameter, described in module 1.
 
 When all tasks of this module are done the Central Template resumes the controll for installing the monitoring tool for service recovery (monit).
 
-===== Module 6: Monit `monit-start-script.sh`
+[[monit]]
+===== Module 6: Monit
 
-[[bookmark-a]]module 6
-
+`monit-start-script.sh`
 
 As last module this installs and runs a monit. Monit is here used for monitoring and service recovery.
 The installation of monit follows the same structure as it is described from Module 1 to 5.
 When it is allready installed it will be only execuded.
 
-=== anchor:environment-specific[Environment specific]
-
-
-anchor:bookmark-a[Test]
-
+[[environment]]
+=== Environment specific
 
 We developt the scripts for running on different environments.
 Most code is similar for both of the used environments.
-A divergence is requiered for the execution of processes in docker as environment in mostly all scripts.
+A divergence is requiered for the execution of processes in docker as environment in mostly all scripts. The different start and stop commands are included in the current Central Template.
 Likewise in a few scripts there is a little differentiation in the configuration files nessesary.
 
 .Distinctions between openstack and docker
@@ -143,13 +148,14 @@ Likewise in a few scripts there is a little differentiation in the configuration
 Subtile distinctions between openstack and docker embeded direct in the code
 to realize an easier maintainability and further development and enhancements.
 
-==== Openstack anchor:o-1[§]
+==== Openstack
 On Openstack most processes are started as a service.
 
 ==== Docker
 On Docker
 
-=== Service Specific
+[[servicespecific]]
+=== Service specific
 
 Generally all deployment scripts have the same structure.
 
@@ -175,8 +181,8 @@ Otherwise Apparmor will prevent MySQL to use to this folders.
 
 ==== Monit
 
-==== Ruby
-
 === Central Logging
 
 In a next step a central logging for the services will be added.
+
+include::test.adoc[]
