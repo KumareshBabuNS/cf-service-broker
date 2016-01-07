@@ -1,0 +1,85 @@
+== Tests
+
+All deploymend scripts are tested in the two environments.
+On Openstack we tested it over CFMC and and with a jumphost.
+If all scripts working on Docker as environment was tested in a similar vein over CFMC but with shipyard.
+
+[cols="h,10,10,10,10,10,10",rows=",h", options="header", frame="topbot", grid="cols"]
+|===
+|Service
+4+^|Openstack
+2+^|Docker
+
+|
+^h|Differentiation environment
+^h|Central datadir
+^h|Monitoring with Monit
+^h|Service recovery with Monit
+^h|Differentiation environment
+^h|Central datadir
+
+|||||||
+
+|Elasticsearch
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+
+|MongoDB
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+
+|Postgres
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+
+|RabbitMQ
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+
+|Redis
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+
+|MySQL
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+
+|Logstash
+^|icon:check[role="green"] works
+^|icon:tag[role="blue"] not applicable
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+
+|Monit
+^|icon:check[role="green"] works
+^|icon:check[role="green"] works
+4+^|icon:tag[role="blue"] not applicable
+|===
+
+icon:tag[role="blue"] For Logstash this is not nessasary to test, because Logstash has no data dirictory
