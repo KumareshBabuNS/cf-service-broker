@@ -32,6 +32,7 @@ import com.github.dockerjava.api.model.LogConfig.LoggingType;
 import com.github.dockerjava.api.model.PortBinding;
 import com.github.dockerjava.api.model.Ports;
 import com.github.dockerjava.api.model.Ports.Binding;
+import com.github.dockerjava.api.model.RestartPolicy;
 import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
@@ -245,6 +246,7 @@ public abstract class DockerServiceFactory implements PlatformService {
 				.withMemoryLimit(MEMORY_LIMIT)
 				.withPortBindings(portBindings)
 				.withTty(true)
+				.withRestartPolicy(RestartPolicy.alwaysRestart())
 				.withVolumes(volume);
 		CreateContainerResponse container = containerCmd.exec();
 		
