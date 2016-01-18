@@ -82,4 +82,4 @@ If all scripts working on Docker as environment was tested in a similar vein ove
 4+^|icon:tag[role="blue"] not applicable
 |===
 
-icon:tag[role="blue"] For Logstash this is not nessasary to test, because Logstash has no data dirictory
+icon:tag[role="blue"] 1. For Logstash this is not nessasary to test, because Logstash has no data dirictory. 2. For Docker Monit insn't needed.
