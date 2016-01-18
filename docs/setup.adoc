@@ -202,7 +202,7 @@ So you have to read first the general description of the modules in the section 
 ==== PostgreSQL
 
 
-image::postgres_b.png[PostgreSQL-Logo,80]
+image::services/postgres_b.png[PostgreSQL-Logo,80]
 
 Used Version: 9.3
 
@@ -256,7 +256,10 @@ For MongoDB a parametrization in our scripts is avaible for database name, passw
 An important point is that mongo needs some time for starting and stopping.
 So the configuration script has to wait for mongo for a correct function. This times must be adapted for the engaged machinery.
 
-Additional to the different start- and stop-commands on the environments Openstack and Docker Mongo needs different configurations for the .
+Additional to the different start- and stop-commands on the environments Openstack and Docker Mongo are needing different configurations.
+This is realized with overwriting some parts of the configuration files with the environment specific details.
+
+Mongo accepts connections on Port 27017.
 
 [NOTE]
 The Desktop-Client Robomongo does not work with the authentication of the recent MongoDB-Versions.
@@ -294,7 +297,8 @@ To solve the problem you have to change the version number to a newer one.
 
 A parametrization is build-in for vhost, user, password and environment.
 
-On Rabbit-Instances a login to a web interface is possible with the rabbitmq-management-plugin (http://server-name:15672/). This plugin is activated on service instances deployed with our scripts by default.
+On Rabbit-Instances a login to a web interface is possible with the rabbitmq-management-plugin (http://server-name:15672/).
+This plugin is activated on service instances deployed with our scripts by default.
 
 [TIP]
 You can deactivate it the web interface by deleting the following line in the icon:file[]  `rabbitmq-configuration.sh`: +
