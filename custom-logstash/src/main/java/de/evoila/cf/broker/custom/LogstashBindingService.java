@@ -45,7 +45,7 @@ public class LogstashBindingService extends BindingServiceImpl {
 
 		log.debug("bind Service");
 
-		String url = String.format("syslog://%s:%s", serviceInstance.getHost(), customProperties.get("ls_port"));
+		String url = String.format("syslog://%s:%s", serviceInstance.getHost(), serviceInstance.getPort());
 
 		Map<String, Object> credentials = new HashMap<String, Object>();
 		credentials.put("uri", url);

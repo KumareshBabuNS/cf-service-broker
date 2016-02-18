@@ -48,7 +48,7 @@ resources:
             
             wget $REPOSITORY_LOGSTASH/logstash-template.sh
             chmod +x logstash-template.sh
-            ./logstash-template.sh -d $es_host -e openstack
+            ./logstash-template.sh -d $es_host -p 3uvjnv3e9823 -e openstack
           params:
             $es_host: {get_param: es_host}
             $ls_port: {get_param: ls_port}
