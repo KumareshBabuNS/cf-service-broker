@@ -30,6 +30,7 @@ import de.evoila.cf.cpi.docker.model.JobStatus;
 /**
  * 
  * @author Dennis Mueller.
+ * Johannes Hiemer
  *
  */
 @Service
@@ -73,26 +74,14 @@ public class DockerVolumeServiceBroker {
 	public void updateJobStatusById(UUID id, JobStatus jobStatus) {
 		this.jobStatus.put(id, jobStatus);
 	}
+
 	
 	@PostConstruct
 	public void initialize() throws MqttException, SocketException {
 		try {
 			if (endpointAvailabilityService.isAvailable(DOCKER_VOLUME_SERVICE_KEY)) {
-				client = new MqttAsyncClient(dockerVolumeServiceBroker, MqttClient.generateClientId(), new MqttDefaultFilePersistence());
-				client.setCallback(mqttCallback);
 				
-				setSenderId(UUID.randomUUID().toString());
-		
-		        MqttConnectOptions connOpts = new MqttConnectOptions();
-		        connOpts.setKeepAliveInterval(5);
-				
-		        IMqttToken t = client.connect(connOpts);
-		        t.waitForCompletion(1000 * 10);
-		        
-				if(t.getException() != null) 
-					throw t.getException();
-		
-				client.subscribe(DOCKER_TOPIC + "/" + SIP_TOPIC + "/" + getSenderId() + "/" + JOBS_TOPIC, 1);
+				this.connect();
 				
 				endpointAvailabilityService.add(DOCKER_VOLUME_SERVICE_KEY, new EndpointServiceState(DOCKER_VOLUME_SERVICE_KEY, 
 						AvailabilityState.AVAILABLE));
@@ -101,6 +90,24 @@ public class DockerVolumeServiceBroker {
 			endpointAvailabilityService.add(DOCKER_VOLUME_SERVICE_KEY, 
 					new EndpointServiceState(DOCKER_VOLUME_SERVICE_KEY, AvailabilityState.ERROR, ex.toString()));
 		}
+	}
+	
+	private void connect() throws MqttException {
+		client = new MqttAsyncClient(dockerVolumeServiceBroker, MqttClient.generateClientId(), new MqttDefaultFilePersistence());
+		client.setCallback(mqttCallback);
+		
+		setSenderId(UUID.randomUUID().toString());
+
+        MqttConnectOptions connOpts = new MqttConnectOptions();
+        connOpts.setKeepAliveInterval(5);
+		
+        IMqttToken t = client.connect(connOpts);
+        t.waitForCompletion(1000 * 10);
+        
+		if(t.getException() != null) 
+			throw t.getException();
+
+		client.subscribe(DOCKER_TOPIC + "/" + SIP_TOPIC + "/" + getSenderId() + "/" + JOBS_TOPIC, 1);
 	}
 	
 	public void createVolume(String nodeName, String mountPoint, int volumeSize)
@@ -120,7 +127,7 @@ public class DockerVolumeServiceBroker {
 
 	private void waitForJob(UUID jobId) throws TimeoutException, InterruptedException {
 		for (int i = 0; i < 12; i++) {
-			if(jobStatus.containsKey(jobId) && jobStatus.get(jobId)!=JobStatus.PENDING) 
+			if(jobStatus.containsKey(jobId) && jobStatus.get(jobId) != JobStatus.PENDING) 
 				return;
 			
 			Thread.sleep(10000);
@@ -132,6 +139,10 @@ public class DockerVolumeServiceBroker {
 			throws MqttException {
 		MqttMessage message = new MqttMessage();
 		message.setPayload(payload.getBytes());
+		
+		if (!client.isConnected())
+			this.connect();
+		
 		client.publish(DOCKER_TOPIC + "/" + nodeName + "/" + VOLUMES_TOPIC +"/" +topic, message);
 	}
 	
@@ -147,7 +158,7 @@ public class DockerVolumeServiceBroker {
 			+ "\"}";
 		
 		publishPayloadToNode(nodeName, payload, DELETE_TOPIC);
-			waitForJob(jobId);
+		waitForJob(jobId);
 	}
 
 	public String getSenderId() {
@@ -157,5 +168,4 @@ public class DockerVolumeServiceBroker {
 	public void setSenderId(String senderId) {
 		this.senderId = senderId;
 	}
-
 }

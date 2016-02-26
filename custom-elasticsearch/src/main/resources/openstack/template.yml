@@ -43,7 +43,7 @@ resources:
             
             wget $REPOSITORY_ELASTICSEARCH/elasticsearch-template.sh
             chmod +x elasticsearch-template.sh
-            ./elasticsearch-template.sh -e openstack
+            ./elasticsearch-template.sh -p 0pens4ckDeock -e openstack
           params:
             $setting: "sample123"
   cinder_volume:
