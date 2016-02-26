@@ -1,3 +1,7 @@
 put -r cfServiceBroker docs
+rmdir assets
+mkdir assets
 put -r assets docs/cfServiceBroker
+rmdir snippets
+mkdir snippets
 put -r snippets docs/cfServiceBroker
