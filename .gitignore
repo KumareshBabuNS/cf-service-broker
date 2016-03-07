@@ -6,15 +6,10 @@ target
 *.log
 .buildpath
 .metadata
-custom-elasticsearch/.classpath
-custom-elasticsearch/.project
-core/.factorypath
-*/.springBeans
+.classpath
+.factorypath
 .settings/
+.project
 
-config/.classpath
-config/.project
-
-registry/.classpath
-registry/.project
+*/.springBeans
 */paho*
