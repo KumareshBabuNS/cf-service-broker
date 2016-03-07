@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +21,6 @@ import de.evoila.cf.cpi.custom.props.MySQLCustomPropertyHandler;
  *
  */
 @SpringBootApplication
-@EnableAutoConfiguration
 public class Application {
 
 	@Bean(name = "customProperties")
