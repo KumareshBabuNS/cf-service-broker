@@ -6,11 +6,6 @@ spring:
       server:
         git:
           uri: https://bitbucket.org/evoila-boxer/cf-service-broker-config
-          repos:
-            billing:
-              pattern: billing-*
-              cloneOnStart: true
-              uri: https://bitbucket.org/evoila-boxer/cf-billing-config
             
 ---
 spring:
