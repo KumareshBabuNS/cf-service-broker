@@ -1,0 +1,217 @@
+heat_template_version: 2013-05-23
+description: Deployment Description for MongoDB Replica Set
+parameters:
+  image_id:
+    type: string
+    description: Image used for servers
+  keypair:
+    type: string
+    description: SSH key to connect to the servers
+  flavor:
+    type: string
+    description: flavor used by the web servers
+  network_id:
+    type: string
+    description: Network used by the server
+  subnet_id:
+    type: string
+    description: subnet on which the load balancer will be located
+  volume_size:
+    type: number
+    description: Size of the volume to be created.
+  availability_zone:
+    type: string
+    description: The Availability Zone to launch the instance.
+  database_name:
+    type: string
+    description: Database name
+  database_user:
+    type: string
+    description: Database user
+  database_password:
+    type: string
+    description: Database password
+  database_number:
+    type: string
+    description: Database number
+  database_key:
+    type: string
+    description: Database key
+resources:
+  wait_condition:
+    type: OS::Heat::WaitCondition
+    properties:
+      handle: {get_resource: wait_handle}
+      count: 2
+      timeout: 1000
+
+  wait_handle:
+    type: OS::Heat::WaitConditionHandle
+  port_prim:
+    type: OS::Neutron::Port
+    properties:
+      network_id: {get_param: network_id}
+      security_groups:
+        - all
+  port_sec1:
+    type: OS::Neutron::Port
+    properties:
+      network_id: {get_param: network_id}
+      security_groups:
+        - all
+  port_sec2:
+    type: OS::Neutron::Port
+    properties:
+      network_id: {get_param: network_id}
+      security_groups:
+        - all
+  nova_instance_sec1:
+    type: OS::Nova::Server
+    properties:
+      flavor: {get_param: flavor}
+      image: {get_param: image_id}
+      key_name: {get_param: keypair}
+      networks:
+      - port: {get_resource: port_sec1}
+      user_data_format: RAW
+      user_data:
+        str_replace:
+          template: |
+            #!/bin/bash
+
+            export REPOSITORY_MONGO="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Mongo-v3"
+            export REPOSITORY_MAIN="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master"
+            export REPOSITORY_MONGO_HA="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Mongo-HA"
+            export KEY="LDXOxI6ao87VWgSwrzjhjNnCpmheJdQbtMrgQNR2KVl2/9ca0Gd1BQ"
+
+            wget $REPOSITORY_MONGO/mongo-template.sh
+            chmod +x mongo-template.sh
+            ./mongo-template.sh -d $db_name -u $db_user -p $db_password -e openstack
+
+            echo $db_name $db_user $db_password
+
+            wget $REPOSITORY_MONGO_HA/mongo-HA-repset-template.sh
+            chmod +x mongo-HA-repset-template.sh
+            ./mongo-HA-repset-template.sh -d $db_name -u $db_user -p $db_password -r $REPSET_NAME -k $KEY -x $INSTANCE_IP_PRIMARY -y $INSTANCE_IP_SECONDARY_01 -z $INSTANCE_IP_SECONDARY_02 -a secondary
+
+            wc_notify --data-binary '{"status": "SUCCESS"}'
+          params:
+            $db_name: {get_param: database_name}
+            $db_user: {get_param: database_user}
+            $db_password: {get_param: database_password}
+            $INSTANCE_IP_PRIMARY: { get_attr: [port_prim, fixed_ips, 0, ip_address] }
+            $INSTANCE_IP_SECONDARY_01: { get_attr: [port_sec1, fixed_ips, 0, ip_address] }
+            $INSTANCE_IP_SECONDARY_02: { get_attr: [port_sec2, fixed_ips, 0, ip_address] }
+            $REPSET_NAME: rs1
+            wc_notify: { get_attr: ['wait_handle', 'curl_cli'] }
+  nova_instance_sec2:
+    type: OS::Nova::Server
+    properties:
+      flavor: {get_param: flavor}
+      image: {get_param: image_id}
+      key_name: {get_param: keypair}
+      networks:
+      - port: {get_resource: port_sec2}
+      user_data_format: RAW
+      user_data:
+        str_replace:
+          template: |
+            #!/bin/bash
+
+            export REPOSITORY_MONGO="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Mongo-v3"
+            export REPOSITORY_MAIN="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master"
+            export REPOSITORY_MONGO_HA="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Mongo-HA"
+            export KEY="LDXOxI6ao87VWgSwrzjhjNnCpmheJdQbtMrgQNR2KVl2/9ca0Gd1BQ"
+
+            wget $REPOSITORY_MONGO/mongo-template.sh
+            chmod +x mongo-template.sh
+            ./mongo-template.sh -d $db_name -u $db_user -p $db_password -e openstack
+
+            echo $db_name $db_user $db_password
+
+            wget $REPOSITORY_MONGO_HA/mongo-HA-repset-template.sh
+            chmod +x mongo-HA-repset-template.sh
+            ./mongo-HA-repset-template.sh -d $db_name -u $db_user -p $db_password -r $REPSET_NAME -k $KEY -x $INSTANCE_IP_PRIMARY -y $INSTANCE_IP_SECONDARY_01 -z $INSTANCE_IP_SECONDARY_02 -a secondary
+
+            wc_notify --data-binary '{"status": "SUCCESS"}'
+          params:
+            $db_name: {get_param: database_name}
+            $db_user: {get_param: database_user}
+            $db_password: {get_param: database_password}
+            $INSTANCE_IP_PRIMARY: { get_attr: [port_prim, fixed_ips, 0, ip_address] }
+            $INSTANCE_IP_SECONDARY_01: { get_attr: [port_sec1, fixed_ips, 0, ip_address] }
+            $INSTANCE_IP_SECONDARY_02: { get_attr: [port_sec2, fixed_ips, 0, ip_address] }
+            $REPSET_NAME: rs1
+            wc_notify: { get_attr: ['wait_handle', 'curl_cli'] }
+  nova_instance_prim:
+    type: OS::Nova::Server
+    depends_on: wait_condition
+    properties:
+      flavor: {get_param: flavor}
+      image: {get_param: image_id}
+      key_name: {get_param: keypair}
+      networks:
+      - port: {get_resource: port_prim}
+      user_data_format: RAW
+      user_data:
+        str_replace:
+          template: |
+            #!/bin/bash
+
+            export REPOSITORY_MONGO="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Mongo-v3"
+            export REPOSITORY_MAIN="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master"
+            export REPOSITORY_MONGO_HA="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Mongo-HA"
+            export KEY="LDXOxI6ao87VWgSwrzjhjNnCpmheJdQbtMrgQNR2KVl2/9ca0Gd1BQ"
+
+            wget $REPOSITORY_MONGO/mongo-template.sh
+            chmod +x mongo-template.sh
+            ./mongo-template.sh -d $db_name -u $db_user -p $db_password -e openstack
+
+            echo $db_name $db_user $db_password
+
+            wget $REPOSITORY_MONGO_HA/mongo-HA-repset-template.sh
+            chmod +x mongo-HA-repset-template.sh
+            ./mongo-HA-repset-template.sh -d $db_name -u $db_user -p $db_password -r $REPSET_NAME -k $KEY -x $INSTANCE_IP_PRIMARY -y $INSTANCE_IP_SECONDARY_01 -z $INSTANCE_IP_SECONDARY_02 -a primary
+
+          params:
+            $db_name: {get_param: database_name}
+            $db_user: {get_param: database_user}
+            $db_password: {get_param: database_password}
+            $INSTANCE_IP_PRIMARY: { get_attr: [port_prim, fixed_ips, 0, ip_address] }
+            $INSTANCE_IP_SECONDARY_01: { get_attr: [port_sec1, fixed_ips, 0, ip_address] }
+            $INSTANCE_IP_SECONDARY_02: { get_attr: [port_sec2, fixed_ips, 0, ip_address] }
+            $KEY: {get_param: database_key}
+            $REPSET_NAME: rs1
+  cinder_volume_prim:
+    type: OS::Cinder::Volume
+    properties:
+      size: { get_param: volume_size }
+      availability_zone: { get_param: availability_zone }
+  volume_attachment_prim:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: { get_resource: cinder_volume_prim }
+      instance_uuid: { get_resource: nova_instance_prim }
+      mountpoint: /dev/vdc
+  cinder_volume_sec1:
+    type: OS::Cinder::Volume
+    properties:
+      size: { get_param: volume_size }
+      availability_zone: { get_param: availability_zone }
+  volume_attachment_sec1:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: { get_resource: cinder_volume_sec1 }
+      instance_uuid: { get_resource: nova_instance_sec1 }
+      mountpoint: /dev/vdc
+  cinder_volume_sec2:
+    type: OS::Cinder::Volume
+    properties:
+      size: { get_param: volume_size }
+      availability_zone: { get_param: availability_zone }
+  volume_attachment_sec2:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: { get_resource: cinder_volume_sec2 }
+      instance_uuid: { get_resource: nova_instance_sec2 }
+      mountpoint: /dev/vdc
