@@ -141,6 +141,7 @@ resources:
             $INSTANCE_IP_PRIMARY: { get_attr: [port_prim, fixed_ips, 0, ip_address] }
             $INSTANCE_IP_SECONDARY_01: { get_attr: [port_sec1, fixed_ips, 0, ip_address] }
             $INSTANCE_IP_SECONDARY_02: { get_attr: [port_sec2, fixed_ips, 0, ip_address] }
+            $KEY: {get_param: database_key}
             $REPSET_NAME: rs1
             wc_notify: { get_attr: ['wait_handle', 'curl_cli'] }
   nova_instance_prim:
