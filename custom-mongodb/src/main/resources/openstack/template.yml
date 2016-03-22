@@ -13,9 +13,6 @@ parameters:
   network_id:
     type: string
     description: Network used by the server
-  subnet_id:
-    type: string
-    description: subnet on which the load balancer will be located
   volume_size:
     type: number
     description: Size of the volume to be created.
@@ -51,10 +48,10 @@ resources:
             #!/bin/bash
             export REPOSITORY_MONGO="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Mongo-v3"
             export REPOSITORY_MAIN="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master"
-            
+
             wget $REPOSITORY_MONGO/mongo-template.sh
             chmod +x mongo-template.sh
-            ./mongo-template.sh -d $db_name -u $db_user -p $db_password -e openstack        
+            ./mongo-template.sh -d $db_name -u $db_user -p $db_password -e openstack
           params:
             $db_name: {get_param: database_name}
             $db_user: {get_param: database_user}
