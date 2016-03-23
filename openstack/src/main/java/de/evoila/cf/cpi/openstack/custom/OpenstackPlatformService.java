@@ -4,6 +4,7 @@
 package de.evoila.cf.cpi.openstack.custom;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -19,11 +20,13 @@ import org.springframework.stereotype.Service;
 import de.evoila.cf.broker.exception.PlatformException;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.Platform;
+import de.evoila.cf.broker.model.ServerAddress;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.VolumeUnit;
 import de.evoila.cf.broker.repository.PlatformRepository;
 import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
 import de.evoila.cf.cpi.openstack.OpenstackServiceFactory;
+import jersey.repackaged.com.google.common.collect.Lists;
 
 /**
  * 
@@ -37,6 +40,9 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 
 	@Autowired
 	private PlatformRepository platformRepositroy;
+
+	@Autowired
+	private IpAccessor ipAccessor;
 
 	@Override
 	@PostConstruct
@@ -61,19 +67,17 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 
 	@Override
 	public ServiceInstance postProvisioning(ServiceInstance serviceInstance, Plan plan) throws PlatformException {
-		
+
 		boolean available;
 		try {
-			available = ServicePortAvailabilityVerifier
-					.verifyServiceAvailability(this.primaryIp(serviceInstance.getId()), serviceInstance.getPort());
+			available = ServicePortAvailabilityVerifier.verifyServiceAvailability(serviceInstance.getHosts());
 		} catch (Exception e) {
-			throw new PlatformException(
-					"Service instance is not reachable. Service may not be started on instance.", e);
+			throw new PlatformException("Service instance is not reachable. Service may not be started on instance.",
+					e);
 		}
 
 		if (!available) {
-			throw new PlatformException(
-					"Service instance is not reachable. Service may not be started on instance.");
+			throw new PlatformException("Service instance is not reachable. Service may not be started on instance.");
 		}
 
 		return serviceInstance;
@@ -88,25 +92,28 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 		platformParameters.put("flavor", plan.getFlavorId());
 		platformParameters.put("volume_size", volumeSize(plan.getVolumeSize(), plan.getVolumeUnit()));
 
-
 		platformParameters.putAll(customProperties);
 
 		try {
 			this.create(instanceId, platformParameters);
+			List<ServerAddress> tmpAddresses = ipAccessor.getIpAddresses(instanceId);
+			List<ServerAddress> serverAddresses = Lists.newArrayList();
+			for (Entry<String, Integer> port : this.ports.entrySet()) {
+				for (ServerAddress tmpAddress : tmpAddresses) {
+					ServerAddress serverAddress = new ServerAddress(tmpAddress);
+					serverAddress.setName(port.getKey());
+					serverAddress.setPort(port.getValue());
+
+					serverAddresses.add(serverAddress);
+				}
+			}
+
+			serviceInstance = new ServiceInstance(serviceInstance, "http://currently.not/available",
+					OpenstackPlatformService.uniqueName(instanceId), serverAddresses);
 		} catch (Exception e) {
 			throw new PlatformException(e);
 		}
 
-		serviceInstance = new ServiceInstance(serviceInstance, "http://currently.not/available", this.uniqueName(instanceId),
-				this.primaryIp(instanceId), this.ports.get("default"));
-		
-		if (ports.size() > 1) {
-			for (Entry<String, Integer> port : ports.entrySet())
-				if (!port.getKey().equals("default"))
-					serviceInstance.getParameters().put(port.getKey(), port.getValue().toString());
-		}
-			
-		
 		return serviceInstance;
 	}
 
@@ -130,8 +137,7 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 	}
 
 	@Override
-	public void deleteServiceInstance(ServiceInstance serviceInstance)
-			throws PlatformException {
+	public void deleteServiceInstance(ServiceInstance serviceInstance) throws PlatformException {
 		this.delete(serviceInstance.getInternalId());
 	}
 

@@ -1,5 +1,6 @@
 package de.evoila.cf.broker.model;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -52,12 +53,8 @@ public class ServiceInstance implements BaseEntity<String> {
 	private String internalId;
 
 	@JsonSerialize
-	@JsonProperty("port")
-	private int port;
-
-	@JsonSerialize
-	@JsonProperty("host")
-	private String host;
+	@JsonProperty("hosts")
+	private List<ServerAddress> hosts;
 
 	@SuppressWarnings("unused")
 	private ServiceInstance() {
@@ -93,14 +90,13 @@ public class ServiceInstance implements BaseEntity<String> {
 		setDashboardUrl(dashboardUrl);
 	}
 
-	public ServiceInstance(ServiceInstance serviceInstance, String dashboardUrl, String internalId, String host,
-			int port) {
+	public ServiceInstance(ServiceInstance serviceInstance, String dashboardUrl, String internalId,
+			List<ServerAddress> hosts) {
 		initialize(serviceInstance.id, serviceInstance.serviceDefinitionId, serviceInstance.planId,
 				serviceInstance.organizationGuid, serviceInstance.spaceGuid, serviceInstance.parameters);
 		setInternalId(internalId);
 		setDashboardUrl(dashboardUrl);
-		setHost(host);
-		setPort(port);
+		setHosts(hosts);
 	}
 
 	public ServiceInstance(String serviceInstanceId, String serviceDefinitionId, String planId, String organizationGuid,
@@ -173,20 +169,12 @@ public class ServiceInstance implements BaseEntity<String> {
 		this.internalId = internalId;
 	}
 
-	public int getPort() {
-		return port;
+	public List<ServerAddress> getHosts() {
+		return hosts;
 	}
 
-	public void setPort(int port) {
-		this.port = port;
-	}
-
-	public String getHost() {
-		return host;
-	}
-
-	public void setHost(String host) {
-		this.host = host;
+	public void setHosts(List<ServerAddress> hosts) {
+		this.hosts = hosts;
 	}
 
 }

@@ -3,6 +3,9 @@
  */
 package de.evoila.cf.broker.service.impl;
 
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +17,15 @@ import de.evoila.cf.broker.exception.ServiceDefinitionDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceBindingExistsException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.model.Plan;
+import de.evoila.cf.broker.model.ServerAddress;
 import de.evoila.cf.broker.model.ServiceInstance;
+import de.evoila.cf.broker.model.ServiceInstanceBinding;
 import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
 import de.evoila.cf.broker.repository.BindingRepository;
 import de.evoila.cf.broker.repository.ServiceDefinitionRepository;
 import de.evoila.cf.broker.repository.ServiceInstanceRepository;
 import de.evoila.cf.broker.service.BindingService;
+import de.evoila.cf.broker.service.HAProxyService;
 
 /**
  * @author Johannes Hiemer.
@@ -27,7 +33,7 @@ import de.evoila.cf.broker.service.BindingService;
  */
 @Service
 public abstract class BindingServiceImpl implements BindingService {
-	
+
 	private static final Logger log = LoggerFactory.getLogger(BindingServiceImpl.class);
 
 	@Autowired
@@ -39,15 +45,15 @@ public abstract class BindingServiceImpl implements BindingService {
 	@Autowired
 	protected ServiceInstanceRepository serviceInstanceRepository;
 
-	protected abstract ServiceInstanceBindingResponse bindService(String bindingId, ServiceInstance instance, Plan plan)
-			throws ServiceBrokerException;
+	@Autowired
+	private HAProxyService haProxyService;
 
 	protected abstract void deleteBinding(String bindingId, ServiceInstance serviceInstance)
 			throws ServiceBrokerException;
 
 	@Override
 	public ServiceInstanceBindingResponse createServiceInstanceBinding(String bindingId, String instanceId,
-			String serviceId, String planId, String appGuid)
+			String serviceId, String planId, boolean generateServiceKey)
 					throws ServiceInstanceBindingExistsException, ServiceBrokerException,
 					ServiceInstanceDoesNotExistException, ServiceDefinitionDoesNotExistException {
 
@@ -57,21 +63,41 @@ public abstract class BindingServiceImpl implements BindingService {
 
 		Plan plan = serviceDefinitionRepository.getPlan(planId);
 
-		ServiceInstanceBindingResponse response = bindService(bindingId, serviceInstance, plan);
+		ServiceInstanceBinding binding;
+		if (generateServiceKey) {
+			List<ServerAddress> externalServerAddresses = haProxyService.appendAgent(serviceInstance.getHosts());
 
-		bindingRepository.addInternalBinding(bindingId, serviceInstance.getId());
+			binding = bindServiceKey(bindingId, serviceInstance, plan, externalServerAddresses);
+		} else {
+			binding = bindService(bindingId, serviceInstance, plan);
+		}
+
+		ServiceInstanceBindingResponse response = new ServiceInstanceBindingResponse(binding);
+		bindingRepository.addInternalBinding(binding);
 
 		return response;
+	}
+
+	protected ServiceInstanceBinding createServiceInstanceBinding(String bindingId, String serviceInstanceId,
+			Map<String, Object> credentials, String syslogDrainUrl, String appGuid) {
+		ServiceInstanceBinding binding = new ServiceInstanceBinding(bindingId, serviceInstanceId, credentials,
+				syslogDrainUrl);
+		return binding;
 	}
 
 	@Override
 	public void deleteServiceInstanceBinding(String bindingId)
 			throws ServiceBrokerException, ServerviceInstanceBindingDoesNotExistsException {
 		ServiceInstance serviceInstance = getBinding(bindingId);
-		
+
 		try {
+			ServiceInstanceBinding binding = bindingRepository.findOne(bindingId);
+			List<ServerAddress> externalServerAddresses = binding.getExternalServerAddresses();
+			if (externalServerAddresses != null)
+				haProxyService.removeAgent(externalServerAddresses);
+
 			deleteBinding(bindingId, serviceInstance);
-		} catch(ServiceBrokerException e) {
+		} catch (ServiceBrokerException e) {
 			log.error("Could not cleanup service binding", e);
 		} finally {
 			bindingRepository.deleteBinding(bindingId);
@@ -92,5 +118,54 @@ public abstract class BindingServiceImpl implements BindingService {
 		}
 		return serviceInstanceRepository.getServiceInstance(serviceInstanceId);
 	}
+
+	/**
+	 * @param bindingId
+	 * @param serviceInstance
+	 * @param plan
+	 * @param externalAddresses
+	 * @return
+	 * @throws ServiceBrokerException
+	 */
+	protected ServiceInstanceBinding bindServiceKey(String bindingId, ServiceInstance serviceInstance, Plan plan,
+			List<ServerAddress> externalAddresses) throws ServiceBrokerException {
+
+		log.debug("bind service key");
+
+		Map<String, Object> credentials = createCredentials(bindingId, serviceInstance, externalAddresses.get(0));
+
+		ServiceInstanceBinding serviceInstanceBinding = new ServiceInstanceBinding(bindingId, serviceInstance.getId(),
+				credentials, null);
+		serviceInstanceBinding.setExternalServerAddresses(externalAddresses);
+		return serviceInstanceBinding;
+	}
+
+	/**
+	 * @param bindingId
+	 * @param serviceInstance
+	 * @param plan
+	 * @return
+	 * @throws ServiceBrokerException
+	 */
+	protected ServiceInstanceBinding bindService(String bindingId, ServiceInstance serviceInstance, Plan plan)
+			throws ServiceBrokerException {
+
+		log.debug("bind service");
+
+		ServerAddress host = serviceInstance.getHosts().get(0);
+		Map<String, Object> credentials = createCredentials(bindingId, serviceInstance, host);
+
+		return new ServiceInstanceBinding(bindingId, serviceInstance.getId(), credentials, null);
+	}
+
+	/**
+	 * @param bindingId
+	 * @param serviceInstance
+	 * @param host
+	 * @return
+	 * @throws ServiceBrokerException
+	 */
+	protected abstract Map<String, Object> createCredentials(String bindingId, ServiceInstance serviceInstance,
+			ServerAddress host) throws ServiceBrokerException;
 
 }

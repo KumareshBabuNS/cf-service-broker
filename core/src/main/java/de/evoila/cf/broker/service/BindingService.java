@@ -14,7 +14,7 @@ import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
  * @author Johannes Hiemer.
  */
 public interface BindingService {
-	
+
 	/**
 	 * Create a new binding to a service instance.
 	 * 
@@ -35,7 +35,7 @@ public interface BindingService {
 	 * @throws ServiceInstanceDoesNotExistException
 	 */
 	public ServiceInstanceBindingResponse createServiceInstanceBinding(String bindingId, String instanceId,
-			String serviceId, String planId, String appGuid)
+			String serviceId, String planId, boolean generateServiceKey)
 					throws ServiceInstanceBindingExistsException, ServiceBrokerException,
 					ServiceInstanceDoesNotExistException, ServiceDefinitionDoesNotExistException;
 

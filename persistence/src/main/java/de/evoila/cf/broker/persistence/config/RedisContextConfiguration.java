@@ -14,6 +14,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import de.evoila.cf.broker.model.JobProgress;
 import de.evoila.cf.broker.model.ServiceInstance;
+import de.evoila.cf.broker.model.ServiceInstanceBinding;
 import redis.clients.jedis.Protocol;
 
 /**
@@ -57,11 +58,7 @@ public class RedisContextConfiguration {
 	}
 
 	/**
-	 * Template
-	 * 
-	 * @param jedisConnFactory
-	 * @param stringRedisSerializer
-	 * @param jacksonJsonRedisJsonSerializer
+	 * @return
 	 */
 	@Bean
 	public RedisTemplate<String, ? extends Object> jacksonServiceInstanceRedisTemplate() {
@@ -71,13 +68,21 @@ public class RedisContextConfiguration {
 		redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(ServiceInstance.class));
 		return redisTemplate;
 	}
-	
+
 	/**
-	 * Template
-	 * 
-	 * @param jedisConnFactory
-	 * @param stringRedisSerializer
-	 * @param jacksonJsonRedisJsonSerializer
+	 * @return
+	 */
+	@Bean
+	public RedisTemplate<String, ? extends Object> jacksonServiceInstanceBindingRedisTemplate() {
+		RedisTemplate<String, ? extends Object> redisTemplate = new RedisTemplate<>();
+		redisTemplate.setConnectionFactory(jedisConnFactory());
+		redisTemplate.setKeySerializer(new StringRedisSerializer());
+		redisTemplate.setValueSerializer(new Jackson2JsonRedisSerializer<>(ServiceInstanceBinding.class));
+		return redisTemplate;
+	}
+
+	/**
+	 * @return
 	 */
 	@Bean
 	public RedisTemplate<String, ? extends Object> jacksonJobProgressRedisTemplate() {

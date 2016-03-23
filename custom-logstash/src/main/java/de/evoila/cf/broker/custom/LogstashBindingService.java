@@ -4,6 +4,7 @@
 package de.evoila.cf.broker.custom;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
@@ -14,18 +15,22 @@ import org.springframework.stereotype.Service;
 
 import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.model.Plan;
+import de.evoila.cf.broker.model.ServerAddress;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.ServiceInstanceBinding;
-import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
 import de.evoila.cf.broker.service.impl.BindingServiceImpl;
 
 /**
  * @author Johannes Hiemer.
  *
  */
+/**
+ * @author Christian Brinker, evoila.
+ *
+ */
 @Service
 public class LogstashBindingService extends BindingServiceImpl {
-	
+
 	@Resource(name = "customProperties")
 	public Map<String, String> customProperties;
 
@@ -39,20 +44,67 @@ public class LogstashBindingService extends BindingServiceImpl {
 		log.debug("No need to implement that for logstash");
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.evoila.cf.broker.service.impl.BindingServiceImpl#createCredentials(
+	 * java.lang.String, de.evoila.cf.broker.model.ServiceInstance,
+	 * de.evoila.cf.broker.model.ServerAddress)
+	 */
 	@Override
-	protected ServiceInstanceBindingResponse bindService(String bindingId, ServiceInstance serviceInstance, Plan plan)
-			throws ServiceBrokerException {
+	protected Map<String, Object> createCredentials(String bindingId, ServiceInstance serviceInstance,
+			ServerAddress host) throws ServiceBrokerException {
 
-		log.debug("bind Service");
-
-		String url = String.format("syslog://%s:%s", serviceInstance.getHost(), serviceInstance.getPort());
+		String url = String.format("syslog://%s:%s", host.getIp(), host.getPort());
 
 		Map<String, Object> credentials = new HashMap<String, Object>();
 		credentials.put("uri", url);
-		
-		ServiceInstanceBindingResponse serviceInstanceBindingResponse = new ServiceInstanceBindingResponse(credentials, url);
 
-		return serviceInstanceBindingResponse;
+		return credentials;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.evoila.cf.broker.service.impl.BindingServiceImpl#bindServiceKey(java.
+	 * lang.String, de.evoila.cf.broker.model.ServiceInstance,
+	 * de.evoila.cf.broker.model.Plan, java.util.List)
+	 */
+	@Override
+	protected ServiceInstanceBinding bindServiceKey(String bindingId, ServiceInstance serviceInstance, Plan plan,
+			List<ServerAddress> externalAddresses) throws ServiceBrokerException {
+
+		log.debug("bind service key");
+
+		Map<String, Object> credentials = createCredentials(bindingId, serviceInstance, externalAddresses.get(0));
+
+		ServiceInstanceBinding serviceInstanceBinding = new ServiceInstanceBinding(bindingId, serviceInstance.getId(),
+				credentials, (String) credentials.get("uri"));
+		serviceInstanceBinding.setExternalServerAddresses(externalAddresses);
+		return serviceInstanceBinding;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.evoila.cf.broker.service.impl.BindingServiceImpl#bindService(java.lang
+	 * .String, de.evoila.cf.broker.model.ServiceInstance,
+	 * de.evoila.cf.broker.model.Plan)
+	 */
+	@Override
+	protected ServiceInstanceBinding bindService(String bindingId, ServiceInstance serviceInstance, Plan plan)
+			throws ServiceBrokerException {
+
+		log.debug("bind service");
+
+		ServerAddress host = serviceInstance.getHosts().get(0);
+		Map<String, Object> credentials = createCredentials(bindingId, serviceInstance, host);
+
+		return new ServiceInstanceBinding(bindingId, serviceInstance.getId(), credentials,
+				(String) credentials.get("uri"));
 	}
 
 	@Override

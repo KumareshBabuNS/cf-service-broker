@@ -1,6 +1,7 @@
 package de.evoila.cf.broker.model;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -9,31 +10,31 @@ import java.util.Map;
  * @author sgreenberg@gopivotal.com
  * @author Johannes Hiemer.
  */
-public class ServiceInstanceBinding {
+public class ServiceInstanceBinding implements BaseEntity<String> {
 
 	private String id;
-	
+
 	private String serviceInstanceId;
-	
-	private Map<String,Object> credentials = new HashMap<String,Object>();
-	
+
+	private Map<String, Object> credentials = new HashMap<String, Object>();
+
 	private String syslogDrainUrl;
-	
+
 	private String appGuid;
-	
+
 	private Map<String, String> parameters;
 
-	public ServiceInstanceBinding(String id, 
-			String serviceInstanceId, 
-			Map<String,Object> credentials,
-			String syslogDrainUrl, String appGuid) {
+	private List<ServerAddress> externalServerAddresses;
+
+	public ServiceInstanceBinding(String id, String serviceInstanceId, Map<String, Object> credentials,
+			String syslogDrainUrl) {
 		this.id = id;
 		this.serviceInstanceId = serviceInstanceId;
 		setCredentials(credentials);
 		this.syslogDrainUrl = syslogDrainUrl;
-		this.appGuid = appGuid;
 	}
 
+	@Override
 	public String getId() {
 		return id;
 	}
@@ -48,7 +49,7 @@ public class ServiceInstanceBinding {
 
 	private void setCredentials(Map<String, Object> credentials) {
 		if (credentials == null) {
-			credentials = new HashMap<String,Object>();
+			credentials = new HashMap<String, Object>();
 		} else {
 			this.credentials = credentials;
 		}
@@ -57,7 +58,7 @@ public class ServiceInstanceBinding {
 	public String getSyslogDrainUrl() {
 		return syslogDrainUrl;
 	}
-	
+
 	public String getAppGuid() {
 		return appGuid;
 	}
@@ -69,5 +70,13 @@ public class ServiceInstanceBinding {
 	public void setParameters(Map<String, String> parameters) {
 		this.parameters = parameters;
 	}
-	
+
+	public List<ServerAddress> getExternalServerAddresses() {
+		return externalServerAddresses;
+	}
+
+	public void setExternalServerAddresses(List<ServerAddress> externalServerAddresses) {
+		this.externalServerAddresses = externalServerAddresses;
+	}
+
 }

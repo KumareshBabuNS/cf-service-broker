@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import de.evoila.cf.broker.model.ServerAddress;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.service.postgres.jdbc.PostgresDbService;
 
@@ -26,7 +27,8 @@ public class PostgresCustomImplementation {
 	public void initServiceInstance(ServiceInstance serviceInstance, String[] databases) throws SQLException {
 		String serviceInstanceId = serviceInstance.getId();
 		if (!jdbcService.isConnected()) {
-			jdbcService.createConnection(serviceInstanceId, serviceInstance.getHost(), serviceInstance.getPort());
+			ServerAddress host = serviceInstance.getHosts().get(0);
+			jdbcService.createConnection(serviceInstanceId, host.getIp(), host.getPort());
 		}
 		jdbcService.executeUpdate("CREATE ROLE \"" + serviceInstanceId + "\"");
 		for (String database : databases) {
@@ -48,12 +50,14 @@ public class PostgresCustomImplementation {
 		jdbcService.executeUpdate("CREATE ROLE \"" + bindingId + "\"");
 		jdbcService.executeUpdate("ALTER ROLE \"" + bindingId + "\" LOGIN password '" + passwd + "'");
 		jdbcService.executeUpdate("GRANT \"" + serviceInstanceId + "\" TO \"" + bindingId + "\"");
-		
+
 		jdbcService.executeUpdate("GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO \"" + bindingId + "\"");
-		jdbcService.executeUpdate("ALTER DEFAULT PRIVILEGES FOR ROLE \"" + bindingId + "\" IN SCHEMA public GRANT ALL ON TABLES TO \"" + bindingId + "\"");
+		jdbcService.executeUpdate("ALTER DEFAULT PRIVILEGES FOR ROLE \"" + bindingId
+				+ "\" IN SCHEMA public GRANT ALL ON TABLES TO \"" + bindingId + "\"");
 		jdbcService.executeUpdate("GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO \"" + bindingId + "\"");
-		jdbcService.executeUpdate("ALTER DEFAULT PRIVILEGES FOR ROLE \"" + bindingId + "\" IN SCHEMA public GRANT ALL ON SEQUENCES TO \"" + bindingId + "\"");
-		
+		jdbcService.executeUpdate("ALTER DEFAULT PRIVILEGES FOR ROLE \"" + bindingId
+				+ "\" IN SCHEMA public GRANT ALL ON SEQUENCES TO \"" + bindingId + "\"");
+
 		return passwd;
 	}
 

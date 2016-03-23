@@ -12,9 +12,9 @@ import org.springframework.stereotype.Service;
 
 import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.model.Plan;
+import de.evoila.cf.broker.model.ServerAddress;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.ServiceInstanceBinding;
-import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
 import de.evoila.cf.broker.service.impl.BindingServiceImpl;
 
 /**
@@ -35,17 +35,15 @@ public class ElasticsearchBindingService extends BindingServiceImpl {
 	}
 
 	@Override
-	protected ServiceInstanceBindingResponse bindService(String bindingId, ServiceInstance serviceInstance, Plan plan)
-			throws ServiceBrokerException {
+	protected Map<String, Object> createCredentials(String bindingId, ServiceInstance serviceInstance,
+			ServerAddress host) throws ServiceBrokerException {
 
-		log.debug("bind Service");
-
-		String dbURL = String.format("http://%s:%d", serviceInstance.getHost(), serviceInstance.getPort());
+		String dbURL = String.format("http://%s:%d", host.getIp(), host.getPort());
 
 		Map<String, Object> credentials = new HashMap<String, Object>();
 		credentials.put("uri", dbURL);
 
-		return new ServiceInstanceBindingResponse(credentials);
+		return credentials;
 	}
 
 	@Override

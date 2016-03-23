@@ -14,6 +14,8 @@ import org.springframework.util.Assert;
 
 import de.evoila.cf.cpi.custom.props.DefaultDatabaseCustomPropertyHandler;
 import de.evoila.cf.cpi.custom.props.DomainBasedCustomPropertyHandler;
+import de.evoila.cf.cpi.openstack.custom.CustomIpAccessor;
+import de.evoila.cf.cpi.openstack.custom.MongoIpAccessor;
 
 /**
  * 
@@ -22,6 +24,11 @@ import de.evoila.cf.cpi.custom.props.DomainBasedCustomPropertyHandler;
  */
 @SpringBootApplication
 public class Application {
+
+	@Bean
+	public CustomIpAccessor mognoIpAccessor() {
+		return new MongoIpAccessor();
+	}
 
 	@Bean(name = "customProperties")
 	public Map<String, String> customProperties() {
@@ -35,6 +42,7 @@ public class Application {
 	public DomainBasedCustomPropertyHandler domainPropertyHandler() {
 		return new DefaultDatabaseCustomPropertyHandler();
 	}
+
 	public static void main(String[] args) {
 		ApplicationContext ctx = SpringApplication.run(Application.class, args);
 

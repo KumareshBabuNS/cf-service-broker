@@ -3,8 +3,12 @@
  */
 package de.evoila.cf.broker.persistence.repository;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Repository;
 
+import de.evoila.cf.broker.model.ServiceInstanceBinding;
 import de.evoila.cf.broker.repository.BindingRepository;
 
 /**
@@ -12,7 +16,17 @@ import de.evoila.cf.broker.repository.BindingRepository;
  *
  */
 @Repository
-public class BindingRepositoryImpl extends StringCrudRepository implements BindingRepository {
+public class BindingRepositoryImpl extends CrudRepositoryImpl<ServiceInstanceBinding, String>
+		implements BindingRepository {
+
+	@Autowired
+	@Qualifier("jacksonServiceInstanceBindingRedisTemplate")
+	private RedisTemplate<String, ServiceInstanceBinding> redisTemplate;
+
+	@Override
+	protected RedisTemplate<String, ServiceInstanceBinding> getRedisTemplate() {
+		return this.redisTemplate;
+	}
 
 	private static final String PREFIX = "binding-";
 
@@ -30,7 +44,7 @@ public class BindingRepositoryImpl extends StringCrudRepository implements Bindi
 	 */
 	@Override
 	public String getInternalBindingId(String bindingId) {
-		return this.findOne(bindingId);
+		return this.findOne(bindingId).getServiceInstanceId();
 	}
 
 	/*
@@ -41,8 +55,8 @@ public class BindingRepositoryImpl extends StringCrudRepository implements Bindi
 	 * lang.String, java.lang.String)
 	 */
 	@Override
-	public void addInternalBinding(String bindingId, String id) {
-		save(bindingId, id);
+	public void addInternalBinding(ServiceInstanceBinding binding) {
+		save(binding);
 	}
 
 	/*
@@ -67,5 +81,4 @@ public class BindingRepositoryImpl extends StringCrudRepository implements Bindi
 	public void deleteBinding(String bindingId) {
 		this.delete(bindingId);
 	}
-
 }

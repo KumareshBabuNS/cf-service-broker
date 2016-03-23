@@ -9,6 +9,7 @@ import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
@@ -25,10 +26,11 @@ import org.springframework.web.client.RestTemplate;
 import de.evoila.cf.broker.custom.rabbitmq.RabbitMqService;
 import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.model.Plan;
+import de.evoila.cf.broker.model.ServerAddress;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.ServiceInstanceBinding;
-import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
 import de.evoila.cf.broker.service.impl.BindingServiceImpl;
+import jersey.repackaged.com.google.common.collect.Lists;
 
 /**
  * @author Johannes Hiemer.
@@ -54,15 +56,18 @@ public class RabbitMqBindingService extends BindingServiceImpl {
 	private static final String API = "/api";
 
 	private static final String IP_PORT_SEPARATOR = ":";
-	
-	private static final int API_PORT = 15672;
-	
-	private static final String PORT_KEY = "user";
+
+	private static final String AMQP_PORT_KEY = "default";
+
+	private static final String API_PORT_KEY = "user";
 
 	private static final String URL_PATTERN = AMQP + STRING_URL_VALUE + USER_PASSWORD_SEPARATOR + STRING_URL_VALUE
 			+ CREDENTIAL_IP_SEPARATOR + STRING_URL_VALUE + IP_PORT_SEPARATOR + DOUBLE_URL_VALUE + PATH_SEPARATOR
 			+ STRING_URL_VALUE;
-	
+
+	private static final String API_URL_PATTERN = HTTP + STRING_URL_VALUE + USER_PASSWORD_SEPARATOR + STRING_URL_VALUE
+			+ CREDENTIAL_IP_SEPARATOR + STRING_URL_VALUE + IP_PORT_SEPARATOR + DOUBLE_URL_VALUE;
+
 	private RestTemplate restTemplate = new RestTemplate();
 
 	private Logger log = LoggerFactory.getLogger(getClass());
@@ -75,31 +80,51 @@ public class RabbitMqBindingService extends BindingServiceImpl {
 		if (rabbitMqService.isConnected())
 			return true;
 		else {
-			log.info("Opening connection to " + serviceInstance.getHost() + serviceInstance.getPort());
-			rabbitMqService.createConnection(serviceInstance.getId(), serviceInstance.getHost(),
-					serviceInstance.getPort(), vhostName, userName, password);
+			ServerAddress host = serviceInstance.getHosts().get(0);
+			log.info("Opening connection to " + host.getIp() + host.getPort());
+			rabbitMqService.createConnection(serviceInstance.getId(), host.getIp(), host.getPort(), vhostName, userName,
+					password);
 		}
 		return true;
 	}
 
-	@Override
-	protected ServiceInstanceBindingResponse bindService(String bindingId, ServiceInstance serviceInstance, Plan plan)
-			throws ServiceBrokerException {
-		String amqpHostAddress = serviceInstance.getHost();
+	protected Map<String, Object> createCredentials(String bindingId, ServiceInstance serviceInstance,
+			List<ServerAddress> hosts) throws ServiceBrokerException {
+
+		ServerAddress amqpHost = null, apiHost = null;
+		for (ServerAddress serverAddress : hosts) {
+			String name = serverAddress.getName();
+			if (name.equals(AMQP_PORT_KEY))
+				amqpHost = serverAddress;
+			if (name.equals(API_PORT_KEY))
+				apiHost = serverAddress;
+		}
+
+		if (amqpHost == null) {
+			throw new ServiceBrokerException("No valid default port was provided");
+		}
+
+		if (apiHost == null) {
+			throw new ServiceBrokerException("No valid api port was provided");
+		}
+
+		String amqpHostAddress = amqpHost.getIp();
 		String vhostName = serviceInstance.getId();
 
 		String userName = bindingId;
 		SecureRandom random = new SecureRandom();
 		String password = new BigInteger(130, random).toString(32);
-		
-		int port = API_PORT;
-		if (serviceInstance.getParameters().containsKey(PORT_KEY))
-			port = Integer.parseInt(serviceInstance.getParameters().get(PORT_KEY));
 
-		addUserToVHostAndSetPermissions(serviceInstance.getId(), userName, amqpHostAddress, port, password, vhostName);
+		String apiHostAddress = apiHost.getIp();
+		int apiPort = apiHost.getPort();
 
-		String rabbitMqUrl = String.format(URL_PATTERN, userName, password, amqpHostAddress, serviceInstance.getPort(),
+		addUserToVHostAndSetPermissions(serviceInstance.getId(), userName, apiHostAddress, apiPort, password,
 				vhostName);
+
+		String rabbitMqUrl = String.format(URL_PATTERN, userName, password, amqpHostAddress, amqpHost.getPort(),
+				vhostName);
+
+		String apiUrl = String.format(API_URL_PATTERN, userName, password, apiHostAddress, apiPort, vhostName);
 
 		try {
 			connection(serviceInstance, vhostName, userName, password);
@@ -109,29 +134,85 @@ public class RabbitMqBindingService extends BindingServiceImpl {
 
 		Map<String, Object> credentials = new HashMap<String, Object>();
 		credentials.put("uri", rabbitMqUrl);
-
-		return new ServiceInstanceBindingResponse(credentials);
+		credentials.put("api_uri", apiUrl);
+		return credentials;
 	}
 
-	private void addUserToVHostAndSetPermissions(String instanceId, String userName, String amqpHostAddress, int port, String password,
-			String vhostName) {
-		
-		executeRequest(getAmqpApi(amqpHostAddress, port) + "/users/" + userName, 
-				HttpMethod.PUT, instanceId, "{\"password\":\"" + password + "\", \"tags\" : \"none\"}");
-		
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.evoila.cf.broker.service.impl.BindingServiceImpl#bindServiceKey(java.
+	 * lang.String, de.evoila.cf.broker.model.ServiceInstance,
+	 * de.evoila.cf.broker.model.Plan, java.util.List)
+	 */
+	@Override
+	protected ServiceInstanceBinding bindServiceKey(String bindingId, ServiceInstance serviceInstance, Plan plan,
+			List<ServerAddress> externalAddresses) throws ServiceBrokerException {
+
+		log.debug("bind service key");
+
+		Map<String, Object> credentials = createCredentials(bindingId, serviceInstance, externalAddresses);
+
+		ServiceInstanceBinding serviceInstanceBinding = new ServiceInstanceBinding(bindingId, serviceInstance.getId(),
+				credentials, null);
+		serviceInstanceBinding.setExternalServerAddresses(externalAddresses);
+		return serviceInstanceBinding;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.evoila.cf.broker.service.impl.BindingServiceImpl#bindService(java.lang
+	 * .String, de.evoila.cf.broker.model.ServiceInstance,
+	 * de.evoila.cf.broker.model.Plan)
+	 */
+	@Override
+	protected ServiceInstanceBinding bindService(String bindingId, ServiceInstance serviceInstance, Plan plan)
+			throws ServiceBrokerException {
+
+		log.debug("bind service");
+
+		List<ServerAddress> hosts = serviceInstance.getHosts();
+		Map<String, Object> credentials = createCredentials(bindingId, serviceInstance, hosts);
+
+		return new ServiceInstanceBinding(bindingId, serviceInstance.getId(), credentials, null);
+	}
+
+	private void addUserToVHostAndSetPermissions(String instanceId, String userName, String amqpHostAddress, int port,
+			String password, String vhostName) {
+
+		executeRequest(getAmqpApi(amqpHostAddress, port) + "/users/" + userName, HttpMethod.PUT, instanceId,
+				"{\"password\":\"" + password + "\", \"tags\" : \"none\"}");
+
 		executeRequest(getAmqpApi(amqpHostAddress, port) + "/permissions/" + vhostName + PATH_SEPARATOR + userName,
 				HttpMethod.PUT, instanceId, "{\"configure\":\".*\",\"write\":\".*\",\"read\":\".*\"}");
 	}
 
 	@Override
 	protected void deleteBinding(String bindingId, ServiceInstance serviceInstance) throws ServiceBrokerException {
-		deleteUserFromVhost(bindingId, serviceInstance);
+		ServiceInstanceBinding binding = bindingRepository.findOne(bindingId);
+
+		deleteUserFromVhost(binding, serviceInstance);
 	}
 
-	private void deleteUserFromVhost(String bindingId, ServiceInstance serviceInstance) {
+	private void deleteUserFromVhost(ServiceInstanceBinding binding, ServiceInstance serviceInstance)
+			throws ServiceBrokerException {
 
-		executeRequest(getAmqpApi(serviceInstance.getHost(), API_PORT) + "/users/" + bindingId, 
-				HttpMethod.DELETE, serviceInstance.getId(), null);
+		ServerAddress apiHost = null;
+		for (ServerAddress serverAddress : serviceInstance.getHosts()) {
+			String name = serverAddress.getName();
+			if (name.equals(API_PORT_KEY))
+				apiHost = serverAddress;
+		}
+
+		if (apiHost == null) {
+			throw new ServiceBrokerException("No valid api port exists");
+		}
+
+		executeRequest(getAmqpApi(apiHost.getIp(), apiHost.getPort()) + "/users/" + binding.getId(), HttpMethod.DELETE,
+				serviceInstance.getId(), null);
 	}
 
 	private String getAmqpApi(String amqpHostAddress, int port) {
@@ -142,15 +223,15 @@ public class RabbitMqBindingService extends BindingServiceImpl {
 	public ServiceInstanceBinding getServiceInstanceBinding(String id) {
 		throw new UnsupportedOperationException();
 	}
-	
+
 	private void executeRequest(String url, HttpMethod method, String instanceId, String payload) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.set("Authorization", buildAuthHeader(instanceId, instanceId));
 		headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
 		headers.setContentType(MediaType.APPLICATION_JSON);
-		
+
 		log.info("Requesting: " + url + " and method " + method.toString());
-		
+
 		HttpEntity<String> entity = null;
 		if (payload == null)
 			entity = new HttpEntity<String>(headers);
@@ -159,12 +240,32 @@ public class RabbitMqBindingService extends BindingServiceImpl {
 
 		restTemplate.exchange(url, method, entity, String.class);
 	}
-	
+
 	private String buildAuthHeader(String username, String password) {
 		String auth = username + ":" + password;
-        byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("UTF-8")));
+		byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(Charset.forName("UTF-8")));
 
-        return "Basic " + new String(encodedAuth);
+		return "Basic " + new String(encodedAuth);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.evoila.cf.broker.service.impl.BindingServiceImpl#createCredentials(
+	 * java.lang.String, de.evoila.cf.broker.model.ServiceInstance,
+	 * de.evoila.cf.broker.model.ServerAddress)
+	 */
+	@Override
+	protected Map<String, Object> createCredentials(String bindingId, ServiceInstance serviceInstance,
+			ServerAddress host) throws ServiceBrokerException {
+		log.warn("de.evoila.cf.broker.custom.RabbitMqBindingService#createCredentials( java.lang.String, "
+				+ "de.evoila.cf.broker.model.ServiceInstance, de.evoila.cf.broker.model.ServerAddress) "
+				+ "was used instead of de.evoila.cf.broker.custom.RabbitMqBindingService#createCredentials( "
+				+ "java.lang.String, de.evoila.cf.broker.model.ServiceInstance, "
+				+ "java.util.List<de.evoila.cf.broker.model.ServerAddress>)");
+
+		return createCredentials(bindingId, serviceInstance, Lists.newArrayList(host));
 	}
 
 }

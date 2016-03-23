@@ -15,9 +15,9 @@ import org.springframework.util.Assert;
 
 import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.model.Plan;
+import de.evoila.cf.broker.model.ServerAddress;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.ServiceInstanceBinding;
-import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
 import de.evoila.cf.broker.service.impl.BindingServiceImpl;
 import de.evoila.cf.broker.service.postgres.PostgresCustomImplementation;
 import de.evoila.cf.broker.service.postgres.jdbc.PostgresDbService;
@@ -43,11 +43,10 @@ public class PostgreSQLBindingService extends BindingServiceImpl {
 		else {
 			Assert.notNull(serviceInstance, "ServiceInstance may not be null");
 			Assert.notNull(serviceInstance.getId(), "Id of ServiceInstance may not be null");
-			Assert.notNull(serviceInstance.getHost(), "Host of ServiceInstance may not be null");
-			Assert.notNull(serviceInstance.getPort(), "Port of ServiceInstance may not be null");
-			
-			return jdbcService.createConnection(serviceInstance.getId(), serviceInstance.getHost(),
-					serviceInstance.getPort());
+			Assert.notNull(serviceInstance.getHosts(), "Host of ServiceInstance may not be null");
+
+			ServerAddress host = serviceInstance.getHosts().get(0);
+			return jdbcService.createConnection(serviceInstance.getId(), host.getIp(), host.getPort());
 		}
 	}
 
@@ -87,9 +86,17 @@ public class PostgreSQLBindingService extends BindingServiceImpl {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.evoila.cf.broker.service.impl.BindingServiceImpl#createCredentials(
+	 * java.lang.String, de.evoila.cf.broker.model.ServiceInstance,
+	 * de.evoila.cf.broker.model.ServerAddress)
+	 */
 	@Override
-	protected ServiceInstanceBindingResponse bindService(String bindingId, ServiceInstance serviceInstance, Plan plan)
-			throws ServiceBrokerException {
+	protected Map<String, Object> createCredentials(String bindingId, ServiceInstance serviceInstance,
+			ServerAddress host) throws ServiceBrokerException {
 
 		try {
 			connection(serviceInstance);
@@ -105,13 +112,13 @@ public class PostgreSQLBindingService extends BindingServiceImpl {
 			throw new ServiceBrokerException("Could not update database");
 		}
 
-		String dbURL = String.format("postgres://%s:%s@%s:%d/%s", bindingId, password,
-				jdbcService.getHost(), jdbcService.getPort(), serviceInstance.getId());
+		String dbURL = String.format("postgres://%s:%s@%s:%d/%s", bindingId, password, host.getIp(), host.getPort(),
+				serviceInstance.getId());
 
 		Map<String, Object> credentials = new HashMap<String, Object>();
 		credentials.put("uri", dbURL);
 
-		return new ServiceInstanceBindingResponse(credentials);
+		return credentials;
 	}
 
 	@Override

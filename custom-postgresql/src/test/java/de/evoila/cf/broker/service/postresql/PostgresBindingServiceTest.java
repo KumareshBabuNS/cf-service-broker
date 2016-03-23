@@ -18,12 +18,14 @@ import de.evoila.cf.broker.exception.ServiceDefinitionDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceBindingExistsException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.model.Plan;
+import de.evoila.cf.broker.model.ServerAddress;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.data.ServiceInstanceData;
 import de.evoila.cf.broker.repository.ServiceInstanceRepository;
 import de.evoila.cf.broker.service.MockMvcTest;
 import de.evoila.cf.broker.service.custom.PostgreSQLBindingService;
 import de.evoila.cf.broker.service.postgres.jdbc.PostgresDbService;
+import jersey.repackaged.com.google.common.collect.Lists;
 
 /**
  * @author Johannes Hiemer.
@@ -47,14 +49,14 @@ public class PostgresBindingServiceTest extends MockMvcTest {
 	@BeforeClass
 	public static void beforeClass() {
 		serviceInstance = ServiceInstanceData.createOpenstackData();
-		serviceInstance.setHost("172.16.248.144");
-		serviceInstance.setPort(5432);
+		serviceInstance.setHosts(Lists.newArrayList(new ServerAddress("default", "172.16.248.144", 5432)));
 		plan = ServiceInstanceData.createOpenstackPlanData();
 	}
 
 	@Before
 	public void before() throws SQLException {
-		jdbcService.createConnection("postgres", serviceInstance.getHost(), serviceInstance.getPort());
+		ServerAddress host = serviceInstance.getHosts().get(0);
+		jdbcService.createConnection("postgres", host.getIp(), host.getPort());
 		jdbcService.executeUpdate(
 				"CREATE ROLE \"" + serviceInstance.getId() + "\" LOGIN password '" + serviceInstance.getId() + "'");
 	}
@@ -78,10 +80,9 @@ public class PostgresBindingServiceTest extends MockMvcTest {
 
 		postgresBindingService.create(serviceInstance, plan);
 		String bindingId = UUID.randomUUID().toString();
-		String appGuid = UUID.randomUUID().toString();
 
 		postgresBindingService.createServiceInstanceBinding(bindingId, serviceInstance.getId(),
-				serviceInstance.getServiceDefinitionId(), serviceInstance.getPlanId(), appGuid);
+				serviceInstance.getServiceDefinitionId(), serviceInstance.getPlanId(), false);
 		postgresBindingService.deleteServiceInstanceBinding(bindingId);
 
 		postgresBindingService.delete(serviceInstance, plan);

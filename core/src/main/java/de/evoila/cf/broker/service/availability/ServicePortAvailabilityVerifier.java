@@ -6,11 +6,13 @@ package de.evoila.cf.broker.service.availability;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.evoila.cf.broker.exception.PlatformException;
+import de.evoila.cf.broker.model.ServerAddress;
 
 /**
  * @author Johannes Hiemer.
@@ -21,7 +23,7 @@ public class ServicePortAvailabilityVerifier {
 	private static final int SOCKET_TIMEOUT = 30000;
 
 	private static final int INITIAL_TIMEOUT = 150 * 1000;
-	
+
 	private static final int connectionTimeouts = 10;
 
 	private static Logger log = LoggerFactory.getLogger(ServicePortAvailabilityVerifier.class);
@@ -36,7 +38,7 @@ public class ServicePortAvailabilityVerifier {
 
 	public static boolean execute(String ip, int port) {
 		boolean available = false;
-		
+
 		log.info("Verifying port availability on: {}:{}", ip, port);
 		Socket socket = new Socket();
 		try {
@@ -46,9 +48,9 @@ public class ServicePortAvailabilityVerifier {
 				available = true;
 			else
 				timeout(SOCKET_TIMEOUT);
-		} catch (Exception e) {			
+		} catch (Exception e) {
 			log.info("Service port could not be reached", e);
-			
+
 			timeout(SOCKET_TIMEOUT);
 		} finally {
 			if (socket != null && socket.isConnected()) {
@@ -77,6 +79,15 @@ public class ServicePortAvailabilityVerifier {
 		}
 		log.info("Service Port availability (last status during request): {}", available);
 		return available;
+	}
+
+	public static boolean verifyServiceAvailability(List<ServerAddress> serverAddresses) throws PlatformException {
+		for (ServerAddress serverAddress : serverAddresses) {
+			if (!verifyServiceAvailability(serverAddress.getIp(), serverAddress.getPort())) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 }

@@ -54,7 +54,7 @@ public class ServiceInstanceBindingController extends BaseController {
 				+ ", bindServiceInstance(), instanceId = " + instanceId + ", bindingId = " + bindingId);
 
 		ServiceInstanceBindingResponse response = bindingService.createServiceInstanceBinding(bindingId, instanceId,
-				request.getServiceDefinitionId(), request.getPlanId(), request.getAppGuid());
+				request.getServiceDefinitionId(), request.getPlanId(), (request.getAppGuid() == null));
 
 		log.debug("ServiceInstanceBinding Created: " + bindingId);
 

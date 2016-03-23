@@ -10,8 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 /**
- * Request sent from the cloud controller to bind to a service 
- * instance.
+ * Request sent from the cloud controller to bind to a service instance.
  * 
  * @author sgreenberg@gopivotal.com
  * @author Johannes Hiemer.
@@ -24,33 +23,38 @@ public class ServiceInstanceBindingRequest {
 	@JsonSerialize
 	@JsonProperty("service_id")
 	private String serviceDefinitionId;
-	
+
 	@NotEmpty
 	@JsonSerialize
 	@JsonProperty("plan_id")
 	private String planId;
 
-	@NotEmpty
 	@JsonSerialize
 	@JsonProperty("app_guid")
 	private String appGuid;
-	
+
 	@JsonSerialize
 	@JsonProperty("parameters")
 	private Map<String, String> parameters;
-	
-	public ServiceInstanceBindingRequest() {}
-	
+
+	public ServiceInstanceBindingRequest() {
+	}
+
 	public ServiceInstanceBindingRequest(String serviceDefinitionId, String planId, String appGuid) {
 		this.serviceDefinitionId = serviceDefinitionId;
 		this.planId = planId;
 		this.appGuid = appGuid;
 	}
 
+	public ServiceInstanceBindingRequest(String serviceDefinitionId, String planId) {
+		this.serviceDefinitionId = serviceDefinitionId;
+		this.planId = planId;
+	}
+
 	public String getServiceDefinitionId() {
 		return serviceDefinitionId;
 	}
-	
+
 	public void setServiceDefinitionId(String serviceDefinitionId) {
 		this.serviceDefinitionId = serviceDefinitionId;
 	}
@@ -58,7 +62,7 @@ public class ServiceInstanceBindingRequest {
 	public String getPlanId() {
 		return planId;
 	}
-	
+
 	public void setPlanId(String planId) {
 		this.planId = planId;
 	}
@@ -78,5 +82,5 @@ public class ServiceInstanceBindingRequest {
 	public void setParameters(Map<String, String> parameters) {
 		this.parameters = parameters;
 	}
-	
+
 }

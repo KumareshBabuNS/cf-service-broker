@@ -26,6 +26,8 @@ plans:
     platform: OPENSTACK
     flavorId: 2
     connections: 300
+    metadata:
+      replicaSet: rep
   - id: mongodb-xl
     name: XL
     description: The default production stage suited MongoDB plan with more capacity. Providing 50GB of capcity in a MongoDB. Ideal for common usage in production stages.
