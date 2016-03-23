@@ -48,7 +48,7 @@ resources:
     properties:
       handle: { get_resource: wait_handle }
       count: { get_param: secondary_number }
-      timeout: 360
+      timeout: 600
   nova_instance_sec:
     type: OS::Heat::ResourceGroup
     properties:
@@ -80,6 +80,7 @@ resources:
 
                 wget $REPOSITORY_MONGO_HA/mongo-HA-repset-template.sh
                 chmod +x mongo-HA-repset-template.sh
+                echo /mongo-HA-repset-template.sh -d $db_name -u $db_user -p $db_password -r $repset_name -k $key -m dummy -s dummy -a secondary
                 ./mongo-HA-repset-template.sh -d $db_name -u $db_user -p $db_password -r $repset_name -k $key -m dummy -s dummy -a secondary
 
                 wc_notify --data-binary '{"status": "SUCCESS", "id": %index% }'
@@ -136,8 +137,8 @@ resources:
 
             wget $REPOSITORY_MONGO_HA/mongo-HA-repset-template.sh
             chmod +x mongo-HA-repset-template.sh
-            echo secondary_ips
-            echo $instance_ips_secondary
+            echo cmueller inputcheck
+            echo mongo-HA-repset-template.sh -d $db_name -u $db_user -p $db_password -r $repset_name -k $key -m $instance_ip_primary -s $instance_ips_secondary -a primary
             ./mongo-HA-repset-template.sh -d $db_name -u $db_user -p $db_password -r $repset_name -k $key -m $instance_ip_primary -s $instance_ips_secondary -a primary
 
           params:
