@@ -1,0 +1,3 @@
+cmd for replica set
+
+heat stack-create -f templateCluster.yaml -e enviroment.yaml --poll -r app

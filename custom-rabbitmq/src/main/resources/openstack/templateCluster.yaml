@@ -1,0 +1,169 @@
+heat_template_version: 2015-10-15
+description: Deployment Description for MongoDB Replica Set
+parameters:
+  image_id:
+    type: string
+    description: Image used for servers
+  keypair:
+    type: string
+    description: SSH key to connect to the servers
+  flavor:
+    type: string
+    description: flavor used by the web servers
+  network_id:
+    type: string
+    description: Network used by the server
+  subnet_id:
+    type: string
+    description: subnet on which the load balancer will be located
+  volume_size:
+    type: number
+    description: Size of the volume to be created.
+  availability_zone:
+    type: string
+    description: The Availability Zone to launch the instance.
+  database_name:
+    type: string
+    description: Database name
+  database_user:
+    type: string
+    description: Database user
+  database_password:
+    type: string
+    description: Database password
+  database_number:
+    type: string
+    description: Database number
+  database_key:
+    type: string
+    description: Database key
+  log_host:
+    type: string
+    description: Host IP or FQDN for logging
+  log_port:
+    type: string
+    description: Port for logging host
+  erlang_key:
+    type: string
+    description: shared erlang key for all nodes
+  secondary_number:
+    type: number
+    description: number of secondaries for replica set
+resources:
+  wait_handle:
+    type: OS::Heat::WaitConditionHandle
+  wait_condition:
+    type: OS::Heat::WaitCondition
+    properties:
+      handle: { get_resource: wait_handle }
+      count: 1
+      timeout: 600
+  port_prim:
+    type: OS::Neutron::Port
+    properties:
+      network_id: {get_param: network_id}
+      security_groups:
+        - all
+  cinder_volume_prim:
+    type: OS::Cinder::Volume
+    properties:
+      size: { get_param: volume_size }
+      availability_zone: { get_param: availability_zone }
+  volume_attachment_prim:
+    type: OS::Cinder::VolumeAttachment
+    properties:
+      volume_id: { get_resource: cinder_volume_prim }
+      instance_uuid: { get_resource: rabbit_prim }
+      mountpoint: /dev/vdc
+  rabbit_prim:
+    type: OS::Nova::Server
+    properties:
+      flavor: {get_param: flavor}
+      image: {get_param: image_id}
+      key_name: {get_param: keypair}
+      networks:
+      - port: {get_resource: port_prim}
+      user_data_format: RAW
+      user_data:
+        str_replace:
+          template: |
+            #!/bin/bash
+
+            export REPOSITORY_RABBITMQ="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Rabbitmq-v3"
+            export REPOSITORY_MAIN="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master"
+            export RABBITMQ_ERLANG_COOKIE=thisisjustatest4usguysfromEVOILA
+
+            wget $REPOSITORY_RABBITMQ/rabbitmq-template.sh --no-cache
+            wget $REPOSITORY_RABBITMQ/rabbitmq-cluster.sh --no-cache
+            chmod +x rabbitmq-template.sh
+            chmod +x rabbitmq-cluster.sh
+
+            echo rabbitmq-template.sh -d $db_name -u $db_user -p $db_password -e openstack -l $log_host -m $log_port
+            ./rabbitmq-template.sh -d $db_name -u $db_user -p $db_password -e openstack -l $log_host -m $log_port
+            echo rabbitmq-cluster.sh -e $erlang_key -t primary
+            ./rabbitmq-cluster.sh -e $erlang_key -t primary
+
+
+            wc_notify --data-binary '{"status": "SUCCESS"}'
+
+          params:
+            $db_name: {get_param: database_name}
+            $db_user: {get_param: database_user}
+            $db_password: {get_param: database_password}
+            $log_host: {get_param: log_host}
+            $log_port: {get_param: log_port}
+            $erlang_key: {get_param: erlang_key}
+            wc_notify: { get_attr: [  'wait_handle', 'curl_cli'] }
+
+  rabbit_sec:
+    type: OS::Heat::ResourceGroup
+    depends_on: wait_condition
+    properties:
+      count: { get_param: secondary_number }
+      resource_def:
+        type: templateSingleSec.yaml
+        properties:
+          image_id: { get_param: image_id}
+          network_id: { get_param: network_id}
+          volume_size: { get_param: volume_size}
+          keypair: { get_param: keypair}
+          flavor: { get_param: flavor}
+          availability_zone: { get_param: availability_zone}
+          user_data:
+            str_replace:
+              template: |
+                #!/bin/bash
+
+                export REPOSITORY_RABBITMQ="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Rabbitmq-v3"
+                export REPOSITORY_MAIN="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master"
+
+                wget $REPOSITORY_RABBITMQ/rabbitmq-template.sh --no-cache
+                wget $REPOSITORY_RABBITMQ/rabbitmq-cluster.sh --no-cache
+                chmod +x rabbitmq-template.sh
+                chmod +x rabbitmq-cluster.sh
+                echo rabbitmq-template.sh -d $db_name -u $db_user -p $db_password -e openstack -l $log_host -m $log_port
+                ./rabbitmq-template.sh -d $db_name -u $db_user -p $db_password -e openstack -l $log_host -m $log_port
+                echo rabbitmq-cluster.sh -e $erlang_key -t secondary -m $master
+                ./rabbitmq-cluster.sh -e $erlang_key -t secondary -m $master
+
+              params:
+                $db_name: {get_param: database_name}
+                $db_user: {get_param: database_user}
+                $db_password: {get_param: database_password}
+                $repset_name: rs1
+                $erlang_key: {get_param: erlang_key}
+                $master: { get_attr: [port_prim, fixed_ips, 0, ip_address] }
+                $log_host: {get_param: log_host}
+                $log_port: {get_param: log_port}
+outputs:
+  ip_pool:
+    value:
+      str_replace:
+        template: { list_join: [', ',  [{ get_attr: [port_prim, fixed_ips, 0, ip_address] }, { get_attr: [ rabbit_sec, ip ] }]] }
+        params: { ' ': '' }
+  sec_ips:
+    value: { get_attr : [ rabbit_sec, ip ]}
+    description: Array of IPs of secondray instances
+  prim_ip:
+    value:  { get_attr: [port_prim, fixed_ips, 0, ip_address] }
+    description: IP of primary mongo replica
