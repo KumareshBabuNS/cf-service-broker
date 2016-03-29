@@ -73,7 +73,8 @@ public class ServiceInstance implements BaseEntity<String> {
 		setPlanId(planId);
 		setOrganizationGuid(organizationGuid);
 		setSpaceGuid(spaceGuid);
-		setParameters(parameters);
+		if (parameters != null)
+			setParameters(parameters);
 	}
 
 	public ServiceInstance(String serviceInstanceId, String serviceDefintionId, String planId, String organizationGuid,

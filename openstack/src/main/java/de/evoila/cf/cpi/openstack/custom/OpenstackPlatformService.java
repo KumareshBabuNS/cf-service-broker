@@ -38,8 +38,8 @@ import jersey.repackaged.com.google.common.collect.Lists;
 @ConfigurationProperties(prefix = "backend")
 public class OpenstackPlatformService extends OpenstackServiceFactory {
 
-	@Autowired
-	private PlatformRepository platformRepositroy;
+	@Autowired(required = false)
+	private PlatformRepository platformRepository;
 
 	@Autowired
 	private IpAccessor ipAccessor;
@@ -47,7 +47,8 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 	@Override
 	@PostConstruct
 	public void registerCustomPlatformServie() {
-		platformRepositroy.addPlatform(Platform.OPENSTACK, this);
+		if (platformRepository != null)
+			platformRepository.addPlatform(Platform.OPENSTACK, this);
 	}
 
 	@Override

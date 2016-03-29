@@ -122,7 +122,7 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 		}
 	}
 
-	private String readTemplateFile(URL url) throws IOException, URISyntaxException {
+	public String readTemplateFile(URL url) throws IOException, URISyntaxException {
 		byte[] encoded = Files.readAllBytes(Paths.get(url.toURI()));
 		return new String(encoded, DEFAULT_ENCODING);
 	}
@@ -137,6 +137,18 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 		Stack stack = heatFluent.create(name, heatTemplate, completeParameters, DEFAULT_DISABLE_ROLLBACK,
 				DEFAULT_TIMEOUT_MINUTES);
 
+		stack = waitForStackCompletion(name);
+
+		return stack;
+	}
+
+	/**
+	 * @param name
+	 * @return
+	 * @throws PlatformException
+	 */
+	public Stack waitForStackCompletion(String name) throws PlatformException {
+		Stack stack;
 		try {
 			Thread.sleep(5000);
 		} catch (InterruptedException e) {
@@ -145,9 +157,9 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 
 		stack = heatFluent.get(name);
 
-		if (stack.getStatus().equals(CREATE_FAILED))
+		if (stack != null && stack.getStatus().equals(CREATE_FAILED))
 			throw new PlatformException(stack.getStackStatusReason());
-
+		
 		while (stack.getStatus().equals(CREATE_IN_PROGRESS)) {
 			stack = heatFluent.get(name);
 
@@ -157,7 +169,6 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 				throw new PlatformException(e);
 			}
 		}
-
 		return stack;
 	}
 
@@ -171,7 +182,7 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 		return "s" + instanceId;
 	}
 
-	private Map<String, String> defaultParameters() {
+	public Map<String, String> defaultParameters() {
 		Map<String, String> defaultParameters = new HashMap<String, String>();
 		defaultParameters.put("image_id", imageId);
 		defaultParameters.put("keypair", keypair);
@@ -180,6 +191,10 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 		defaultParameters.put("availability_zone", availabilityZone);
 
 		return defaultParameters;
+	}
+	
+	public HeatFluent getHeatFluent() {
+		return this.heatFluent;
 	}
 
 }
