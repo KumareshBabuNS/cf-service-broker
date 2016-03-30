@@ -119,10 +119,8 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 		}
 	}
 
-<<<<<<< .merge_file_l02jjx
-	public String readTemplateFile(URL url) throws IOException, URISyntaxException {
-=======
-	protected String accessTemplate(final String templatePath) {
+
+	public String accessTemplate(final String templatePath) {
 		URL url = this.getClass().getResource(templatePath);
 
 		Assert.notNull(url, "Heat template definition must be provided.");
@@ -135,7 +133,6 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 	}
 
 	private String readTemplateFile(URL url) throws IOException, URISyntaxException {
->>>>>>> .merge_file_RveXd7
 		byte[] encoded = Files.readAllBytes(Paths.get(url.toURI()));
 		return new String(encoded, DEFAULT_ENCODING);
 	}

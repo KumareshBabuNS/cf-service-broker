@@ -57,8 +57,7 @@ public class OpenstackPlatformServiceClusterTest extends BaseIntegrationTest {
 	
 	@Test
 	public void createCluster() throws IOException, URISyntaxException, PlatformException {
-		URL templateUrl = this.getClass().getResource("/openstack/templatePorts.yaml");
-		String template = openstackPlatformService.readTemplateFile(templateUrl);
+		String template = openstackPlatformService.accessTemplate("/openstack/templatePorts.yaml");
 		String name = "testResourceGroupsForNeutronPorts"+UUID.randomUUID().toString();
 		
 /*		Map<String, String> parameters = openstackPlatformService.defaultParameters();
@@ -106,7 +105,8 @@ public class OpenstackPlatformServiceClusterTest extends BaseIntegrationTest {
 		for (int i = 0; i < ips.size(); i++) {
 			System.out.println("IP:"+ips.get(i)+"-PORT:"+ports.get(i));
 		}
-			
+	
+		
 		Assert.assertNotNull(stackPorts);
 	}
 	
