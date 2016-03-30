@@ -96,7 +96,14 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 		platformParameters.putAll(customProperties);
 
 		try {
-			this.create(instanceId, platformParameters);
+			String heatTemplate;
+			if (plan.getMetadata().containsKey("template")) {
+				String templatePath = (String) plan.getMetadata().get("template");
+				heatTemplate = accessTemplate(templatePath);
+			} else {
+				heatTemplate = getDefaultHeatTemplate();
+			}
+			this.create(instanceId, platformParameters, heatTemplate);
 			List<ServerAddress> tmpAddresses = ipAccessor.getIpAddresses(instanceId);
 			List<ServerAddress> serverAddresses = Lists.newArrayList();
 			for (Entry<String, Integer> port : this.ports.entrySet()) {

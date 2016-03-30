@@ -6,14 +6,15 @@ package de.evoila;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.util.Assert;
 
-import de.evoila.cf.cpi.custom.props.DefaultDatabaseCustomPropertyHandler;
 import de.evoila.cf.cpi.custom.props.DomainBasedCustomPropertyHandler;
+import de.evoila.cf.cpi.custom.props.MongoDBCustomPropertyHandler;
 import de.evoila.cf.cpi.openstack.custom.CustomIpAccessor;
 import de.evoila.cf.cpi.openstack.custom.MongoIpAccessor;
 
@@ -25,8 +26,11 @@ import de.evoila.cf.cpi.openstack.custom.MongoIpAccessor;
 @SpringBootApplication
 public class Application {
 
+	@Value("${mongodb.security.key.length}")
+	private int keyLength;
+
 	@Bean
-	public CustomIpAccessor mognoIpAccessor() {
+	public CustomIpAccessor mongoIpAccessor() {
 		return new MongoIpAccessor();
 	}
 
@@ -40,7 +44,7 @@ public class Application {
 
 	@Bean
 	public DomainBasedCustomPropertyHandler domainPropertyHandler() {
-		return new DefaultDatabaseCustomPropertyHandler();
+		return new MongoDBCustomPropertyHandler(keyLength);
 	}
 
 	public static void main(String[] args) {

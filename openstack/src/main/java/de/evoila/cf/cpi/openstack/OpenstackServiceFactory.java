@@ -60,8 +60,8 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 	@Value("${openstack.networkId}")
 	private String networkId;
 
-	@Value("${openstack.subnetId}")
-	private String subnetId;
+	// @Value("${openstack.subnetId}")
+	// private String subnetId;
 
 	@Value("${openstack.imageId}")
 	private String imageId;
@@ -82,7 +82,11 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 		this.ports = ports;
 	}
 
-	private String heatTemplate;
+	public String getDefaultHeatTemplate() {
+		return defaultHeatTemplate;
+	}
+
+	private String defaultHeatTemplate;
 
 	private static String DEFAULT_ENCODING = "UTF-8";
 
@@ -103,15 +107,8 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 
 				log.debug("Reading heat template definition for openstack");
 
-				URL url = this.getClass().getResource("/openstack/template.yml");
-
-				try {
-					heatTemplate = this.readTemplateFile(url);
-				} catch (IOException | URISyntaxException e) {
-					log.info("Failed to load heat template", e);
-				}
-
-				Assert.notNull(url, "Heat template definition must be provided.");
+				final String templatePath = "/openstack/template.yml";
+				defaultHeatTemplate = accessTemplate(templatePath);
 
 				endpointAvailabilityService.add(OPENSTACK_SERVICE_KEY,
 						new EndpointServiceState(OPENSTACK_SERVICE_KEY, AvailabilityState.AVAILABLE));
@@ -122,12 +119,29 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 		}
 	}
 
+<<<<<<< .merge_file_l02jjx
 	public String readTemplateFile(URL url) throws IOException, URISyntaxException {
+=======
+	protected String accessTemplate(final String templatePath) {
+		URL url = this.getClass().getResource(templatePath);
+
+		Assert.notNull(url, "Heat template definition must be provided.");
+		try {
+			return this.readTemplateFile(url);
+		} catch (IOException | URISyntaxException e) {
+			log.info("Failed to load heat template", e);
+			return defaultHeatTemplate;
+		}
+	}
+
+	private String readTemplateFile(URL url) throws IOException, URISyntaxException {
+>>>>>>> .merge_file_RveXd7
 		byte[] encoded = Files.readAllBytes(Paths.get(url.toURI()));
 		return new String(encoded, DEFAULT_ENCODING);
 	}
 
-	protected Stack create(String instanceId, Map<String, String> customParameters) throws PlatformException {
+	protected Stack create(String instanceId, Map<String, String> customParameters, String heatTemplate)
+			throws PlatformException {
 		Map<String, String> completeParameters = new HashMap<String, String>();
 		completeParameters.putAll(defaultParameters());
 		completeParameters.putAll(customParameters);
@@ -187,7 +201,7 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 		defaultParameters.put("image_id", imageId);
 		defaultParameters.put("keypair", keypair);
 		defaultParameters.put("network_id", networkId);
-		defaultParameters.put("subnet_id", subnetId);
+		// defaultParameters.put("subnet_id", subnetId);
 		defaultParameters.put("availability_zone", availabilityZone);
 
 		return defaultParameters;

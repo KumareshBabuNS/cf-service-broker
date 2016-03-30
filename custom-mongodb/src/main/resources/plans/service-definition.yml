@@ -26,16 +26,18 @@ plans:
     platform: OPENSTACK
     flavorId: 2
     connections: 300
-    metadata:
-      replicaSet: rep
   - id: mongodb-xl
     name: XL
     description: The default production stage suited MongoDB plan with more capacity. Providing 50GB of capcity in a MongoDB. Ideal for common usage in production stages.
     volumeSize: 50
     volumeUnit: G
     platform: OPENSTACK
-    flavorId: 3
+    flavorId: 2
     connections: 300
+    metadata:
+     template: /openstack/templateReplicaSet.yaml
+     replicaSet: rep
+     secondary_number: 3
   - id: mongodb-xxl
     name: XXL
     description: A production stage suited MongoDB plan with more capacity. Providing 500GB of capcity in a MongoDB. Ideal for common advanced usage in production stages.
@@ -44,6 +46,10 @@ plans:
     platform: OPENSTACK
     flavorId: 4
     connections: 300
+    metadata:
+     replicaSet: rep
+     template: /openstack/templateReplicaSet.yaml
+     secondary_number: 4
   - id: mongodb-xxxl
     name: XXXL
     description: The maximum production stage suited MongoDB plan currently available. Providing 2TB of capcity in a MongoDB. Ideal for heavy weight usage in production stages.
