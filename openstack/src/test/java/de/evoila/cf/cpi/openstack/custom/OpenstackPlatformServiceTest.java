@@ -89,5 +89,4 @@ public class OpenstackPlatformServiceTest extends BaseIntegrationTest {
 		openstackPlatformService.updateInstance(serviceInstance, plan);
 	}
 
-
 }

@@ -25,7 +25,7 @@ import de.evoila.cf.broker.model.VolumeUnit;
  *
  */
 @Configuration
-@ComponentScan(basePackages = { "de.evoila.cf.cpi", "de.evoila.cf.broker.service" })
+@ComponentScan(basePackages = { "de.evoila.cf.cpi", "de.evoila.cf.broker.cpi" })
 public class IntegrationTestConfiguration {
 	
 	@Bean
