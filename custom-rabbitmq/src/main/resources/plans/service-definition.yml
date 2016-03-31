@@ -50,3 +50,5 @@ plans:
     platform: OPENSTACK
     flavorId: 4
     connections: 300
+    metadata:
+      cluster: true

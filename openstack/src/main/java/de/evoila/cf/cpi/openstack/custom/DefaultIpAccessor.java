@@ -14,7 +14,6 @@ import com.google.common.collect.Lists;
 
 import de.evoila.cf.broker.exception.PlatformException;
 import de.evoila.cf.broker.model.ServerAddress;
-import de.evoila.cf.cpi.openstack.OpenstackServiceFactory;
 import de.evoila.cf.cpi.openstack.fluent.HeatFluent;
 import de.evoila.cf.cpi.openstack.fluent.NeutronFluent;
 import de.evoila.cf.cpi.openstack.fluent.NovaFluent;
@@ -71,7 +70,7 @@ public class DefaultIpAccessor extends IpAccessor {
 	}
 
 	private List<Server> servers(String instanceId) throws PlatformException {
-		Stack stack = heatFluent.get(OpenstackServiceFactory.uniqueName(instanceId));
+		Stack stack = heatFluent.get(HeatFluent.uniqueName(instanceId));
 
 		return heatFluent.servers(stack.getName(), stack.getId(), HeatFluent.NOVA_INSTANCE_TYPE);
 	}

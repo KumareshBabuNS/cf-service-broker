@@ -7,14 +7,13 @@ import java.util.Map;
 
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.ServiceInstance;
-import de.evoila.cf.cpi.custom.props.DomainBasedCustomPropertyHandler;
 
 /**
  * @author Christian Brinker, evoila.
  *
  */
 public class RabbitMQCustomPropertyHandler implements DomainBasedCustomPropertyHandler {
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -30,6 +29,15 @@ public class RabbitMQCustomPropertyHandler implements DomainBasedCustomPropertyH
 		customProperties.put("rabbit_vhost", id);
 		customProperties.put("rabbit_user", id);
 		customProperties.put("rabbit_password", id);
+		
+		if(plan.getMetadata().containsKey("cluster")) {
+			Object uncastedCluster = plan.getMetadata().get("cluster");
+			if(uncastedCluster instanceof Boolean && (boolean) uncastedCluster) {
+				customProperties.put("cluster","true");
+				
+				
+			}
+		}
 		
 		return customProperties;
 	}

@@ -18,6 +18,10 @@ import de.evoila.cf.broker.model.ServiceInstance;
  */
 public class MongoDBCustomPropertyHandler extends DefaultDatabaseCustomPropertyHandler {
 
+	/**
+	 * 
+	 */
+	private static final String TEMPLATE = "template";
 	private static final String REPLICA_SET = "replicaSet";
 	private static final String SECONDARY_NUMBER = "secondary_number";
 	private static final String DATABASE_KEY = "database_key";
@@ -51,6 +55,9 @@ public class MongoDBCustomPropertyHandler extends DefaultDatabaseCustomPropertyH
 
 			// customProperties.put(REPLICA_SET, replicaSet);
 
+			String templatePath = (String) plan.getMetadata().get(TEMPLATE);
+			customProperties.put(TEMPLATE, templatePath);
+			
 			int secondaryNumber = (int) plan.getMetadata().get(SECONDARY_NUMBER);
 			customProperties.put(SECONDARY_NUMBER, Integer.toString(secondaryNumber));
 

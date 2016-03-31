@@ -5,28 +5,26 @@ package de.evoila.cf.cpi.openstack.custom;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.UUID;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.neo4j.cypher.internal.compiler.v2_2.ast.rewriters.getDegreeOptimizer;
 import org.openstack4j.model.heat.Stack;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import de.evoila.cf.broker.exception.PlatformException;
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.Platform;
-import de.evoila.cf.broker.model.ServerAddress;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.VolumeUnit;
 import de.evoila.cf.cpi.BaseIntegrationTest;
-import jersey.repackaged.com.google.common.collect.Lists;
+import de.evoila.cf.cpi.openstack.fluent.HeatFluent;
+import de.evoila.cf.cpi.openstack.util.StackProgressObserver;
 
 /**
  * @author Johannes Hiemer.
@@ -39,7 +37,13 @@ public class OpenstackPlatformServiceClusterTest extends BaseIntegrationTest {
 	private ServiceInstance serviceInstance;
 	
 	@Autowired
-	private OpenstackPlatformService openstackPlatformService;
+	private HeatFluent heatFluent;
+	
+	@Autowired
+	private StackProgressObserver stackProgressObserver;
+
+	@Autowired
+	private StackHandler stackHandler;
 	
 	@Before
 	public void before() {
@@ -56,43 +60,30 @@ public class OpenstackPlatformServiceClusterTest extends BaseIntegrationTest {
 	}
 	
 	@Test
-	public void createCluster() throws IOException, URISyntaxException, PlatformException {
-		String template = openstackPlatformService.accessTemplate("/openstack/templatePorts.yaml");
-		String name = "testResourceGroupsForNeutronPorts"+UUID.randomUUID().toString();
+	public void createCluster() throws IOException, URISyntaxException, PlatformException, InterruptedException {
+		final String uuid = UUID.randomUUID().toString();
+		final Integer numberSecondaries = 3;
+		String templatePorts = stackHandler.accessTemplate("/openstack/templatePorts.yaml");
+		String namePorts = "testResourceGroupsForNeutronPorts"+uuid;
 		
-/*		Map<String, String> parameters = openstackPlatformService.defaultParameters();
-		parameters.put("database_name", "evoila");
-		parameters.put("database_user", "evoila");
-		parameters.put("database_password", "evoila");
-		parameters.put("database_number", "1");
-		parameters.put("database_key", "aGFuc3d1cnN0");
-		parameters.put("log_host", "172.24.102.12");
-		parameters.put("log_port", "5002");
-		parameters.put("erlang_key", "thisisjustatest4usguysfromEVOILA");
-		parameters.put("secondary_number", "1");
-		parameters.put("flavor", "m1.small");
-		parameters.put("volume_size", "2");
-*/
-		Map<String, String> parameters = new HashMap<String, String>();
-		parameters.put("secondary_number", "2");
-		parameters.put("network_id", "3e73c0d4-31a8-4cb5-a2f8-b12e4577395c");
+		Integer numberPorts = numberSecondaries+1;
+		Map<String, String> parametersPorts = new HashMap<String, String>();
+		parametersPorts.put("secondary_number", numberPorts.toString());
+		parametersPorts.put("network_id", "3e73c0d4-31a8-4cb5-a2f8-b12e4577395c");
 		
-		openstackPlatformService.getHeatFluent()
-				.create(name, template, parameters , false, 10l);
+		heatFluent.create(namePorts, templatePorts, parametersPorts , false, 10l);
 		
-		Stack stackPorts = openstackPlatformService.waitForStackCompletion(name);	
+		Stack stackPorts = stackProgressObserver.waitForStackCompletion(namePorts);	
 		
-		List<Map<String, Object>> outputs = stackPorts.getOutputs();
 		
 		List<String> ips = null;
 		List<String> ports = null;
 		
-		for (Map<String, Object> output : outputs) {
+		for (Map<String, Object> output : stackPorts.getOutputs()) {
 			Object outputKey = output.get("output_key");
 			if (outputKey != null && outputKey instanceof String) {
 				String key = (String) outputKey;
-				System.out.println("drin0-"+key);
-				if (key.equals("secondary_ips")) {
+				if (key.equals("secondary_ips")) {	
 					ips = (List<String>) output.get("output_value");
 
 				}
@@ -102,12 +93,102 @@ public class OpenstackPlatformServiceClusterTest extends BaseIntegrationTest {
 			}
 		}
 		
-		for (int i = 0; i < ips.size(); i++) {
-			System.out.println("IP:"+ips.get(i)+"-PORT:"+ports.get(i));
-		}
-	
+		String primIp = ips.get(0);
+		ips.remove(0);
+		String primPort = ports.get(0);
+		ports.remove(0);
+		String primHostname = "p-"+primIp.replace(".", "-");
 		
-		Assert.assertNotNull(stackPorts);
+		String etcHosts = primIp+" "+primHostname+"\n";
+		for (String secIp : ips) {
+			etcHosts += secIp+" "+"sec-"+secIp.replace(".", "-")+"\n";
+		}
+		
+		System.out.println(etcHosts);
+		
+		String templatePrimary = stackHandler.accessTemplate("/openstack/templatePrim.yaml");
+		String namePrimary = "testResourceGroupPrimary"+uuid;
+		
+		
+		Map<String, String> parametersPrimary = new HashMap<String, String>();
+		parametersPrimary.put("database_name", "evoila");
+		parametersPrimary.put("database_user", "evoila");
+		parametersPrimary.put("database_password", "evoila");
+		parametersPrimary.put("database_number", "1");
+		parametersPrimary.put("database_key", "aGFuc3d1cnN0");
+		parametersPrimary.put("log_host", "172.24.102.12");
+		parametersPrimary.put("log_port", "5002");
+		parametersPrimary.put("erlang_key", "thisisjustatest4usguysfromEVOILA");
+		parametersPrimary.put("flavor", "m1.small");
+		parametersPrimary.put("volume_size", "2");
+		parametersPrimary.put("hostnames", etcHosts);
+		parametersPrimary.put("hostname", primHostname);
+		parametersPrimary.put("port_prim", primPort);
+		parametersPrimary.put("availability_zone", "nova");
+		parametersPrimary.put("keypair", "cmueller");
+		parametersPrimary.put("image_id", "b89dd034-f4f0-4a2a-95bd-74f325428f07");
+		
+		System.out.println(parametersPrimary.toString());
+		
+		heatFluent.create(namePrimary, templatePrimary, parametersPrimary , false, 10l);
+		
+		Stack stackPrimary = stackProgressObserver.waitForStackCompletion(namePrimary);	
+		
+		
+		
+		String templateSec = stackHandler.accessTemplate("/openstack/templateSecondaries.yaml");
+		String nameSec = "testResourceGroupSecondary"+uuid;	
+		
+		
+		Map<String, String> parametersSec = new HashMap<String, String>();
+		parametersSec.put("database_name", "evoila");
+		parametersSec.put("database_user", "evoila");
+		parametersSec.put("database_password", "evoila");
+		parametersSec.put("database_number", "1");
+		parametersSec.put("database_key", "aGFuc3d1cnN0");
+		parametersSec.put("log_host", "172.24.102.12");
+		parametersSec.put("log_port", "5002");
+		parametersSec.put("erlang_key", "thisisjustatest4usguysfromEVOILA");
+		parametersSec.put("flavor", "m1.small");
+		parametersSec.put("volume_size", "2");
+		parametersSec.put("hostnames", etcHosts);
+		parametersSec.put("availability_zone", "nova");
+		parametersSec.put("keypair", "cmueller");
+		parametersSec.put("image_id", "b89dd034-f4f0-4a2a-95bd-74f325428f07");
+		parametersSec.put("masterHostname", primHostname);
+
+		
+		for (int i = 0; i < numberSecondaries; i++) {
+			if ( i > 0 ) Thread.sleep(1000);
+			if (parametersSec.containsKey("network_port")) {
+				parametersSec.remove("network_port");
+			}
+			parametersSec.put("network_port", ports.get(i));
+			
+			if (parametersSec.containsKey("hostname")) {
+				parametersSec.remove("hostname");
+			}
+			parametersSec.put("hostname", "sec-"+ips.get(i).replace(".", "-"));
+			
+			System.out.println("Create Sec Nr."+i);
+			System.out.println(parametersSec.toString());
+			System.out.println(nameSec+"_"+i);
+			heatFluent.create(nameSec+"_"+i, templateSec, parametersSec , false, 10l);
+			System.out.println("called");
+			
+		}
+		
+		List<Stack> stackSec = new ArrayList<Stack>();
+		for (int i = 0; i < numberSecondaries; i++) {
+			System.out.println("wait for Secondaries No. "+i); 
+			stackSec.add(stackProgressObserver.waitForStackCompletion(nameSec+"_"+i));	
+		}
+		
+		for (int i = 0; i < numberSecondaries; i++) {
+			Assert.assertNotNull(stackSec.get(i));	
+		}
+		
 	}
+	
 	
 }

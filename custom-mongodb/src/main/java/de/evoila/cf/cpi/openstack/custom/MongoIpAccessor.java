@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.evoila.cf.broker.model.ServerAddress;
-import de.evoila.cf.cpi.openstack.OpenstackServiceFactory;
 import de.evoila.cf.cpi.openstack.fluent.HeatFluent;
 import jersey.repackaged.com.google.common.collect.Lists;
 
@@ -26,7 +25,7 @@ public class MongoIpAccessor extends CustomIpAccessor {
 
 	@Override
 	public List<ServerAddress> getIpAddresses(String instanceId) {
-		Stack stack = heatFluent.get(OpenstackServiceFactory.uniqueName(instanceId));
+		Stack stack = heatFluent.get(HeatFluent.uniqueName(instanceId));
 		List<Map<String, Object>> outputs = stack.getOutputs();
 		List<ServerAddress> serverAddresses = Lists.newArrayList();
 		for (Map<String, Object> output : outputs) {

@@ -2,7 +2,6 @@ parameters:
   image_id: b89dd034-f4f0-4a2a-95bd-74f325428f07
   keypair: cmueller
   flavor: m1.small
-  network_id: 3e73c0d4-31a8-4cb5-a2f8-b12e4577395c
   volume_size: 2
   availability_zone: nova
   database_name: evoila
@@ -13,4 +12,7 @@ parameters:
   log_port: 172.24.102.12
   log_host: 5002
   erlang_key: thisisjustatest4usguysfromEVOILA
-  secondary_number: 1
+  master_ip: 172.168.168.187
+  secondary_ips: test sdf sfd s sdfjsd sdfj sdf s dfj sf
+  network_ip: 172.24.102.148
+  network_port: f6a7255f-0829-48ea-91d5-fb5ea452fa03

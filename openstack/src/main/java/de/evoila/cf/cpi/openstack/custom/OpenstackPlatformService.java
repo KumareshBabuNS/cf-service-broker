@@ -13,6 +13,7 @@ import javax.ws.rs.NotAcceptableException;
 import javax.ws.rs.NotSupportedException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ import de.evoila.cf.broker.model.VolumeUnit;
 import de.evoila.cf.broker.repository.PlatformRepository;
 import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
 import de.evoila.cf.cpi.openstack.OpenstackServiceFactory;
+import de.evoila.cf.cpi.openstack.fluent.HeatFluent;
 import jersey.repackaged.com.google.common.collect.Lists;
 
 /**
@@ -37,12 +39,27 @@ import jersey.repackaged.com.google.common.collect.Lists;
 @EnableConfigurationProperties
 @ConfigurationProperties(prefix = "backend")
 public class OpenstackPlatformService extends OpenstackServiceFactory {
-
+	
+	private StackHandler stackHandler; 
+	
+	@Autowired
+	@Qualifier(value="defaultStackHandler")
+	private StackHandler defaultStackHandler; 
+	
 	@Autowired(required = false)
 	private PlatformRepository platformRepository;
 
 	@Autowired
 	private IpAccessor ipAccessor;
+	
+	@Autowired(required = false)
+	private void setStackHandler(CustomStackHandler customStackHandler) {
+		if(customStackHandler != null) {
+			stackHandler = customStackHandler;
+		} else {
+			stackHandler = defaultStackHandler;
+		}
+	}
 
 	@Override
 	@PostConstruct
@@ -96,14 +113,7 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 		platformParameters.putAll(customProperties);
 
 		try {
-			String heatTemplate;
-			if (plan.getMetadata().containsKey("template")) {
-				String templatePath = (String) plan.getMetadata().get("template");
-				heatTemplate = accessTemplate(templatePath);
-			} else {
-				heatTemplate = getDefaultHeatTemplate();
-			}
-			this.create(instanceId, platformParameters, heatTemplate);
+			stackHandler.create(instanceId, platformParameters);
 			List<ServerAddress> tmpAddresses = ipAccessor.getIpAddresses(instanceId);
 			List<ServerAddress> serverAddresses = Lists.newArrayList();
 			for (Entry<String, Integer> port : this.ports.entrySet()) {
@@ -117,7 +127,7 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 			}
 
 			serviceInstance = new ServiceInstance(serviceInstance, "http://currently.not/available",
-					OpenstackPlatformService.uniqueName(instanceId), serverAddresses);
+					HeatFluent.uniqueName(instanceId), serverAddresses);
 		} catch (Exception e) {
 			throw new PlatformException(e);
 		}
@@ -146,7 +156,7 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 
 	@Override
 	public void deleteServiceInstance(ServiceInstance serviceInstance) throws PlatformException {
-		this.delete(serviceInstance.getInternalId());
+		stackHandler.delete(serviceInstance.getInternalId());
 	}
 
 	@Override

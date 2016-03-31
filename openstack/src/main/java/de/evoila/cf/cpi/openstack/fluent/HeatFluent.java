@@ -90,4 +90,8 @@ public class HeatFluent {
 
 		return servers;
 	}
+	
+	public static String uniqueName(String instanceId) {
+		return "s" + instanceId;
+	}
 }

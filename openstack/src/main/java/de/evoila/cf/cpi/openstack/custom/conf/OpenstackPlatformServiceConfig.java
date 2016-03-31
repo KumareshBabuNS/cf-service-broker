@@ -9,8 +9,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import de.evoila.cf.cpi.openstack.custom.CustomIpAccessor;
+import de.evoila.cf.cpi.openstack.custom.CustomStackHandler;
 import de.evoila.cf.cpi.openstack.custom.DefaultIpAccessor;
+import de.evoila.cf.cpi.openstack.custom.StackHandler;
 import de.evoila.cf.cpi.openstack.custom.IpAccessor;
+import de.evoila.cf.cpi.openstack.custom.StackHandler;
 
 /**
  * @author Christian Brinker, evoila.
@@ -29,5 +32,11 @@ public class OpenstackPlatformServiceConfig {
 	@Bean
 	public IpAccessor ipAccessor() {
 		return new DefaultIpAccessor(networkId, subnetId);
+	}
+	
+	@ConditionalOnMissingBean(CustomStackHandler.class)
+	@Bean
+	public StackHandler stackHandler() {
+		return new StackHandler();
 	}
 }
