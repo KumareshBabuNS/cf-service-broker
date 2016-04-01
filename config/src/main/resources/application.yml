@@ -5,7 +5,9 @@ spring:
     config:
       server:
         git:
-          uri: https://bitbucket.org/evoila-boxer/cf-service-broker-config
+          uri: https://bitbucket.org/evoila-boxer/cf-service-broker-config.git
+          username: ${GIT_USER}
+          password: ${GIT_PASSWORD}
             
 ---
 spring:
