@@ -13,7 +13,7 @@ parameters:
   network_port:
     type: string
     description: Network used by the server
-  hostname:
+  secondaryHostname:
     type: string
     description: Own hostname
   volume_size:
@@ -22,21 +22,15 @@ parameters:
   availability_zone:
     type: string
     description: The Availability Zone to launch the instance.
-  database_name:
+  rabbit_vhost:
     type: string
-    description: Database name
-  database_user:
+    description: RabbitMQ name
+  rabbit_user:
     type: string
-    description: Database user
-  database_password:
+    description: RabbitMQ user
+  rabbit_password:
     type: string
-    description: Database password
-  database_number:
-    type: string
-    description: Database number
-  database_key:
-    type: string
-    description: Database key
+    description: RabbitMQ password
   log_host:
     type: string
     description: Host IP or FQDN for logging
@@ -49,7 +43,7 @@ parameters:
   masterHostname:
     type: string
     description: Hostname of master
-  hostnames:
+  etcHosts:
     type: string
     description: hostname in format to attach to /etc/hosts
 
@@ -71,20 +65,15 @@ resources:
       flavor: {get_param: flavor}
       image: {get_param: image_id}
       key_name: {get_param: keypair}
-      name: { get_param: hostname }
+      name: { get_param: secondaryHostname }
       networks:
       - port: {get_param: network_port }
       user_data:
         str_replace:
           template: |
             #!/bin/bash
-            
-            echo cmueller
-            echo "hostnames - $hostnames"
-            echo myHostname - $myHostname
-            
-            echo "$hostnames" >> /etc/hosts
-            #echo $myHostname > /etc/hostname
+
+            echo "$etcHosts" >> /etc/hosts
 
             export REPOSITORY_RABBITMQ="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Rabbitmq-v3"
             export REPOSITORY_MAIN="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master"
@@ -94,22 +83,21 @@ resources:
 
             chmod +x rabbitmq-template.sh
             chmod +x rabbitmq-cluster.sh
-            echo rabbitmq-template.sh -d $db_name -u $db_user -p $db_password -e openstack -l $log_host -m $log_port
-            ./rabbitmq-template.sh -d $db_name -u $db_user -p $db_password -e openstack -l $log_host -m $log_port
+            echo rabbitmq-template.sh -d $amqp_vhost -u $amqp_user -p $amqp_password -e openstack -l $log_host -m $log_port
+            ./rabbitmq-template.sh -d $amqp_vhost -u $amqp_user -p $amqp_password -e openstack -l $log_host -m $log_port
             echo rabbitmq-cluster.sh -e $erlang_key -t secondary -m $masterHostname
             ./rabbitmq-cluster.sh -e $erlang_key -t secondary -m $masterHostname
 
           params:
-            $db_name: { get_param: database_name }
-            $db_user: { get_param: database_user }
-            $db_password: { get_param: database_password }
+            $amqp_vhost: {get_param: rabbit_vhost}
+            $amqp_user: {get_param: rabbit_user}
+            $amqp_password: {get_param: rabbit_password}
             $repset_name: rs1
             $erlang_key: { get_param: erlang_key }
             $masterHostname: { get_param: masterHostname }
             $log_host: { get_param: log_host }
             $log_port: { get_param: log_port }
-            $hostnames: { get_param: hostnames }
-            $myHostname: { get_param: hostname }
+            $etcHosts: { get_param: etcHosts }
 outputs:
   ip:
     value: { get_attr: [ instance, first_address ]}

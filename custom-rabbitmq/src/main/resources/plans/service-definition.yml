@@ -34,6 +34,8 @@ plans:
     platform: OPENSTACK
     flavorId: 3
     connections: 300
+    metadata:
+      secondary_number: 2
   - id: rabbitmq-xxl
     name: XXL
     description: A production stage suited RabbitMQ plan with more capacity. Providing 100GB of capcity in a RabbitMQ Queues. Ideal for common advanced usage in production stages.
@@ -42,6 +44,8 @@ plans:
     platform: OPENSTACK
     flavorId: 4
     connections: 300
+    metadata:
+      secondary_number: 4
   - id: rabbitmq-xxxl
     name: XXXL
     description: The maximum production stage suited RabbitMQ plan currently available. Providing 250GB of capcity in a RabbitMQ Queues. Ideal for heavy weight usage in production stages.
@@ -52,3 +56,4 @@ plans:
     connections: 300
     metadata:
       cluster: true
+      secondary_number: 6

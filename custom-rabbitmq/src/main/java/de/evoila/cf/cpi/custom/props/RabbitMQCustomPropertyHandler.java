@@ -5,6 +5,11 @@ package de.evoila.cf.cpi.custom.props;
 
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.crypto.keygen.BytesKeyGenerator;
+import org.springframework.util.Base64Utils;
+
 import de.evoila.cf.broker.model.Plan;
 import de.evoila.cf.broker.model.ServiceInstance;
 
@@ -14,6 +19,17 @@ import de.evoila.cf.broker.model.ServiceInstance;
  */
 public class RabbitMQCustomPropertyHandler implements DomainBasedCustomPropertyHandler {
 	
+	private static final String RABBIT_PASSWORD = "rabbit_password";
+	private static final String RABBIT_USER = "rabbit_user";
+	private static final String RABBIT_VHOST = "rabbit_vhost";
+	public static final String SECONDARY_NUMBER = "secondary_number";
+	public static final String CLUSTER = "cluster";
+	public static final String ERLANG_KEY = "erlang_key";
+	
+	private static final Logger log = LoggerFactory.getLogger(RabbitMQCustomPropertyHandler.class);
+	
+	private BytesKeyGenerator secureRandom;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -26,18 +42,26 @@ public class RabbitMQCustomPropertyHandler implements DomainBasedCustomPropertyH
 	public Map<String, String> addDomainBasedCustomProperties(Plan plan, Map<String, String> customProperties,
 			ServiceInstance serviceInstance) {
 		String id = serviceInstance.getId();
-		customProperties.put("rabbit_vhost", id);
-		customProperties.put("rabbit_user", id);
-		customProperties.put("rabbit_password", id);
+		customProperties.put(RABBIT_VHOST, id);
+		customProperties.put(RABBIT_USER, id);
+		customProperties.put(RABBIT_PASSWORD, id);
 		
-		if(plan.getMetadata().containsKey("cluster")) {
-			Object uncastedCluster = plan.getMetadata().get("cluster");
+		if(plan.getMetadata().containsKey(CLUSTER)) {
+			Object uncastedCluster = plan.getMetadata().get(CLUSTER);
 			if(uncastedCluster instanceof Boolean && (boolean) uncastedCluster) {
-				customProperties.put("cluster","true");
-				
-				
+				customProperties.put(CLUSTER,"true");
+				log.debug("RabbitMQ cluster detected - add cluster to customProperties");				
 			}
 		}
+		
+		if (plan.getMetadata().containsKey(SECONDARY_NUMBER)) {
+			String secNumber = plan.getMetadata().get(SECONDARY_NUMBER).toString();
+			customProperties.put(SECONDARY_NUMBER, secNumber);
+			log.debug("Count for cluster secondaries: "+secNumber);
+		}
+		
+		String key = Base64Utils.encodeToString(secureRandom.generateKey());
+		customProperties.put(ERLANG_KEY, key);
 		
 		return customProperties;
 	}

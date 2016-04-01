@@ -39,7 +39,10 @@ import jersey.repackaged.com.google.common.collect.Lists;
 @EnableConfigurationProperties
 @ConfigurationProperties(prefix = "backend")
 public class OpenstackPlatformService extends OpenstackServiceFactory {
-	
+
+	private static final String VOLUME_SIZE = "volume_size";
+	private static final String FLAVOR = "flavor";
+
 	private StackHandler stackHandler; 
 	
 	@Autowired
@@ -107,8 +110,8 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 		String instanceId = serviceInstance.getId();
 
 		Map<String, String> platformParameters = new HashMap<String, String>();
-		platformParameters.put("flavor", plan.getFlavorId());
-		platformParameters.put("volume_size", volumeSize(plan.getVolumeSize(), plan.getVolumeUnit()));
+		platformParameters.put(FLAVOR, plan.getFlavorId());
+		platformParameters.put(VOLUME_SIZE, volumeSize(plan.getVolumeSize(), plan.getVolumeUnit()));
 
 		platformParameters.putAll(customProperties);
 

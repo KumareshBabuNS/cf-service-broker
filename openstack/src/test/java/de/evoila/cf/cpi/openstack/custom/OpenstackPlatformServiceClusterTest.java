@@ -68,7 +68,7 @@ public class OpenstackPlatformServiceClusterTest extends BaseIntegrationTest {
 		
 		Integer numberPorts = numberSecondaries+1;
 		Map<String, String> parametersPorts = new HashMap<String, String>();
-		parametersPorts.put("secondary_number", numberPorts.toString());
+		parametersPorts.put("port_number", numberPorts.toString());
 		parametersPorts.put("network_id", "3e73c0d4-31a8-4cb5-a2f8-b12e4577395c");
 		
 		heatFluent.create(namePorts, templatePorts, parametersPorts , false, 10l);
@@ -111,18 +111,16 @@ public class OpenstackPlatformServiceClusterTest extends BaseIntegrationTest {
 		
 		
 		Map<String, String> parametersPrimary = new HashMap<String, String>();
-		parametersPrimary.put("database_name", "evoila");
-		parametersPrimary.put("database_user", "evoila");
-		parametersPrimary.put("database_password", "evoila");
-		parametersPrimary.put("database_number", "1");
-		parametersPrimary.put("database_key", "aGFuc3d1cnN0");
+		parametersPrimary.put("rabbit_vhost", "evoila");
+		parametersPrimary.put("rabbit_user", "evoila");
+		parametersPrimary.put("rabbit_password", "evoila");
 		parametersPrimary.put("log_host", "172.24.102.12");
 		parametersPrimary.put("log_port", "5002");
 		parametersPrimary.put("erlang_key", "thisisjustatest4usguysfromEVOILA");
 		parametersPrimary.put("flavor", "m1.small");
 		parametersPrimary.put("volume_size", "2");
-		parametersPrimary.put("hostnames", etcHosts);
-		parametersPrimary.put("hostname", primHostname);
+		parametersPrimary.put("etcHosts", etcHosts);
+		parametersPrimary.put("masterHostname", primHostname);
 		parametersPrimary.put("port_prim", primPort);
 		parametersPrimary.put("availability_zone", "nova");
 		parametersPrimary.put("keypair", "cmueller");
@@ -132,7 +130,7 @@ public class OpenstackPlatformServiceClusterTest extends BaseIntegrationTest {
 		
 		heatFluent.create(namePrimary, templatePrimary, parametersPrimary , false, 10l);
 		
-		Stack stackPrimary = stackProgressObserver.waitForStackCompletion(namePrimary);	
+		stackProgressObserver.waitForStackCompletion(namePrimary);	
 		
 		
 		
@@ -141,17 +139,15 @@ public class OpenstackPlatformServiceClusterTest extends BaseIntegrationTest {
 		
 		
 		Map<String, String> parametersSec = new HashMap<String, String>();
-		parametersSec.put("database_name", "evoila");
-		parametersSec.put("database_user", "evoila");
-		parametersSec.put("database_password", "evoila");
-		parametersSec.put("database_number", "1");
-		parametersSec.put("database_key", "aGFuc3d1cnN0");
+		parametersSec.put("rabbit_vhost", "evoila");
+		parametersSec.put("rabbit_user", "evoila");
+		parametersSec.put("rabbit_password", "evoila");
 		parametersSec.put("log_host", "172.24.102.12");
 		parametersSec.put("log_port", "5002");
 		parametersSec.put("erlang_key", "thisisjustatest4usguysfromEVOILA");
 		parametersSec.put("flavor", "m1.small");
 		parametersSec.put("volume_size", "2");
-		parametersSec.put("hostnames", etcHosts);
+		parametersSec.put("etcHosts", etcHosts);
 		parametersSec.put("availability_zone", "nova");
 		parametersSec.put("keypair", "cmueller");
 		parametersSec.put("image_id", "b89dd034-f4f0-4a2a-95bd-74f325428f07");
@@ -165,10 +161,10 @@ public class OpenstackPlatformServiceClusterTest extends BaseIntegrationTest {
 			}
 			parametersSec.put("network_port", ports.get(i));
 			
-			if (parametersSec.containsKey("hostname")) {
-				parametersSec.remove("hostname");
+			if (parametersSec.containsKey("secondaryHostname")) {
+				parametersSec.remove("secondaryHostname");
 			}
-			parametersSec.put("hostname", "sec-"+ips.get(i).replace(".", "-"));
+			parametersSec.put("secondaryHostname", "sec-"+ips.get(i).replace(".", "-"));
 			
 			System.out.println("Create Sec Nr."+i);
 			System.out.println(parametersSec.toString());

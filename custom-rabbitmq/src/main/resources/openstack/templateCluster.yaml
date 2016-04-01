@@ -19,21 +19,15 @@ parameters:
   availability_zone:
     type: string
     description: The Availability Zone to launch the instance.
-  database_name:
+  rabbit_vhost:
     type: string
-    description: Database name
-  database_user:
+    description: RabbitMQ name
+  rabbit_user:
     type: string
-    description: Database user
-  database_password:
+    description: RabbitMQ user
+  rabbit_password:
     type: string
-    description: Database password
-  database_number:
-    type: string
-    description: Database number
-  database_key:
-    type: string
-    description: Database key
+    description: RabbitMQ password
   log_host:
     type: string
     description: Host IP or FQDN for logging
@@ -95,8 +89,8 @@ resources:
             #chmod +x rabbitmq-template.sh
             #chmod +x rabbitmq-cluster.sh
 
-            echo rabbitmq-template.sh -d $db_name -u $db_user -p $db_password -e openstack -l $log_host -m $log_port
-            #./rabbitmq-template.sh -d $db_name -u $db_user -p $db_password -e openstack -l $log_host -m $log_port
+            echo rabbitmq-template.sh -d $amqp_vhost -u $amqp_user -p $amqp_password -e openstack -l $log_host -m $log_port
+            #./rabbitmq-template.sh -d $amqp_vhost -u $amqp_user -p $amqp_password -e openstack -l $log_host -m $log_port
             echo rabbitmq-cluster.sh -e $erlang_key -t primary
             #./rabbitmq-cluster.sh -e $erlang_key -t primary
 
@@ -104,9 +98,9 @@ resources:
             wc_notify --data-binary '{"status": "SUCCESS"}'
 
           params:
-            $db_name: {get_param: database_name}
-            $db_user: {get_param: database_user}
-            $db_password: {get_param: database_password}
+            $amqp_vhost: {get_param: rabbit_vhost}
+            $amqp_user: {get_param: rabbit_user}
+            $amqp_password: {get_param: rabbit_password}
             $log_host: {get_param: log_host}
             $log_port: {get_param: log_port}
             $erlang_key: {get_param: erlang_key}
@@ -151,15 +145,15 @@ resources:
                 #wget $REPOSITORY_RABBITMQ/rabbitmq-cluster.sh --no-cache
                 #chmod +x rabbitmq-template.sh
                 #chmod +x rabbitmq-cluster.sh
-                echo rabbitmq-template.sh -d $db_name -u $db_user -p $db_password -e openstack -l $log_host -m $log_port
-                #./rabbitmq-template.sh -d $db_name -u $db_user -p $db_password -e openstack -l $log_host -m $log_port
+                echo rabbitmq-template.sh -d $amqp_vhost -u $amqp_user -p $amqp_password -e openstack -l $log_host -m $log_port
+                #./rabbitmq-template.sh -d $amqp_vhost -u $amqp_user -p $amqp_password -e openstack -l $log_host -m $log_port
                 echo rabbitmq-cluster.sh -e $erlang_key -t secondary -m $master
                 #./rabbitmq-cluster.sh -e $erlang_key -t secondary -m $master
 
               params:
-                $db_name: {get_param: database_name}
-                $db_user: {get_param: database_user}
-                $db_password: {get_param: database_password}
+                $amqp_vhost: {get_param: rabbit_vhost}
+                $amqp_user: {get_param: rabbit_user}
+                $amqp_password: {get_param: rabbit_password}
                 $repset_name: rs1
                 $erlang_key: {get_param: erlang_key}
                 $master: { get_attr: [port_prim, fixed_ips, 0, ip_address] }

@@ -16,21 +16,15 @@ parameters:
   availability_zone:
     type: string
     description: The Availability Zone to launch the instance.
-  database_name:
+  rabbit_vhost:
     type: string
-    description: Database name
-  database_user:
+    description: RabbitMQ name
+  rabbit_user:
     type: string
-    description: Database user
-  database_password:
+    description: RabbitMQ user
+  rabbit_password:
     type: string
-    description: Database password
-  database_number:
-    type: string
-    description: Database number
-  database_key:
-    type: string
-    description: Database key
+    description: RabbitMQ password
   log_host:
     type: string
     description: Host IP or FQDN for logging
@@ -40,10 +34,10 @@ parameters:
   erlang_key:
     type: string
     description: shared erlang key for all nodes
-  hostnames:
+  etcHosts:
     type: string
     description: All hostnames in format to attach to /etc/hosts
-  hostname:
+  masterHostname:
     type: string
     description: Hostname of machine
   port_prim:
@@ -75,42 +69,35 @@ resources:
         str_replace:
           template: |
             #!/bin/bash
-            
-            echo cmueller
-            echo "hostnames - $hostnames"
-            echo myHostname - $myHostname
-            
-            echo "$hostnames" >> /etc/hosts
-            #echo $myHostname > /etc/hostname
+
+            echo "$etcHosts" >> /etc/hosts
 
             export REPOSITORY_RABBITMQ="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Rabbitmq-v3"
             export REPOSITORY_MAIN="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master"
-            export RABBITMQ_ERLANG_COOKIE=thisisjustatest4usguysfromEVOILA
 
             wget $REPOSITORY_RABBITMQ/rabbitmq-template.sh --no-cache
             wget $REPOSITORY_RABBITMQ/rabbitmq-cluster.sh --no-cache
             chmod +x rabbitmq-template.sh
             chmod +x rabbitmq-cluster.sh
 
-            echo rabbitmq-template.sh -d $db_name -u $db_user -p $db_password -e openstack -l $log_host -m $log_port
-            ./rabbitmq-template.sh -d $db_name -u $db_user -p $db_password -e openstack -l $log_host -m $log_port
+            echo rabbitmq-template.sh -d $amqp_vhost -u $amqp_user -p $amqp_password -e openstack -l $log_host -m $log_port
+            ./rabbitmq-template.sh -d $amqp_vhost -u $amqp_user -p $amqp_password -e openstack -l $log_host -m $log_port
             echo rabbitmq-cluster.sh -e $erlang_key -t primary
             ./rabbitmq-cluster.sh -e $erlang_key -t primary
 
             wc_notify --data-binary '{"status": "SUCCESS"}'
 
           params:
-            $db_name: { get_param: database_name}
-            $db_user: { get_param: database_user}
-            $db_password: { get_param: database_password}
+            $amqp_vhost: {get_param: rabbit_vhost}
+            $amqp_user: {get_param: rabbit_user}
+            $amqp_password: {get_param: rabbit_password}
             $log_host: { get_param: log_host}
             $log_port: { get_param: log_port}
             $erlang_key: { get_param: erlang_key}
-            $hostnames: { get_param: hostnames }
-            $myHostname : { get_param: hostname }
-            
+            $etcHosts: { get_param: etcHosts }
+
             wc_notify: { get_attr: [  'wait_handle', 'curl_cli'] }
-    
+
   wait_handle:
     type: OS::Heat::WaitConditionHandle
   wait_condition:

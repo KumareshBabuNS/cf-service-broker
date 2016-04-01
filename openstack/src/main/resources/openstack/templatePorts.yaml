@@ -1,17 +1,17 @@
 heat_template_version: 2015-10-15
-description: Deployment Description for MongoDB Replica Set
+description: Deployment Description for Ports for ReddisMQ
 parameters:
   network_id:
     type: string
     description: Network used by the server
-  secondary_number:
+  port_number:
     type: number
     description: number of secondaries for replica set
 resources:
   sec_ports:
     type: OS::Heat::ResourceGroup
     properties:
-      count: { get_param: secondary_number }
+      count: { get_param: port_number }
       resource_def:
         type: OS::Neutron::Port
         properties:
@@ -19,9 +19,9 @@ resources:
           security_groups:
             - all
 outputs:
-  secondary_ips:
+  port_ips:
     value: {get_attr: [sec_ports, fixed_ips, 0, ip_address]}
     description: all ips of ips in the port group
-  secondary_ports:
+  port_ports:
     value: {get_attr: [sec_ports, refs]}
     description: IDs of ports

@@ -3,7 +3,6 @@
  */
 package de.evoila.cf.cpi.custom.props;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import de.evoila.cf.broker.model.Plan;

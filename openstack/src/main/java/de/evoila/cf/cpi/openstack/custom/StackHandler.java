@@ -43,6 +43,13 @@ public class StackHandler {
 	
 	private static String DEFAULT_ENCODING = "UTF-8";
 	
+	public static final String IMAGE_ID = "image_id";
+	public static final String KEYPAIR = "keypair";
+	public static final String NETWORK_ID = "network_id";
+	public static final String AVAILABILITY_ZONE = "availability_zone";
+	public static final String LOG_PORT = "log_port";
+	public static final String LOG_HOST = "log_host";
+	
 	private Logger log = LoggerFactory.getLogger(getClass());
 	
 	private String defaultHeatTemplate;
@@ -89,8 +96,8 @@ public class StackHandler {
 		return new String(encoded, DEFAULT_ENCODING);
 	}
 	
-	public Stack create(String instanceId, Map<String, String> customParameters)
-			throws PlatformException {
+	public void create(String instanceId, Map<String, String> customParameters)
+			throws PlatformException, InterruptedException {
 		
 		
 		String heatTemplate;
@@ -109,8 +116,6 @@ public class StackHandler {
 		heatFluent.create(name, heatTemplate, completeParameters, DEFAULT_DISABLE_ROLLBACK,
 				DEFAULT_TIMEOUT_MINUTES);
 
-		return stackProgressObserver.waitForStackCompletion(name);
-
 	}
 	
 	
@@ -123,11 +128,10 @@ public class StackHandler {
 	
 	protected Map<String, String> defaultParameters() {
 		Map<String, String> defaultParameters = new HashMap<String, String>();
-		defaultParameters.put("image_id", imageId);
-		defaultParameters.put("keypair", keypair);
-		defaultParameters.put("network_id", networkId);
-		// defaultParameters.put("subnet_id", subnetId);
-		defaultParameters.put("availability_zone", availabilityZone);
+		defaultParameters.put(IMAGE_ID, imageId);
+		defaultParameters.put(KEYPAIR, keypair);
+		defaultParameters.put(NETWORK_ID, networkId);
+		defaultParameters.put(AVAILABILITY_ZONE, availabilityZone);
 
 		return defaultParameters;
 	}
