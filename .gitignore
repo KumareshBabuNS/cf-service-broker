@@ -14,3 +14,4 @@ target
 */.springBeans
 */paho*
 *.pem
+config/manifest-with-credentials.yml
