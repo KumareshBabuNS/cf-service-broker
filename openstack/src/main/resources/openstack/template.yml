@@ -13,9 +13,6 @@ parameters:
   network_id:
     type: string
     description: Network used by the server
-  subnet_id:
-    type: string
-    description: subnet on which the load balancer will be located
   volume_size:
     type: number
     description: Size of the volume to be created.
@@ -47,11 +44,11 @@ resources:
             export PG_VERSION=9.3
             export PATH=/usr/lib/postgresql/$PG_VERSION/bin:$PATH
             export PGDATA=/var/lib/postgresql/data
-            
+
             wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Postgres/postgres-install.sh
             chmod +x postgres-install.sh
             ./postgres-install.sh
-            
+
             wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Postgres/docker-entrypoint.sh
             chmod +x docker-entrypoint.sh
             ./docker-entrypoint.sh -d $db_name -u $db_user -p $db_password

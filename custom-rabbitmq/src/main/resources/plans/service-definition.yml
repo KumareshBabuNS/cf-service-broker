@@ -35,6 +35,7 @@ plans:
     flavorId: 3
     connections: 300
     metadata:
+      cluster: true
       secondary_number: 2
   - id: rabbitmq-xxl
     name: XXL
@@ -45,6 +46,7 @@ plans:
     flavorId: 4
     connections: 300
     metadata:
+      cluster: true
       secondary_number: 4
   - id: rabbitmq-xxxl
     name: XXXL

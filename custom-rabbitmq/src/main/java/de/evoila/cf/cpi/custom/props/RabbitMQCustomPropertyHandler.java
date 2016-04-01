@@ -5,9 +5,13 @@ package de.evoila.cf.cpi.custom.props;
 
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.keygen.BytesKeyGenerator;
+import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.util.Base64Utils;
 
 import de.evoila.cf.broker.model.Plan;
@@ -28,7 +32,15 @@ public class RabbitMQCustomPropertyHandler implements DomainBasedCustomPropertyH
 	
 	private static final Logger log = LoggerFactory.getLogger(RabbitMQCustomPropertyHandler.class);
 	
+	@Value("${rabbitmq.security.key.length}")
+	private int keyLength;
+		
 	private BytesKeyGenerator secureRandom;
+	
+	@PostConstruct
+	public void init() {
+		secureRandom = KeyGenerators.secureRandom(keyLength);
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -50,19 +62,17 @@ public class RabbitMQCustomPropertyHandler implements DomainBasedCustomPropertyH
 			Object uncastedCluster = plan.getMetadata().get(CLUSTER);
 			if(uncastedCluster instanceof Boolean && (boolean) uncastedCluster) {
 				customProperties.put(CLUSTER,"true");
+				String key = Base64Utils.encodeToString(secureRandom.generateKey());
+				customProperties.put(ERLANG_KEY, key);
+				if (plan.getMetadata().containsKey(SECONDARY_NUMBER)) {
+					String secNumber = plan.getMetadata().get(SECONDARY_NUMBER).toString();
+					customProperties.put(SECONDARY_NUMBER, secNumber);
+					log.debug("Count for cluster secondaries: "+secNumber);
+				}
 				log.debug("RabbitMQ cluster detected - add cluster to customProperties");				
 			}
 		}
-		
-		if (plan.getMetadata().containsKey(SECONDARY_NUMBER)) {
-			String secNumber = plan.getMetadata().get(SECONDARY_NUMBER).toString();
-			customProperties.put(SECONDARY_NUMBER, secNumber);
-			log.debug("Count for cluster secondaries: "+secNumber);
-		}
-		
-		String key = Base64Utils.encodeToString(secureRandom.generateKey());
-		customProperties.put(ERLANG_KEY, key);
-		
+				
 		return customProperties;
 	}
 }

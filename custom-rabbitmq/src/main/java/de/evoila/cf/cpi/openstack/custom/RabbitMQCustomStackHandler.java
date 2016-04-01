@@ -12,6 +12,7 @@ import org.openstack4j.model.heat.Stack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import de.evoila.cf.broker.exception.PlatformException;
 
@@ -19,6 +20,7 @@ import de.evoila.cf.broker.exception.PlatformException;
  * @author Christian Mueller, evoila
  *
  */
+@Service
 public class RabbitMQCustomStackHandler extends CustomStackHandler {
 	
 	/**
@@ -54,8 +56,8 @@ public class RabbitMQCustomStackHandler extends CustomStackHandler {
 		
 		if (customParameters.containsKey(CLUSTER)) {
 			createCluster(instanceId, customParameters);
-		} 
-		super.create(instanceId, customParameters);
+		} else
+			super.create(instanceId, customParameters);
 	}
 
 	/**
@@ -69,6 +71,8 @@ public class RabbitMQCustomStackHandler extends CustomStackHandler {
 	private List<Stack> createCluster(String instanceId, Map<String, String> customParameters) throws PlatformException, InterruptedException {
 		
 		log.debug("Start create a rabbitMQ cluster");
+		
+		customParameters.putAll(defaultParameters());
 		
 		customParameters.put(LOG_PORT, logPort);
 		customParameters.put(LOG_HOST, logHost);
@@ -84,7 +88,7 @@ public class RabbitMQCustomStackHandler extends CustomStackHandler {
 		Map<String, String> parametersPorts = copyProperties(customParameters, 
 				NETWORK_ID, PORT_NUMBER);
 				
-		String namePorts = instanceId+"_Ports";
+		String namePorts = "s"+instanceId+"_Ports";
 		String templatePorts = accessTemplate("/openstack/templatePorts.yaml");;
 
 		heatFluent.create(namePorts, templatePorts, parametersPorts , false, 10l);	
@@ -128,7 +132,7 @@ public class RabbitMQCustomStackHandler extends CustomStackHandler {
 		
 		
 		String templatePrimary = accessTemplate("/openstack/templatePrim.yaml");
-		String namePrimary = instanceId+"_primary";
+		String namePrimary = "s"+instanceId+"_primary";
 		
 		heatFluent.create(namePrimary, templatePrimary, parametersPrimary , false, 10l);
 		
@@ -154,13 +158,13 @@ public class RabbitMQCustomStackHandler extends CustomStackHandler {
 			}
 			parametersSecondary.put(SECONDARY_HOSTNAME, "sec-"+ips.get(i).replace(".", "-"));
 			
-			heatFluent.create(instanceId+"_Sec"+i, templateSec, parametersSecondary, false, 10l);
+			heatFluent.create("s"+instanceId+"_Sec"+i, templateSec, parametersSecondary, false, 10l);
 						
 		}
 		
 		List<Stack> stackSec = new ArrayList<Stack>();
 		for (int i = 0; i < secondaryNumber; i++) {
-			stackSec.add(stackProgressObserver.waitForStackCompletion(instanceId+"_Sec"+i));	
+			stackSec.add(stackProgressObserver.waitForStackCompletion("s"+instanceId+"_Sec"+i));	
 		}
 		
 		log.debug("Stack deployment for RabbitMQ ready - Stacks:"+stackSec.size());

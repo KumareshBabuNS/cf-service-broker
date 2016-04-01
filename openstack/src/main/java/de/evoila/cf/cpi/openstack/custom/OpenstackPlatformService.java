@@ -69,6 +69,10 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 	public void registerCustomPlatformServie() {
 		if (platformRepository != null)
 			platformRepository.addPlatform(Platform.OPENSTACK, this);
+		
+		if(stackHandler == null) {
+			stackHandler = defaultStackHandler;
+		}
 	}
 
 	@Override
