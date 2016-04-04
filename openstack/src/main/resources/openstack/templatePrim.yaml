@@ -61,7 +61,7 @@ resources:
       flavor: { get_param: flavor }
       image: { get_param: image_id }
       key_name: { get_param: keypair }
-      name: { get_param: hostname }
+      name: { get_param: masterHostname }
       networks:
       - port: { get_param: port_prim }
       user_data_format: RAW

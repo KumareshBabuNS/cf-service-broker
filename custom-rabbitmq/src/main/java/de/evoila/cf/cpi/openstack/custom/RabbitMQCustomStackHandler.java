@@ -35,7 +35,7 @@ public class RabbitMQCustomStackHandler extends CustomStackHandler {
 	private static final String RABBIT_USER = "rabbit_user";
 	private static final String RABBIT_VHOST = "rabbit_vhost";
 	private static final String ETC_HOSTS = "etcHosts";
-	private static final String MASTER_HOSTNAME = "hostname";
+	private static final String MASTER_HOSTNAME = "masterHostname";
 	private static final String SECONDARY_HOSTNAME = "secondaryHostname";
 	private static final String VOLUME_SIZE = "volume_size";
 	private static final String FLAVOR = "flavor";
@@ -102,11 +102,11 @@ public class RabbitMQCustomStackHandler extends CustomStackHandler {
 			Object outputKey = output.get("output_key");
 			if (outputKey != null && outputKey instanceof String) {
 				String key = (String) outputKey;
-				if (key.equals("secondary_ips")) {	
+				if (key.equals("port_ips")) {	
 					ips = (List<String>) output.get("output_value");
 
 				}
-				if (key.equals("secondary_ports")) {
+				if (key.equals("port_ports")) {
 					ports = (List<String>) output.get("output_value");
 				}
 			}
