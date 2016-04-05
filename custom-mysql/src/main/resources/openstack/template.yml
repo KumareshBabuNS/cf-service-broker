@@ -13,9 +13,6 @@ parameters:
   network_id:
     type: string
     description: Network used by the server
-  subnet_id:
-    type: string
-    description: subnet on which the load balancer will be located
   volume_size:
     type: number
     description: Size of the volume to be created.
