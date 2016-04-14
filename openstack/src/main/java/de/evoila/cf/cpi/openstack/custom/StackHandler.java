@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 import de.evoila.cf.broker.exception.PlatformException;
 import de.evoila.cf.cpi.openstack.fluent.HeatFluent;
@@ -80,7 +79,7 @@ public class StackHandler {
 	protected String accessTemplate(final String templatePath) {
 		URL url = this.getClass().getResource(templatePath);
 
-		Assert.notNull(url, "Heat template definition must be provided.");
+		// Assert.notNull(url, "Heat template definition must be provided.");
 		try {
 			return this.readTemplateFile(url);
 		} catch (IOException | URISyntaxException e) {

@@ -29,6 +29,10 @@ import de.evoila.cf.config.security.AcceptSelfSignedClientHttpRequestFactory;
 @Service
 public class HAProxyService {
 
+	private static final String APPLICATION_JSON = "application/json";
+
+	private static final String CONTENT_TYPE = "Content-type";
+
 	private static final String X_AUTH_TOKEN_HEADER = "X-Auth-Token";
 
 	@Value("${haproxy.uri}")
@@ -44,6 +48,7 @@ public class HAProxyService {
 	@PostConstruct
 	private void initHeaders() {
 		headers.add(X_AUTH_TOKEN_HEADER, authToken);
+		headers.add(CONTENT_TYPE, APPLICATION_JSON);
 	}
 
 	@ConditionalOnBean(AcceptSelfSignedClientHttpRequestFactory.class)

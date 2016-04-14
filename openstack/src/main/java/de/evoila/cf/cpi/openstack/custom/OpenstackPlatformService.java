@@ -120,6 +120,7 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 
 		try {
 			String internalId = stackHandler.create(instanceId, platformParameters);
+
 			List<ServerAddress> tmpAddresses = ipAccessor.getIpAddresses(instanceId);
 			List<ServerAddress> serverAddresses = Lists.newArrayList();
 			for (Entry<String, Integer> port : this.ports.entrySet()) {

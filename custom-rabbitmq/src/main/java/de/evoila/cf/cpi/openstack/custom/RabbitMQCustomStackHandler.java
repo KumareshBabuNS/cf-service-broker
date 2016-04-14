@@ -118,7 +118,7 @@ public class RabbitMQCustomStackHandler extends CustomStackHandler {
 				LOG_PORT, ParameterManager.ERLANG_KEY, ParameterManager.FLAVOR, ParameterManager.VOLUME_SIZE,
 				ParameterManager.ETC_HOSTS, ParameterManager.MASTER_HOSTNAME, AVAILABILITY_ZONE, KEYPAIR, IMAGE_ID);
 
-		String templateSec = accessTemplate("classpath:/openstack/templateSecondaries.yaml");
+		String templateSec = accessTemplate("/openstack/templateSecondaries.yaml");
 
 		for (int i = 0; i < secondaryNumber; i++) {
 			createSecondaryStack(instanceId, ips, ports, parametersSecondary, templateSec, i);
@@ -156,7 +156,7 @@ public class RabbitMQCustomStackHandler extends CustomStackHandler {
 				ParameterManager.ETC_HOSTS, ParameterManager.MASTER_HOSTNAME, ParameterManager.PORT_PRIM,
 				AVAILABILITY_ZONE, KEYPAIR, IMAGE_ID);
 
-		String templatePrimary = accessTemplate("classpath:/openstack/templatePrim.yaml");
+		String templatePrimary = accessTemplate("/openstack/templatePrim.yaml");
 		String namePrimary = "s" + instanceId + "_primary";
 
 		heatFluent.create(namePrimary, templatePrimary, parametersPrimary, false, 10l);
@@ -170,7 +170,7 @@ public class RabbitMQCustomStackHandler extends CustomStackHandler {
 				ParameterManager.PORT_NUMBER);
 
 		String namePorts = "s" + instanceId + "_Ports";
-		String templatePorts = accessTemplate("classpath:/openstack/templatePorts.yaml");
+		String templatePorts = accessTemplate("/openstack/templatePorts.yaml");
 
 		heatFluent.create(namePorts, templatePorts, parametersPorts, false, 10l);
 

@@ -40,10 +40,11 @@ resources:
         str_replace:
           template: |
             #!/bin/bash
-            export REPOSITORY_LOGSTASH="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Logstash-v3"
-            export REPOSITORY_MAIN="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master"
+            export REPOSITORY_LOGSTASH="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD/logstash"
+            export REPOSITORY_MONIT="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD/monit"
+            export REPOSITORY_MAIN="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD"
             
-            wget $REPOSITORY_LOGSTASH/logstash-template.sh
+            wget $REPOSITORY_LOGSTASH/logstash-template.sh --no-cache
             chmod +x logstash-template.sh
             ./logstash-template.sh -d $es_host -p 3uvjnv3e9823 -e openstack
           params:

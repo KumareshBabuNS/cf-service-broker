@@ -46,10 +46,12 @@ resources:
         str_replace:
           template: |
             #!/bin/bash
-            export REPOSITORY_POSTGRES="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Postgres-v3"
-            export REPOSITORY_MAIN="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master"
+           
+            export REPOSITORY_POSTGRES="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD/postgres"
+            export REPOSITORY_MONIT="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD/monit"
+            export REPOSITORY_MAIN="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD"
             
-            wget $REPOSITORY_POSTGRES/postgres-template.sh
+            wget $REPOSITORY_POSTGRES/postgres-template.sh --no-cache
             chmod +x postgres-template.sh
             ./postgres-template.sh -d $db_name -u $db_user -p $db_password -e openstack
           params:
