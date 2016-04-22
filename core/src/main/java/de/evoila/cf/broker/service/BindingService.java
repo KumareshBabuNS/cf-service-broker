@@ -35,7 +35,7 @@ public interface BindingService {
 	 * @throws ServiceInstanceDoesNotExistException
 	 */
 	public ServiceInstanceBindingResponse createServiceInstanceBinding(String bindingId, String instanceId,
-			String serviceId, String planId, boolean generateServiceKey)
+			String serviceId, String planId, boolean generateServiceKey, String route)
 					throws ServiceInstanceBindingExistsException, ServiceBrokerException,
 					ServiceInstanceDoesNotExistException, ServiceDefinitionDoesNotExistException;
 

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import de.evoila.cf.broker.exception.ServiceBrokerException;
+import de.evoila.cf.broker.model.RouteBinding;
 import de.evoila.cf.broker.model.ServerAddress;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.ServiceInstanceBinding;
@@ -52,6 +53,18 @@ public class RedisBindingService extends BindingServiceImpl {
 
 	@Override
 	public ServiceInstanceBinding getServiceInstanceBinding(String id) {
+		throw new UnsupportedOperationException();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.evoila.cf.broker.service.impl.BindingServiceImpl#bindRoute(de.evoila.
+	 * cf.broker.model.ServiceInstance, java.lang.String)
+	 */
+	@Override
+	protected RouteBinding bindRoute(ServiceInstance serviceInstance, String route) {
 		throw new UnsupportedOperationException();
 	}
 

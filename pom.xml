@@ -29,10 +29,8 @@
 		<module>custom-rabbitmq</module>
 		<module>custom-redis</module>
 		<module>persistence</module>
-		
 		<module>registry</module>
 		<module>config</module>
-		<!-- <module>registry</module>-->
 	</modules>
 
 	<properties>

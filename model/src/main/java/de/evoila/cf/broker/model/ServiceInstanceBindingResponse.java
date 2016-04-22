@@ -20,6 +20,17 @@ public class ServiceInstanceBindingResponse {
 
 	private String syslogDrainUrl;
 
+	private String routeServiceUrl;
+
+	public ServiceInstanceBindingResponse(Map<String, Object> credentials, String syslogDrainUrl) {
+		this.credentials = credentials;
+		this.syslogDrainUrl = syslogDrainUrl;
+	}
+
+	public ServiceInstanceBindingResponse(String routeServiceUrl) {
+		this.setRouteServiceUrl(routeServiceUrl);
+	}
+
 	public ServiceInstanceBindingResponse(ServiceInstanceBinding binding) {
 		this.credentials = binding.getCredentials();
 		this.syslogDrainUrl = binding.getSyslogDrainUrl();
@@ -31,18 +42,28 @@ public class ServiceInstanceBindingResponse {
 		return this.credentials;
 	}
 
+	public void setCredentials(Map<String, Object> credentials) {
+		this.credentials = credentials;
+	}
+
 	@JsonSerialize
 	@JsonProperty("syslog_drain_url")
 	public String getSyslogDrainUrl() {
 		return this.syslogDrainUrl;
 	}
 
-	public void setCredentials(Map<String, Object> credentials) {
-		this.credentials = credentials;
-	}
-
 	public void setSyslogDrainUrl(String syslogDrainUrl) {
 		this.syslogDrainUrl = syslogDrainUrl;
+	}
+
+	@JsonSerialize
+	@JsonProperty("route_service_url")
+	public String getRouteServiceUrl() {
+		return routeServiceUrl;
+	}
+
+	public void setRouteServiceUrl(String routeServiceUrl) {
+		this.routeServiceUrl = routeServiceUrl;
 	}
 
 }

@@ -82,7 +82,7 @@ public class PostgresBindingServiceTest extends MockMvcTest {
 		String bindingId = UUID.randomUUID().toString();
 
 		postgresBindingService.createServiceInstanceBinding(bindingId, serviceInstance.getId(),
-				serviceInstance.getServiceDefinitionId(), serviceInstance.getPlanId(), false);
+				serviceInstance.getServiceDefinitionId(), serviceInstance.getPlanId(), false, null);
 		postgresBindingService.deleteServiceInstanceBinding(bindingId);
 
 		postgresBindingService.delete(serviceInstance, plan);

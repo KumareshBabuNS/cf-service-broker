@@ -17,11 +17,13 @@ import de.evoila.cf.broker.exception.ServiceDefinitionDoesNotExistException;
 import de.evoila.cf.broker.exception.ServiceInstanceBindingExistsException;
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.model.Plan;
+import de.evoila.cf.broker.model.RouteBinding;
 import de.evoila.cf.broker.model.ServerAddress;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.ServiceInstanceBinding;
 import de.evoila.cf.broker.model.ServiceInstanceBindingResponse;
 import de.evoila.cf.broker.repository.BindingRepository;
+import de.evoila.cf.broker.repository.RouteBindingRepository;
 import de.evoila.cf.broker.repository.ServiceDefinitionRepository;
 import de.evoila.cf.broker.repository.ServiceInstanceRepository;
 import de.evoila.cf.broker.service.BindingService;
@@ -46,6 +48,9 @@ public abstract class BindingServiceImpl implements BindingService {
 	protected ServiceInstanceRepository serviceInstanceRepository;
 
 	@Autowired
+	protected RouteBindingRepository routeBindingRepository;
+
+	@Autowired
 	private HAProxyService haProxyService;
 
 	protected abstract void deleteBinding(String bindingId, ServiceInstance serviceInstance)
@@ -53,7 +58,7 @@ public abstract class BindingServiceImpl implements BindingService {
 
 	@Override
 	public ServiceInstanceBindingResponse createServiceInstanceBinding(String bindingId, String instanceId,
-			String serviceId, String planId, boolean generateServiceKey)
+			String serviceId, String planId, boolean generateServiceKey, String route)
 					throws ServiceInstanceBindingExistsException, ServiceBrokerException,
 					ServiceInstanceDoesNotExistException, ServiceDefinitionDoesNotExistException {
 
@@ -62,6 +67,16 @@ public abstract class BindingServiceImpl implements BindingService {
 		ServiceInstance serviceInstance = serviceInstanceRepository.getServiceInstance(instanceId);
 
 		Plan plan = serviceDefinitionRepository.getPlan(planId);
+
+		if (route != null) {
+			RouteBinding routeBinding = bindRoute(serviceInstance, route);
+
+			routeBindingRepository.addRouteBinding(routeBinding);
+
+			ServiceInstanceBindingResponse response = new ServiceInstanceBindingResponse(routeBinding.getRoute());
+
+			return response;
+		}
 
 		ServiceInstanceBinding binding;
 		if (generateServiceKey) {
@@ -77,6 +92,13 @@ public abstract class BindingServiceImpl implements BindingService {
 
 		return response;
 	}
+
+	/**
+	 * @param serviceInstance
+	 * @param route
+	 * @return
+	 */
+	protected abstract RouteBinding bindRoute(ServiceInstance serviceInstance, String route);
 
 	protected ServiceInstanceBinding createServiceInstanceBinding(String bindingId, String serviceInstanceId,
 			Map<String, Object> credentials, String syslogDrainUrl, String appGuid) {
