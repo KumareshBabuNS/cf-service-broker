@@ -15,3 +15,4 @@ target
 */paho*
 *.pem
 config/manifest-with-credentials.yml
+manifest-with-credentials.yml
