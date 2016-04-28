@@ -24,7 +24,7 @@ public class PostgresCustomImplementation {
 	@Autowired
 	private PostgresDbService jdbcService;
 
-	public void initServiceInstance(ServiceInstance serviceInstance, String[] databases) throws SQLException {
+	public void initServiceInstance(ServiceInstance serviceInstance, String... databases) throws SQLException {
 		String serviceInstanceId = serviceInstance.getId();
 		if (!jdbcService.isConnected()) {
 			ServerAddress host = serviceInstance.getHosts().get(0);
@@ -32,7 +32,8 @@ public class PostgresCustomImplementation {
 		}
 		jdbcService.executeUpdate("CREATE ROLE \"" + serviceInstanceId + "\"");
 		for (String database : databases) {
-			jdbcService.executeUpdate("CREATE DATABASE \"" + database + "\" OWNER \"" + serviceInstanceId + "\"");
+			jdbcService.executeUpdate(
+					"CREATE DATABASE \"" + database + "\" OWNER \"" + serviceInstanceId + "\" ENCODING 'UTF8'");
 		}
 	}
 
@@ -51,12 +52,14 @@ public class PostgresCustomImplementation {
 		jdbcService.executeUpdate("ALTER ROLE \"" + bindingId + "\" LOGIN password '" + passwd + "'");
 		jdbcService.executeUpdate("GRANT \"" + serviceInstanceId + "\" TO \"" + bindingId + "\"");
 
-		jdbcService.executeUpdate("GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO \"" + bindingId + "\"");
-		jdbcService.executeUpdate("ALTER DEFAULT PRIVILEGES FOR ROLE \"" + bindingId
-				+ "\" IN SCHEMA public GRANT ALL ON TABLES TO \"" + bindingId + "\"");
-		jdbcService.executeUpdate("GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO \"" + bindingId + "\"");
-		jdbcService.executeUpdate("ALTER DEFAULT PRIVILEGES FOR ROLE \"" + bindingId
-				+ "\" IN SCHEMA public GRANT ALL ON SEQUENCES TO \"" + bindingId + "\"");
+		jdbcService
+				.executeUpdate("GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO \"" + serviceInstanceId + "\"");
+		jdbcService.executeUpdate("ALTER DEFAULT PRIVILEGES FOR ROLE \"" + serviceInstanceId
+				+ "\" IN SCHEMA public GRANT ALL ON TABLES TO \"" + serviceInstanceId + "\"");
+		jdbcService.executeUpdate(
+				"GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO \"" + serviceInstanceId + "\"");
+		jdbcService.executeUpdate("ALTER DEFAULT PRIVILEGES FOR ROLE \"" + serviceInstanceId
+				+ "\" IN SCHEMA public GRANT ALL ON SEQUENCES TO \"" + serviceInstanceId + "\"");
 
 		return passwd;
 	}

@@ -61,7 +61,8 @@ public class PostgreSQLBindingService extends BindingServiceImpl {
 		String instanceId = serviceInstance.getId();
 
 		try {
-			jdbcService.executeUpdate("CREATE DATABASE \"" + instanceId + "\" ENCODING 'UTF8'");
+			postgresCustomImplementation.initServiceInstance(serviceInstance, serviceInstance.getId());
+
 			jdbcService.executeUpdate("REVOKE all on database \"" + instanceId + "\" from public");
 		} catch (SQLException e) {
 			log.error(e.toString());
