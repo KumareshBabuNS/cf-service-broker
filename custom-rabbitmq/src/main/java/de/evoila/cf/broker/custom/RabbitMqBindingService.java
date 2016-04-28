@@ -26,6 +26,7 @@ import org.springframework.web.client.RestTemplate;
 import de.evoila.cf.broker.custom.rabbitmq.RabbitMqService;
 import de.evoila.cf.broker.exception.ServiceBrokerException;
 import de.evoila.cf.broker.model.Plan;
+import de.evoila.cf.broker.model.RouteBinding;
 import de.evoila.cf.broker.model.ServerAddress;
 import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.broker.model.ServiceInstanceBinding;
@@ -268,4 +269,15 @@ public class RabbitMqBindingService extends BindingServiceImpl {
 		return createCredentials(bindingId, serviceInstance, Lists.newArrayList(host));
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.evoila.cf.broker.service.impl.BindingServiceImpl#bindRoute(de.evoila.
+	 * cf.broker.model.ServiceInstance, java.lang.String)
+	 */
+	@Override
+	protected RouteBinding bindRoute(ServiceInstance serviceInstance, String route) {
+		throw new UnsupportedOperationException();
+	}
 }

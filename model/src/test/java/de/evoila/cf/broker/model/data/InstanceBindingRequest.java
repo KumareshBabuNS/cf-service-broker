@@ -13,7 +13,7 @@ public class InstanceBindingRequest {
 	public static ServiceInstanceBindingRequest createBindingRequest(String appGuid, String planId,
 			String serviceDefinitionId) {
 		ServiceInstanceBindingRequest bindingRequest = new ServiceInstanceBindingRequest(serviceDefinitionId, planId,
-				appGuid);
+				appGuid, null);
 		return bindingRequest;
 	}
 }

@@ -50,7 +50,7 @@ public class ServiceInstanceBindingFixture {
 
 	public static ServiceInstanceBindingRequest getServiceInstanceBindingRequest() {
 		return new ServiceInstanceBindingRequest(ServiceFixture.getService().getId(), PlanFixture.getPlanOne().getId(),
-				getAppGuid());
+				getAppGuid(), null);
 	}
 
 	public static String getServiceInstanceBindingRequestJson()

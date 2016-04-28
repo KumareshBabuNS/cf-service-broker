@@ -15,8 +15,6 @@ import org.springframework.util.Assert;
 
 import de.evoila.cf.cpi.custom.props.DomainBasedCustomPropertyHandler;
 import de.evoila.cf.cpi.custom.props.MongoDBCustomPropertyHandler;
-import de.evoila.cf.cpi.openstack.custom.CustomIpAccessor;
-import de.evoila.cf.cpi.openstack.custom.MongoIpAccessor;
 
 /**
  * 
@@ -28,11 +26,6 @@ public class Application {
 
 	@Value("${mongodb.security.key.length}")
 	private int keyLength;
-
-	@Bean
-	public CustomIpAccessor mongoIpAccessor() {
-		return new MongoIpAccessor();
-	}
 
 	@Bean(name = "customProperties")
 	public Map<String, String> customProperties() {

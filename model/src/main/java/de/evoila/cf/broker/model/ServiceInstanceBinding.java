@@ -26,6 +26,10 @@ public class ServiceInstanceBinding implements BaseEntity<String> {
 
 	private List<ServerAddress> externalServerAddresses;
 
+	public ServiceInstanceBinding() {
+		super();
+	}
+
 	public ServiceInstanceBinding(String id, String serviceInstanceId, Map<String, Object> credentials,
 			String syslogDrainUrl) {
 		this.id = id;

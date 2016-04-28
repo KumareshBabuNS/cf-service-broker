@@ -27,7 +27,6 @@ import de.evoila.cf.broker.model.VolumeUnit;
 import de.evoila.cf.broker.repository.PlatformRepository;
 import de.evoila.cf.broker.service.availability.ServicePortAvailabilityVerifier;
 import de.evoila.cf.cpi.openstack.OpenstackServiceFactory;
-import de.evoila.cf.cpi.openstack.fluent.HeatFluent;
 import jersey.repackaged.com.google.common.collect.Lists;
 
 /**
@@ -43,21 +42,21 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 	private static final String VOLUME_SIZE = "volume_size";
 	private static final String FLAVOR = "flavor";
 
-	private StackHandler stackHandler; 
-	
+	private StackHandler stackHandler;
+
 	@Autowired
-	@Qualifier(value="defaultStackHandler")
-	private StackHandler defaultStackHandler; 
-	
+	@Qualifier(value = "defaultStackHandler")
+	private StackHandler defaultStackHandler;
+
 	@Autowired(required = false)
 	private PlatformRepository platformRepository;
 
 	@Autowired
 	private IpAccessor ipAccessor;
-	
+
 	@Autowired(required = false)
 	private void setStackHandler(CustomStackHandler customStackHandler) {
-		if(customStackHandler != null) {
+		if (customStackHandler != null) {
 			stackHandler = customStackHandler;
 		} else {
 			stackHandler = defaultStackHandler;
@@ -69,8 +68,8 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 	public void registerCustomPlatformServie() {
 		if (platformRepository != null)
 			platformRepository.addPlatform(Platform.OPENSTACK, this);
-		
-		if(stackHandler == null) {
+
+		if (stackHandler == null) {
 			stackHandler = defaultStackHandler;
 		}
 	}
@@ -120,7 +119,8 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 		platformParameters.putAll(customProperties);
 
 		try {
-			stackHandler.create(instanceId, platformParameters);
+			String internalId = stackHandler.create(instanceId, platformParameters);
+
 			List<ServerAddress> tmpAddresses = ipAccessor.getIpAddresses(instanceId);
 			List<ServerAddress> serverAddresses = Lists.newArrayList();
 			for (Entry<String, Integer> port : this.ports.entrySet()) {
@@ -133,8 +133,8 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 				}
 			}
 
-			serviceInstance = new ServiceInstance(serviceInstance, "http://currently.not/available",
-					HeatFluent.uniqueName(instanceId), serverAddresses);
+			serviceInstance = new ServiceInstance(serviceInstance, "http://currently.not/available", internalId,
+					serverAddresses);
 		} catch (Exception e) {
 			throw new PlatformException(e);
 		}

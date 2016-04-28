@@ -8,8 +8,10 @@ import java.util.Map;
 
 import org.openstack4j.model.heat.Stack;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import de.evoila.cf.broker.exception.PlatformException;
 import de.evoila.cf.broker.model.ServerAddress;
 import de.evoila.cf.cpi.openstack.fluent.HeatFluent;
 import jersey.repackaged.com.google.common.collect.Lists;
@@ -19,14 +21,23 @@ import jersey.repackaged.com.google.common.collect.Lists;
  *
  */
 @Service
+@Primary
 public class MongoIpAccessor extends CustomIpAccessor {
-
+	@Autowired
 	private HeatFluent heatFluent;
 
+	@Autowired
+	private DefaultIpAccessor defaultIpAccessor;
+
 	@Override
-	public List<ServerAddress> getIpAddresses(String instanceId) {
+	public List<ServerAddress> getIpAddresses(String instanceId) throws PlatformException {
 		Stack stack = heatFluent.get(HeatFluent.uniqueName(instanceId));
 		List<Map<String, Object>> outputs = stack.getOutputs();
+
+		if (outputs == null || outputs.isEmpty()) {
+			return defaultIpAccessor.getIpAddresses(instanceId);
+		}
+
 		List<ServerAddress> serverAddresses = Lists.newArrayList();
 		for (Map<String, Object> output : outputs) {
 			Object outputKey = output.get("output_key");
@@ -48,10 +59,5 @@ public class MongoIpAccessor extends CustomIpAccessor {
 		}
 
 		return serverAddresses;
-	}
-
-	@Autowired
-	public void setHeatFluent(HeatFluent heatFluent) {
-		this.heatFluent = heatFluent;
 	}
 }
