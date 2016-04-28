@@ -66,6 +66,10 @@ public abstract class BindingServiceImpl implements BindingService {
 
 		ServiceInstance serviceInstance = serviceInstanceRepository.getServiceInstance(instanceId);
 
+		if (serviceInstance == null) {
+			throw new ServiceInstanceDoesNotExistException(instanceId);
+		}
+
 		Plan plan = serviceDefinitionRepository.getPlan(planId);
 
 		if (route != null) {
@@ -134,6 +138,9 @@ public abstract class BindingServiceImpl implements BindingService {
 	}
 
 	private ServiceInstance getBinding(String bindingId) throws ServerviceInstanceBindingDoesNotExistsException {
+		if (!bindingRepository.containsInternalBindingId(bindingId)) {
+			throw new ServerviceInstanceBindingDoesNotExistsException(bindingId);
+		}
 		String serviceInstanceId = bindingRepository.getInternalBindingId(bindingId);
 		if (serviceInstanceId == null) {
 			throw new ServerviceInstanceBindingDoesNotExistsException(bindingId);
