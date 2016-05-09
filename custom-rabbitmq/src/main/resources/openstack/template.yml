@@ -28,6 +28,12 @@ parameters:
   rabbit_password:
     type: string
     description: Database password
+  log_host:
+    type: string
+    description: Host IP or FQDN for logging
+  log_port:
+    type: string
+    description: Port for logging host
 resources:
   nova_instance:
     type: OS::Nova::Server
@@ -49,11 +55,13 @@ resources:
             
             wget $REPOSITORY_RABBITMQ/rabbitmq-template.sh --no-cache
             chmod +x rabbitmq-template.sh
-            ./rabbitmq-template.sh  -d $amqp_vhost -u $amqp_user -p $amqp_password -e openstack          
+            ./rabbitmq-template.sh  -d $amqp_vhost -u $amqp_user -p $amqp_password -e openstack -l $log_host -m $log_port
           params:
             $amqp_vhost: {get_param: rabbit_vhost}
             $amqp_user: {get_param: rabbit_user}
             $amqp_password: {get_param: rabbit_password}
+            $log_host: {get_param: log_host}
+            $log_port: {get_param: log_port}
   cinder_volume:
     type: OS::Cinder::Volume
     properties:

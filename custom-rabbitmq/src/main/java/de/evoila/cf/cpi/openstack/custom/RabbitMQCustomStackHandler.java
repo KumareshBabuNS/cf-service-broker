@@ -193,4 +193,12 @@ public class RabbitMQCustomStackHandler extends CustomStackHandler {
 	public void setLogHost(String logHost) {
 		this.logHost = logHost;
 	}
+
+	@Override
+	protected Map<String, String> defaultParameters() {
+		Map<String, String> defaultParameters = super.defaultParameters();
+		defaultParameters.put(LOG_HOST, logHost);
+		defaultParameters.put(LOG_PORT, logPort);
+		return defaultParameters;
+	}
 }
