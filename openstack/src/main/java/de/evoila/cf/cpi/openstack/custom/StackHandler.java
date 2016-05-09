@@ -95,17 +95,17 @@ public class StackHandler {
 
 	public String create(String instanceId, Map<String, String> customParameters)
 			throws PlatformException, InterruptedException {
+		Map<String, String> completeParameters = new HashMap<String, String>();
+		completeParameters.putAll(defaultParameters());
+		completeParameters.putAll(customParameters);
 
 		String heatTemplate;
 		if (customParameters.containsKey(TEMPLATE)) {
 			heatTemplate = accessTemplate(customParameters.get(TEMPLATE));
+			completeParameters.remove(TEMPLATE);
 		} else {
 			heatTemplate = getDefaultHeatTemplate();
 		}
-
-		Map<String, String> completeParameters = new HashMap<String, String>();
-		completeParameters.putAll(defaultParameters());
-		completeParameters.putAll(customParameters);
 
 		String name = HeatFluent.uniqueName(instanceId);
 
