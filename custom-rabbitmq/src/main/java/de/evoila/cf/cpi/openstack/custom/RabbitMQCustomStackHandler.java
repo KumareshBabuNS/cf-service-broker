@@ -86,7 +86,7 @@ public class RabbitMQCustomStackHandler extends CustomStackHandler {
 
 		Stack portsStack = createPortsStack(instanceId, customParameters);
 		stackMapping.setPortsStack(portsStack.getId());
-
+		stackMappingRepo.save(stackMapping);
 		List<String> ips = null;
 		List<String> ports = null;
 		for (Map<String, Object> output : portsStack.getOutputs()) {
@@ -107,11 +107,12 @@ public class RabbitMQCustomStackHandler extends CustomStackHandler {
 			String ip = ips.get(i);
 			stackMapping.addServerAddress(new ServerAddress("node-" + i, ip));
 		}
-
+		stackMappingRepo.save(stackMapping);
 		ParameterManager.updateGeneralParameters(customParameters, ips, ports);
 
 		Stack primaryStack = createPrimaryStack(instanceId, customParameters);
 		stackMapping.setPrimaryStack(primaryStack.getId());
+		stackMappingRepo.save(stackMapping);
 
 		Map<String, String> parametersSecondary = ParameterManager.copyProperties(customParameters,
 				ParameterManager.RABBIT_VHOST, ParameterManager.RABBIT_USER, ParameterManager.RABBIT_PASSWORD, LOG_HOST,
@@ -127,6 +128,7 @@ public class RabbitMQCustomStackHandler extends CustomStackHandler {
 		for (int i = 0; i < secondaryNumber; i++) {
 			Stack secondaryStack = stackProgressObserver.waitForStackCompletion("s" + instanceId + "_Sec" + i);
 			stackMapping.addSecondaryStack(secondaryStack.getId());
+			stackMappingRepo.save(stackMapping);
 		}
 
 		log.debug("Stack deployment for RabbitMQ ready - Stacks:" + stackMapping.getSecondaryStacks().size() + 2);
