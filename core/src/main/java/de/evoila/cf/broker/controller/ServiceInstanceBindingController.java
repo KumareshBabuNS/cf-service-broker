@@ -1,5 +1,7 @@
 package de.evoila.cf.broker.controller;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -53,9 +55,10 @@ public class ServiceInstanceBindingController extends BaseController {
 		log.debug("PUT: " + SERVICE_INSTANCE_BINDING_BASE_PATH + "/{bindingId}"
 				+ ", bindServiceInstance(), instanceId = " + instanceId + ", bindingId = " + bindingId);
 
+		Map<String, String> bindResource = request.getBindResource();
+		String route = (bindResource != null) ? bindResource.get("route") : null;
 		ServiceInstanceBindingResponse response = bindingService.createServiceInstanceBinding(bindingId, instanceId,
-				request.getServiceDefinitionId(), request.getPlanId(), (request.getAppGuid() == null),
-				request.getBindResource().get("route"));
+				request.getServiceDefinitionId(), request.getPlanId(), (request.getAppGuid() == null), route);
 
 		log.debug("ServiceInstanceBinding Created: " + bindingId);
 
