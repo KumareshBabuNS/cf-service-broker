@@ -8,7 +8,6 @@
 	</parent>
 	<groupId>de.evoila.cf.broker</groupId>
 	<artifactId>registry</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 	<name>registry</name>
 	<packaging>jar</packaging>
 	<description>Central Instance Registry Component for Brokers</description>
@@ -43,7 +42,7 @@
 		<dependency>
 			<groupId>de.evoila.cf.broker</groupId>
 			<artifactId>model</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.1-RC</version>
 		</dependency>
 	</dependencies>
 
@@ -80,4 +79,5 @@
 		</plugins>
 	</build>
 
+	<version>0.1-RC</version>
 </project>

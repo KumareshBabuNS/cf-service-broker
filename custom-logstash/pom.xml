@@ -10,7 +10,7 @@
 		<relativePath>../</relativePath>
 	</parent>
 	<artifactId>logstash</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1-RC</version>
 	<packaging>jar</packaging>
 	<name>ssb-logstash</name>
 
@@ -63,18 +63,18 @@
 		<dependency>
 			<groupId>de.evoila.cf.broker</groupId>
 			<artifactId>docker</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.1-RC</version>
 		</dependency>
 		<dependency>
 			<groupId>de.evoila.cf.broker</groupId>
 			<artifactId>openstack</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.1-RC</version>
 		</dependency>
 
 		<dependency>
 			<groupId>de.evoila.cf.broker</groupId>
 			<artifactId>persistence</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.1-RC</version>
 		</dependency>
 	</dependencies>
 

@@ -6,11 +6,10 @@
 	<parent>
 		<groupId>de.evoila.cf.broker</groupId>
 		<artifactId>parent</artifactId>
-		<version>1.0</version>
+		<version>0.1-RC</version>
 		<relativePath>../</relativePath>
 	</parent>
 	<artifactId>postgresql</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>ssb-postgres</name>
 
@@ -70,25 +69,25 @@
 		<dependency>
 			<groupId>de.evoila.cf.broker</groupId>
 			<artifactId>docker</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.1-RC</version>
 		</dependency>
 		<dependency>
 			<groupId>de.evoila.cf.broker</groupId>
 			<artifactId>openstack</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.1-RC</version>
 		</dependency>
 
 		<dependency>
 			<groupId>de.evoila.cf.broker</groupId>
 			<artifactId>model</artifactId>
 			<type>test-jar</type>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.1-RC</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>de.evoila.cf.broker</groupId>
 			<artifactId>persistence</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.1-RC</version>
 		</dependency>
 	</dependencies>
 

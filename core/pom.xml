@@ -6,11 +6,10 @@
 	<parent>
 		<groupId>de.evoila.cf.broker</groupId>
 		<artifactId>parent</artifactId>
-		<version>1.0</version>
+		<version>0.1-RC</version>
 		<relativePath>../</relativePath>
 	</parent>
 	<artifactId>core</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<name>core</name>
 
@@ -50,13 +49,13 @@
 		<dependency>
 			<groupId>de.evoila.cf.broker</groupId>
 			<artifactId>model</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.1-RC</version>
 		</dependency>
 		<dependency>
 			<groupId>de.evoila.cf.broker</groupId>
 			<artifactId>model</artifactId>
 			<type>test-jar</type>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.1-RC</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
