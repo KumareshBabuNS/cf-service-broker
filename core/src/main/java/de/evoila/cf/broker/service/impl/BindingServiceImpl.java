@@ -119,8 +119,9 @@ public abstract class BindingServiceImpl implements BindingService {
 		try {
 			ServiceInstanceBinding binding = bindingRepository.findOne(bindingId);
 			List<ServerAddress> externalServerAddresses = binding.getExternalServerAddresses();
-			if (externalServerAddresses != null)
-				haProxyService.removeAgent(externalServerAddresses);
+			if (externalServerAddresses != null) {
+				haProxyService.removeAgent(serviceInstance.getHosts());
+			}
 
 			deleteBinding(bindingId, serviceInstance);
 		} catch (ServiceBrokerException e) {

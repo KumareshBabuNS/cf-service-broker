@@ -16,6 +16,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import de.evoila.cf.broker.exception.ServiceBrokerException;
@@ -69,12 +70,19 @@ public class HAProxyService {
 
 	private ServerAddress appendSingleAgent(ServerAddress internalAddress) {
 		HttpEntity<ServerAddress> entity = new HttpEntity<>(internalAddress, headers);
-		ServerAddress response = restTemplate.exchange(haProxy, HttpMethod.PUT, entity, ServerAddress.class).getBody();
 
-		if (response != null) {
-			response.setName(internalAddress.getName());
-			return response;
+		try {
+			ServerAddress response = restTemplate.exchange(haProxy, HttpMethod.PUT, entity, ServerAddress.class)
+					.getBody();
+
+			if (response != null) {
+				response.setName(internalAddress.getName());
+				return response;
+			}
+		} catch (RestClientException e) {
+			e.printStackTrace();
 		}
+
 		return null;
 	}
 
@@ -86,9 +94,16 @@ public class HAProxyService {
 
 	private void removeSingleAgent(ServerAddress internalAddress) throws ServiceBrokerException {
 		HttpEntity<ServerAddress> entity = new HttpEntity<>(internalAddress, headers);
-		HttpStatus statusCode = restTemplate.exchange(haProxy, HttpMethod.DELETE, entity, Object.class).getStatusCode();
-		if (!statusCode.equals(HttpStatus.NO_CONTENT))
+		try {
+			HttpStatus statusCode = restTemplate.exchange(haProxy, HttpMethod.DELETE, entity, Object.class)
+					.getStatusCode();
+			if (!statusCode.equals(HttpStatus.NO_CONTENT))
+				throw new ServiceBrokerException("Could not remove external IP " + internalAddress.getName() + " - "
+						+ internalAddress.getIp() + ":" + internalAddress.getPort());
+		} catch (RestClientException e) {
+			e.printStackTrace();
 			throw new ServiceBrokerException("Could not remove external IP " + internalAddress.getName() + " - "
 					+ internalAddress.getIp() + ":" + internalAddress.getPort());
+		}
 	}
 }
