@@ -33,6 +33,9 @@ public class DockerPlatformService extends DockerServiceFactory {
 	@Autowired
 	private PlatformRepository platformRepository;
 
+	@Autowired
+	private ServicePortAvailabilityVerifier portAvailabilityVerifier;
+
 	@Override
 	@PostConstruct
 	public void registerCustomPlatformServie() {
@@ -58,7 +61,7 @@ public class DockerPlatformService extends DockerServiceFactory {
 	public ServiceInstance postProvisioning(ServiceInstance serviceInstance, Plan plan) throws PlatformException {
 		boolean available = false;
 		try {
-			available = ServicePortAvailabilityVerifier.verifyServiceAvailability(serviceInstance.getHosts());
+			available = portAvailabilityVerifier.verifyServiceAvailability(serviceInstance.getHosts());
 		} catch (Exception e) {
 			throw new PlatformException("Service instance is not reachable. Service may not be started on instance.",
 					e);

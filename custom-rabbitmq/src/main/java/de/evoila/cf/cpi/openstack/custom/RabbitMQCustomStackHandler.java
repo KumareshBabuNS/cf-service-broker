@@ -22,7 +22,7 @@ import de.evoila.cf.broker.model.ServerAddress;
  */
 @Service
 public class RabbitMQCustomStackHandler extends CustomStackHandler {
-	private static final Logger log = LoggerFactory.getLogger(RabbitMQCustomStackHandler.class);
+	private final Logger log = LoggerFactory.getLogger(RabbitMQCustomStackHandler.class);
 
 	@Value("${openstack.log_port}")
 	private String logPort;

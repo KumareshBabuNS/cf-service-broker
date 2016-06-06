@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import de.evoila.cf.broker.exception.PlatformException;
 import de.evoila.cf.broker.model.ServerAddress;
@@ -18,6 +19,7 @@ import de.evoila.cf.broker.model.ServerAddress;
  * @author Johannes Hiemer.
  *
  */
+@Service
 public class ServicePortAvailabilityVerifier {
 
 	private static final int SOCKET_TIMEOUT = 30000;
@@ -26,9 +28,9 @@ public class ServicePortAvailabilityVerifier {
 
 	private static final int connectionTimeouts = 10;
 
-	private static Logger log = LoggerFactory.getLogger(ServicePortAvailabilityVerifier.class);
+	private final Logger log = LoggerFactory.getLogger(ServicePortAvailabilityVerifier.class);
 
-	public static void timeout(int timeout) {
+	public void timeout(int timeout) {
 		try {
 			Thread.sleep(timeout);
 		} catch (InterruptedException e1) {
@@ -36,7 +38,7 @@ public class ServicePortAvailabilityVerifier {
 		}
 	}
 
-	public static boolean execute(String ip, int port) {
+	public boolean execute(String ip, int port) {
 		boolean available = false;
 
 		log.info("Verifying port availability on: {}:{}", ip, port);
@@ -64,12 +66,12 @@ public class ServicePortAvailabilityVerifier {
 		return available;
 	}
 
-	public static boolean verifyServiceAvailability(String ip, int port) throws PlatformException {
+	public boolean verifyServiceAvailability(String ip, int port) throws PlatformException {
 		boolean available = false;
 
-		ServicePortAvailabilityVerifier.timeout(INITIAL_TIMEOUT);
+		this.timeout(INITIAL_TIMEOUT);
 		for (int i = 0; i < connectionTimeouts; i++) {
-			available = ServicePortAvailabilityVerifier.execute(ip, port);
+			available = this.execute(ip, port);
 
 			log.info("Service Port availability: {}", available);
 
@@ -81,7 +83,7 @@ public class ServicePortAvailabilityVerifier {
 		return available;
 	}
 
-	public static boolean verifyServiceAvailability(List<ServerAddress> serverAddresses) throws PlatformException {
+	public boolean verifyServiceAvailability(List<ServerAddress> serverAddresses) throws PlatformException {
 		for (ServerAddress serverAddress : serverAddresses) {
 			if (!verifyServiceAvailability(serverAddress.getIp(), serverAddress.getPort())) {
 				return false;

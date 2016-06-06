@@ -39,7 +39,7 @@ import de.evoila.cf.broker.service.impl.DeploymentServiceImpl;
 @RequestMapping(value = "/v2")
 public class ServiceInstanceController extends BaseController {
 
-	private static final Logger log = LoggerFactory.getLogger(ServiceInstanceController.class);
+	private final Logger log = LoggerFactory.getLogger(ServiceInstanceController.class);
 
 	public static final String SERVICE_INSTANCE_BASE_PATH = "/v2/service_instances";
 

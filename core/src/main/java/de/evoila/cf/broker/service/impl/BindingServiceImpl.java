@@ -36,7 +36,7 @@ import de.evoila.cf.broker.service.HAProxyService;
 @Service
 public abstract class BindingServiceImpl implements BindingService {
 
-	private static final Logger log = LoggerFactory.getLogger(BindingServiceImpl.class);
+	private final Logger log = LoggerFactory.getLogger(BindingServiceImpl.class);
 
 	@Autowired
 	protected BindingRepository bindingRepository;

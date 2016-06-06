@@ -16,3 +16,8 @@ target
 *.pem
 config/manifest-with-credentials.yml
 manifest-with-credentials.yml
+config/application.pid
+config/logging.file_IS_UNDEFINED
+custom-mongodb/application.pid
+registry/application.pid
+registry/logging.file_IS_UNDEFINED

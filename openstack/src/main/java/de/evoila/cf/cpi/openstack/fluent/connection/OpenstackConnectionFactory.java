@@ -16,7 +16,7 @@ import org.springframework.util.Assert;
  */
 public class OpenstackConnectionFactory {
 	
-	private static final Logger log = LoggerFactory
+	private final Logger log = LoggerFactory
 			.getLogger(OpenstackConnectionFactory.class);
 	
 	protected static OSClient osClient; 

@@ -3,11 +3,10 @@
  */
 package de.evoila.cf.cpi.openstack.custom;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
 import de.evoila.cf.broker.exception.PlatformException;
@@ -70,27 +70,34 @@ public class StackHandler {
 	@Autowired
 	protected StackProgressObserver stackProgressObserver;
 
+	@Autowired
+	private ApplicationContext appContext;
+
 	@PostConstruct
 	public void initialize() {
-		final String templatePath = "/openstack/template.yml";
+		final String templatePath = "classpath:openstack/template.yml";
 		defaultHeatTemplate = accessTemplate(templatePath);
 	}
 
 	protected String accessTemplate(final String templatePath) {
-		URL url = this.getClass().getResource(templatePath);
 
-		// Assert.notNull(url, "Heat template definition must be provided.");
 		try {
-			return this.readTemplateFile(url);
+			InputStream inputStream = appContext.getResource(templatePath).getInputStream();
+			return this.readTemplateFile(inputStream);
 		} catch (IOException | URISyntaxException e) {
 			log.info("Failed to load heat template", e);
 			return defaultHeatTemplate;
 		}
 	}
 
-	private String readTemplateFile(URL url) throws IOException, URISyntaxException {
-		byte[] encoded = Files.readAllBytes(Paths.get(url.toURI()));
-		return new String(encoded, DEFAULT_ENCODING);
+	private String readTemplateFile(InputStream inputStream) throws IOException, URISyntaxException {
+		ByteArrayOutputStream result = new ByteArrayOutputStream();
+		byte[] buffer = new byte[1024];
+		int length;
+		while ((length = inputStream.read(buffer)) != -1) {
+			result.write(buffer, 0, length);
+		}
+		return result.toString(DEFAULT_ENCODING);
 	}
 
 	public String create(String instanceId, Map<String, String> customParameters)

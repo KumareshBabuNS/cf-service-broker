@@ -32,7 +32,7 @@ plans:
     volumeSize: 20
     volumeUnit: G
     platform: OPENSTACK
-    flavorId: 3
+    flavorId: 2
     connections: 300
     metadata:
       cluster: true

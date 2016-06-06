@@ -24,7 +24,7 @@ import de.evoila.cf.broker.model.ErrorMessage;
  */
 public abstract class BaseController {
 
-	private static final Logger logger = LoggerFactory.getLogger(BaseController.class);
+	private final Logger logger = LoggerFactory.getLogger(BaseController.class);
 	
 	@ExceptionHandler(HttpMessageNotReadableException.class)
 	public ResponseEntity<ErrorMessage> handleException(HttpMessageNotReadableException ex, HttpServletResponse response) {

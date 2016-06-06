@@ -20,7 +20,7 @@ import de.evoila.cf.broker.service.CatalogService;
 @RequestMapping(value = "/v2/catalog")
 public class CatalogController extends BaseController {
 	
-	private static final Logger logger = LoggerFactory.getLogger(CatalogController.class);
+	private final Logger logger = LoggerFactory.getLogger(CatalogController.class);
 	
 	@Autowired 
 	private CatalogService service;

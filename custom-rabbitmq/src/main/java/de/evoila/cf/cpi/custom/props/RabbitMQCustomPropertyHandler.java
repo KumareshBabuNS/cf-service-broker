@@ -30,7 +30,7 @@ public class RabbitMQCustomPropertyHandler implements DomainBasedCustomPropertyH
 	public static final String CLUSTER = "cluster";
 	public static final String ERLANG_KEY = "erlang_key";
 	
-	private static final Logger log = LoggerFactory.getLogger(RabbitMQCustomPropertyHandler.class);
+	private final Logger log = LoggerFactory.getLogger(RabbitMQCustomPropertyHandler.class);
 	
 	@Value("${rabbitmq.security.key.length}")
 	private int keyLength;

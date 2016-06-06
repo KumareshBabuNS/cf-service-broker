@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.actuate.system.ApplicationPidFileWriter;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -17,7 +18,6 @@ import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.util.Assert;
 
-import de.evoila.cf.broker.model.ServiceInstance;
 import de.evoila.cf.cpi.custom.props.DomainBasedCustomPropertyHandler;
 import de.evoila.cf.cpi.custom.props.RabbitMQCustomPropertyHandler;
 import de.evoila.cf.cpi.openstack.custom.StackMapping;
@@ -43,7 +43,7 @@ public class Application {
 
 		return customProperties;
 	}
-	
+
 	/**
 	 * @return
 	 */
@@ -57,7 +57,9 @@ public class Application {
 	}
 
 	public static void main(String[] args) {
-		ApplicationContext ctx = SpringApplication.run(Application.class, args);
+		SpringApplication springApplication = new SpringApplication(Application.class);
+		springApplication.addListeners(new ApplicationPidFileWriter());
+		ApplicationContext ctx = springApplication.run(args);
 
 		Assert.notNull(ctx);
 	}

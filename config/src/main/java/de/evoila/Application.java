@@ -4,6 +4,7 @@
 package de.evoila;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.actuate.system.ApplicationPidFileWriter;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.cloud.config.server.EnableConfigServer;
@@ -24,19 +25,21 @@ import de.evoila.cf.config.web.cors.CORSFilter;
 @EnableConfigServer
 public class Application {
 
-    public static void main(String[] args) {
-        ApplicationContext ctx = SpringApplication.run(Application.class, args);
-        
-        Assert.notNull(ctx);
-    }
-    
-    @Bean
-    public FilterRegistrationBean someFilterRegistration() {
-        FilterRegistrationBean registration = new FilterRegistrationBean();
-        registration.setFilter(new CORSFilter());
-        registration.addUrlPatterns("/*");
-        registration.setName("corsFilter");
-        return registration;
-    }
-   
+	public static void main(String[] args) {
+		SpringApplication springApplication = new SpringApplication(Application.class);
+		springApplication.addListeners(new ApplicationPidFileWriter());
+		ApplicationContext ctx = springApplication.run(args);
+
+		Assert.notNull(ctx);
+	}
+
+	@Bean
+	public FilterRegistrationBean someFilterRegistration() {
+		FilterRegistrationBean registration = new FilterRegistrationBean();
+		registration.setFilter(new CORSFilter());
+		registration.addUrlPatterns("/*");
+		registration.setName("corsFilter");
+		return registration;
+	}
+
 }

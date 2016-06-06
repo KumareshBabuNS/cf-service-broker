@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.actuate.system.ApplicationPidFileWriter;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -35,9 +36,11 @@ public class Application {
 	public DomainBasedCustomPropertyHandler domainPropertyHandler() {
 		return new LogstashCustomPropertyHandler();
 	}
-	
+
 	public static void main(String[] args) {
-		ApplicationContext ctx = SpringApplication.run(Application.class, args);
+		SpringApplication springApplication = new SpringApplication(Application.class);
+		springApplication.addListeners(new ApplicationPidFileWriter());
+		ApplicationContext ctx = springApplication.run(args);
 
 		Assert.notNull(ctx);
 	}

@@ -52,6 +52,9 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 	private PlatformRepository platformRepository;
 
 	@Autowired
+	private ServicePortAvailabilityVerifier portAvailabilityVerifier;
+
+	@Autowired
 	private IpAccessor ipAccessor;
 
 	@Autowired(required = false)
@@ -94,7 +97,7 @@ public class OpenstackPlatformService extends OpenstackServiceFactory {
 
 		boolean available;
 		try {
-			available = ServicePortAvailabilityVerifier.verifyServiceAvailability(serviceInstance.getHosts());
+			available = portAvailabilityVerifier.verifyServiceAvailability(serviceInstance.getHosts());
 		} catch (Exception e) {
 			throw new PlatformException("Service instance is not reachable. Service may not be started on instance.",
 					e);

@@ -38,7 +38,7 @@ import de.evoila.cf.broker.service.impl.BindingServiceImpl;
 @RequestMapping(value = "/v2/service_instances")
 public class ServiceInstanceBindingController extends BaseController {
 
-	private static final Logger log = LoggerFactory.getLogger(ServiceInstanceBindingController.class);
+	private final Logger log = LoggerFactory.getLogger(ServiceInstanceBindingController.class);
 
 	public static final String SERVICE_INSTANCE_BINDING_BASE_PATH = "/v2/service_instances/{instanceId}/service_bindings";
 

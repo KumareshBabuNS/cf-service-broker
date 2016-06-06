@@ -24,7 +24,7 @@ import de.evoila.cf.broker.model.cpi.EndpointServiceState;
 public class EndpointController extends BaseController {
 	
 	@SuppressWarnings("unused")
-	private static final Logger logger = LoggerFactory.getLogger(EndpointController.class);
+	private final Logger logger = LoggerFactory.getLogger(EndpointController.class);
 	
 	@Autowired 
 	private EndpointAvailabilityService endpointAvailabilityService;
