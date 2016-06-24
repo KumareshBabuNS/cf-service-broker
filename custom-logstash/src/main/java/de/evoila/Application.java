@@ -6,6 +6,7 @@ package de.evoila;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.system.ApplicationPidFileWriter;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -24,11 +25,15 @@ import de.evoila.cf.cpi.custom.props.LogstashCustomPropertyHandler;
 @SpringBootApplication
 public class Application {
 
+	@Value("${logstash.password}")
+	private String logstashPassword;
+
 	@Bean(name = "customProperties")
 	public Map<String, String> customProperties() {
 		Map<String, String> customProperties = new HashMap<String, String>();
-		customProperties.put("es_host", "172.24.102.2:9200");
-		customProperties.put("ls_port", "5000");
+		// customProperties.put("es_host", "172.24.102.2:9200");
+		// customProperties.put("ls_port", "5000");
+		customProperties.put("ls_password", logstashPassword);
 		return customProperties;
 	}
 

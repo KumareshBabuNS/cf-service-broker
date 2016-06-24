@@ -1,5 +1,7 @@
 package de.evoila.cf.broker.service;
 
+import java.util.Map;
+
 import de.evoila.cf.broker.exception.ServiceInstanceDoesNotExistException;
 import de.evoila.cf.broker.model.JobProgress;
 import de.evoila.cf.broker.model.Plan;
@@ -14,8 +16,8 @@ import de.evoila.cf.broker.service.impl.DeploymentServiceImpl;
 
 public interface AsyncDeploymentService {
 
-	void asyncCreateInstance(DeploymentServiceImpl deploymentService, ServiceInstance serviceInstance, Plan plan,
-			PlatformService platformService);
+	void asyncCreateInstance(DeploymentServiceImpl deploymentService, ServiceInstance serviceInstance,
+			Map<String, String> parameters, Plan plan, PlatformService platformService);
 
 	void asyncDeleteInstance(DeploymentServiceImpl deploymentService, String instanceId,
 			ServiceInstance serviceInstance, PlatformService platformService)

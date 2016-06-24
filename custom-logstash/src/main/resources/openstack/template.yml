@@ -22,9 +22,12 @@ parameters:
   es_host:
     type: string
     description: Elasticsearch Host
-  ls_port:
+  ls_password:
     type: string
-    description: Logstash Listening Port
+    description: logstash passowrd
+  #  ls_port:
+  #    type: string
+  #    description: Logstash Listening Port
 resources:
   nova_instance:
     type: OS::Nova::Server
@@ -46,10 +49,11 @@ resources:
             
             wget $REPOSITORY_LOGSTASH/logstash-template.sh --no-cache
             chmod +x logstash-template.sh
-            ./logstash-template.sh -d $es_host -p 3uvjnv3e9823 -e openstack
+            ./logstash-template.sh -d $es_host -p $ls_password -e openstack
           params:
             $es_host: {get_param: es_host}
-            $ls_port: {get_param: ls_port}
+            $ls_password: {get_param: ls_password}
+#            $ls_port: {get_param: ls_port}
   cinder_volume:
     type: OS::Cinder::Volume
     properties:

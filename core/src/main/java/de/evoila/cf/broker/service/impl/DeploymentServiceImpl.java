@@ -4,6 +4,7 @@
 package de.evoila.cf.broker.service.impl;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.Resource;
@@ -35,7 +36,7 @@ import de.evoila.cf.cpi.custom.props.DomainBasedCustomPropertyHandler;
  */
 @Service
 public class DeploymentServiceImpl implements DeploymentService {
-	
+
 	@Autowired
 	private DomainBasedCustomPropertyHandler domainPropertyHandler;
 
@@ -50,7 +51,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 
 	@Autowired(required = false)
 	private AsyncDeploymentService asyncDeploymentService;
-	
+
 	@Resource(name = "customProperties")
 	public Map<String, String> customProperties;
 
@@ -58,11 +59,11 @@ public class DeploymentServiceImpl implements DeploymentService {
 	public JobProgressResponse getLastOperation(String serviceInstanceId)
 			throws ServiceInstanceDoesNotExistException, ServiceBrokerException {
 		JobProgress progress = asyncDeploymentService.getProgress(serviceInstanceId);
-		
+
 		if (progress == null || !serviceInstanceRepository.containsServiceInstanceId(serviceInstanceId)) {
 			throw new ServiceInstanceDoesNotExistException("Service instance not found " + serviceInstanceId);
 		}
-		
+
 		return new JobProgressResponse(progress);
 	}
 
@@ -89,37 +90,43 @@ public class DeploymentServiceImpl implements DeploymentService {
 		PlatformService platformService = platformRepository.getPlatformService(plan.getPlatform());
 
 		if (platformService.isSyncPossibleOnCreate(plan)) {
-			return syncCreateInstance(serviceInstance, plan, platformService);
+			return syncCreateInstance(serviceInstance, parameters, plan, platformService);
 		} else {
 			ServiceInstanceResponse serviceInstanceResponse = new ServiceInstanceResponse(serviceInstance, true);
 
 			serviceInstanceRepository.addServiceInstance(serviceInstance.getId(), serviceInstance);
 
-			asyncDeploymentService.asyncCreateInstance(this, serviceInstance, plan, platformService);
+			asyncDeploymentService.asyncCreateInstance(this, serviceInstance, parameters, plan, platformService);
 
 			return serviceInstanceResponse;
 		}
 	}
 
-	ServiceInstanceResponse syncCreateInstance(ServiceInstance serviceInstance, Plan plan,
-			PlatformService platformService) throws ServiceBrokerException {
+	ServiceInstanceResponse syncCreateInstance(ServiceInstance serviceInstance, Map<String, String> parameters,
+			Plan plan, PlatformService platformService) throws ServiceBrokerException {
 		ServiceInstance createdServiceInstance;
 		try {
-			Map<String, String> mergedProperties = domainPropertyHandler.addDomainBasedCustomProperties(plan, 
+			Map<String, String> mergedProperties = domainPropertyHandler.addDomainBasedCustomProperties(plan,
 					customProperties, serviceInstance);
+
+			if (parameters != null) {
+				for (Entry<String, String> entry : parameters.entrySet()) {
+					mergedProperties.putIfAbsent(entry.getKey(), entry.getValue());
+				}
+			}
 
 			createdServiceInstance = platformService.createInstance(serviceInstance, plan, mergedProperties);
 		} catch (PlatformException e) {
 			serviceInstanceRepository.deleteServiceInstance(serviceInstance.getId());
-			
+
 			throw new ServiceBrokerException("Could not create instance due to: ", e);
 		}
-		
+
 		if (createdServiceInstance.getInternalId() != null)
 			serviceInstanceRepository.addServiceInstance(createdServiceInstance.getId(), createdServiceInstance);
 		else {
 			serviceInstanceRepository.deleteServiceInstance(serviceInstance.getId());
-			
+
 			throw new ServiceBrokerException(
 					"Internal error. Service instance was not created. ID was: " + serviceInstance.getId());
 		}
@@ -129,7 +136,7 @@ public class DeploymentServiceImpl implements DeploymentService {
 		} catch (PlatformException e) {
 			throw new ServiceBrokerException("Error during service availability verification", e);
 		}
-		
+
 		return new ServiceInstanceResponse(createdServiceInstance, false);
 	}
 

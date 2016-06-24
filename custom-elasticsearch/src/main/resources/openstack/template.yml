@@ -19,6 +19,9 @@ parameters:
   availability_zone:
     type: string
     description: The Availability Zone to launch the instance.
+  es_password:
+    type: string
+    description: The password of the elasticsearch instance.
 resources:
   nova_instance:
     type: OS::Nova::Server
@@ -40,9 +43,9 @@ resources:
             
             wget $REPOSITORY_ELASTICSEARCH/elasticsearch-template.sh --no-cache
             chmod +x elasticsearch-template.sh
-            ./elasticsearch-template.sh -p 0pens4ckDeock -e openstack
+            ./elasticsearch-template.sh -p $es_password -e openstack
           params:
-            $setting: "sample123"
+            $es_password: {get_param: es_password}
   cinder_volume:
     type: OS::Cinder::Volume
     properties:
