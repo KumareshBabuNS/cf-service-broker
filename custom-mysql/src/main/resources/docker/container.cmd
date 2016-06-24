@@ -1,6 +1,7 @@
-export REPOSITORY_MYSQL="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Mysql-v3" &&
-export REPOSITORY_MAIN="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master" &&
+export REPOSITORY_MYSQL="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD/mysql" &&
+export REPOSITORY_MONIT="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD/monit" && 
+export REPOSITORY_MAIN="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD" &&
 apt-get install -y wget &&
-wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/master/Mysql-v3/mysql-template.sh
+wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD/mysql/mysql-template.sh --no-cahce &&
 chmod +x mysql-template.sh &&
 ./mysql-template.sh -d $database_name -p $database_password -e docker
