@@ -8,7 +8,7 @@ info:
     description: Logstash Service Broker for Cloud Foundry Service Deployments
     version: 0.0.1
 logging:
-  file: ${LOG_FILE:service-broker.log}
+  file: ${LOG_FILE:logstash-service-broker.log}
   level:
     root: ${LOG_LEVEL_ROOT:INFO}       
 ---
@@ -17,11 +17,10 @@ spring:
   cloud:
     config:
       uri: http://localhost:8081
----      
+---
 spring:
-  profiles: cloud
+  profiles: bosh
   cloud:
     config:
-      uri: https://config.onevoila.rocks
-      
+      uri: ${SPRING_CLOUD_CONFIG_URI} 
             

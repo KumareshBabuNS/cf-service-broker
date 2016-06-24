@@ -33,7 +33,7 @@ spring:
   application:
     name: eureka_server 
 server:
-  port: 8761
+  port: ${SERVER_PORT:8671}
 eureka:
   instance:
     hostname: localhost
