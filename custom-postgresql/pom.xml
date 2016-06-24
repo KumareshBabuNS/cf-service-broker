@@ -11,7 +11,7 @@
 	</parent>
 	<artifactId>postgresql</artifactId>
 	<packaging>jar</packaging>
-	<name>ssb-postgres</name>
+	<name>ssb-postgresql</name>
 
 	<dependencies>
 

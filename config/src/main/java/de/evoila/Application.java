@@ -8,7 +8,6 @@ import org.springframework.boot.actuate.system.ApplicationPidFileWriter;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.cloud.config.server.EnableConfigServer;
-import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.util.Assert;
@@ -21,7 +20,6 @@ import de.evoila.cf.config.web.cors.CORSFilter;
  *
  */
 @SpringBootApplication
-@EnableEurekaClient
 @EnableConfigServer
 public class Application {
 
