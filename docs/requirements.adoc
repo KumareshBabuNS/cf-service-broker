@@ -1,5 +1,18 @@
 == Requirements
 
-=== Openstack
+=== Cloud Foundry
+Because the service brokers are produced to work with Cloud Foundry, an installation of it is required. Unless, you are curious to use the REST API of the service brokers directly. But that is not recommended by us.
 
-=== Docker
+The service broker support all features of the actual `Service Broker API v2.8`. But the APIs down to v2.0 are still supported with loss of functionalities due to the lower number of API functionalities.
+
+=== Deployment infrastructures
+The service instances provided by a service broker need some deployment infrastructure to be deployed to. In the examples provided by us, the deployment infrastructure has to be either Docker or OpenStack. Due to the modular concept of the framework easily more deployments can be added.
+
+==== OpenStack
+To deploy service instances to OpenStack an installation of OpenStack in version Liberty or newer is needed as well as an installed version of Heat. Heat is used to organize automated deployment of the service instances through Heat scripts.
+
+==== Docker
+To deploy service instances as Docker containers a Docker host with Docker Swarm is needed.
+
+==== Other deployment infrastructures
+If you interested in deploying your service instances to other infrastructures. For example, creating a database in an rich database management system or a project in a build server or continuous integration system, we look forward to your contributions.

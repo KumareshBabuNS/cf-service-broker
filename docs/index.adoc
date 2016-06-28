@@ -1,12 +1,11 @@
 = Cloud Foundry Service Broker
-Thomas Brinker, Christian Brinker, Johannes Hiemer and Dennis Müller <info@evoila.de>
+Christian Brinker, Dennis Müller, Johannes Hiemer and Thomas Brinker <info@evoila.de>
 v0.1, 2016-01-01
 :toc:
 :homepage: http://www.evoila.de/cloudfoundry-service-broker
 :imagesdir: assets
 
 a sub-project of the Stackport-Project
-
 
 image::stackport-landscape.png[Stackport Landscape]
 
