@@ -6,6 +6,7 @@ domain: onevoila.rocks
 buildpack: https://github.com/cloudfoundry/java-buildpack.git
 env:
   SPRING_PROFILES_ACTIVE: cloud
+  SPRING_CLOUD_CONFIG_URI: http://config.onevoila.rocks
   CF_TARGET: https://api.onevoila.rocks
   JAVA_OPTS: -Djava.security.egd=file:/dev/urandom
 applications:
@@ -20,7 +21,7 @@ applications:
 ## Postgres Service Broker
 - name: postgres
   host: postgres
-  path: custom-postgresql/target/ssb-postgres.jar
+  path: custom-postgresql/target/ssb-postgresql.jar
 ## MongoDB Service Broker
 - name: mongo
   host: mongo

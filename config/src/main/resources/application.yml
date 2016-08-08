@@ -6,8 +6,8 @@ spring:
       server:
         git:
           uri: https://bitbucket.org/evoila-boxer/cf-service-broker-config.git
-          username: "svc-technical" #${GIT_USER}
-          password: "bamboo##lo1" #${GIT_PASSWORD}
+          username: ${GIT_USER}
+          password: ${GIT_PASSWORD}
 logging:
   file: cloud-config.log
 ---

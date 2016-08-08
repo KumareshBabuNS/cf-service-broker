@@ -6,7 +6,7 @@ domain: onevoila.rocks
 applications:
 - name: postgres
   host: postgres
-  path: target/ssb-postgres.jar
+  path: target/ssb-postgresql.jar
   buildpack: https://github.com/cloudfoundry/java-buildpack.git
   env:
     CF_TARGET: https://api.onevoila.rocks
