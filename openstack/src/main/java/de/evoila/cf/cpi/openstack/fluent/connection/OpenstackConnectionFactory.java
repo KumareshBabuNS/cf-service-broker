@@ -15,74 +15,65 @@ import org.springframework.util.Assert;
  *
  */
 public class OpenstackConnectionFactory {
-	
-	private final Logger log = LoggerFactory
-			.getLogger(OpenstackConnectionFactory.class);
-	
-	protected static OSClient osClient; 
+
+	private final Logger log = LoggerFactory.getLogger(OpenstackConnectionFactory.class);
+
+	protected static OSClient osClient;
 
 	private static String username;
 
 	private static String password;
-	
+
 	private static String authUrl;
-	
-	private static String tenant;
-	
+
+	private static String tenantId;
+
 	private static String PROVIDER = "openstack-fluent--provider";
-	
+
 	private static OpenstackConnectionFactory instance = null;
-	
+
 	public static OpenstackConnectionFactory getInstance() {
-	      if(instance == null) {
-	         instance = new OpenstackConnectionFactory();
-	      }
-	      return instance;
-	   }
-		
+		if (instance == null) {
+			instance = new OpenstackConnectionFactory();
+		}
+		return instance;
+	}
+
 	public OpenstackConnectionFactory setCredential(String username, String password) {
 		OpenstackConnectionFactory.username = username;
 		OpenstackConnectionFactory.password = password;
 		return instance;
 	}
-	
-	public OpenstackConnectionFactory authenticate(String authUrl, String tenant) {
+
+	public OpenstackConnectionFactory authenticate(String authUrl, String tenantId) {
 		OpenstackConnectionFactory.authUrl = authUrl;
-		OpenstackConnectionFactory.tenant = tenant;
+		OpenstackConnectionFactory.tenantId = tenantId;
 		Assert.notNull(username, "Username may not be empty, when initializing");
 		Assert.notNull(password, "Password may not be empty, when initializing");
-		
+
 		log.info("Initializing Provider:" + PROVIDER);
-		
-		osClient = OSFactory.builder()
-						.endpoint(authUrl)
-						.credentials(username, password)
-						.tenantName(tenant)
-						.authenticate();
+
+		osClient = OSFactory.builder().endpoint(authUrl).credentials(username, password).tenantId(tenantId)
+				.authenticate();
 		return instance;
 	}
-	
+
 	private static void authenticate() {
-		osClient = OSFactory.builder()
-				.endpoint(authUrl)
-				.credentials(username, password)
-				.tenantName(tenant)
+		osClient = OSFactory.builder().endpoint(authUrl).credentials(username, password).tenantId(tenantId)
 				.authenticate();
 	}
-	
-	public OpenstackConnectionFactory authenticateV3(String authUrl, String tenant) {
+
+	public OpenstackConnectionFactory authenticateV3(String authUrl, String tenantId) {
 		Assert.notNull(username, "Username may not be empty, when initializing");
 		Assert.notNull(password, "Password may not be empty, when initializing");
-		
+
 		log.info("Initializing Provider:" + PROVIDER);
-		
-		osClient = OSFactory.builderV3()
-						.endpoint(authUrl)
-						.credentials(username, password, Identifier.byName(tenant))
-						.authenticate();
+
+		osClient = OSFactory.builderV3().endpoint(authUrl).credentials(username, password, Identifier.byId(tenantId))
+				.authenticate();
 		return instance;
 	}
-	
+
 	public static OSClient connection() {
 		authenticate();
 		Assert.notNull(osClient, "Connection must be initialized before called any methods on it");

@@ -25,7 +25,6 @@ import de.evoila.cf.cpi.openstack.fluent.connection.OpenstackConnectionFactory;
 public abstract class OpenstackServiceFactory implements PlatformService {
 
 	private final static String OPENSTACK_SERVICE_KEY = "openstackFactoryService";
-	
 
 	private Logger log = LoggerFactory.getLogger(getClass());
 
@@ -38,8 +37,8 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 	@Value("${openstack.password}")
 	private String password;
 
-	@Value("${openstack.tenant}")
-	private String tenant;
+	@Value("${openstack.tenantId}")
+	private String tenantId;
 
 	protected Map<String, Integer> ports;
 
@@ -51,7 +50,6 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 		this.ports = ports;
 	}
 
-
 	@Autowired
 	private EndpointAvailabilityService endpointAvailabilityService;
 
@@ -61,11 +59,9 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 		try {
 			if (endpointAvailabilityService.isAvailable(OPENSTACK_SERVICE_KEY)) {
 				OpenstackConnectionFactory.getInstance().setCredential(username, password).authenticate(endpoint,
-						tenant);
+						tenantId);
 
 				log.debug("Reading heat template definition for openstack");
-
-
 
 				endpointAvailabilityService.add(OPENSTACK_SERVICE_KEY,
 						new EndpointServiceState(OPENSTACK_SERVICE_KEY, AvailabilityState.AVAILABLE));
@@ -75,7 +71,5 @@ public abstract class OpenstackServiceFactory implements PlatformService {
 					new EndpointServiceState(OPENSTACK_SERVICE_KEY, AvailabilityState.ERROR, ex.toString()));
 		}
 	}
-
-
 
 }
