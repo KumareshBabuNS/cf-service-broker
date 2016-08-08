@@ -1,5 +1,6 @@
 export REPOSITORY_MONGO="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD/mongodb" &&
 export REPOSITORY_MAIN="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD" &&
+apt-get update &&
 apt-get install -y wget &&
 wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD/mongodb/mongo-template.sh --no-cache && 
 chmod +x mongo-template.sh  &&

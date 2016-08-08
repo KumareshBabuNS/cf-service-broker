@@ -1,5 +1,6 @@
 export REPOSITORY_MYSQL="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD/mysql" &&
 export REPOSITORY_MAIN="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD" &&
+apt-get update &&
 apt-get install -y wget &&
 wget https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD/mysql/mysql-template.sh --no-cache &&
 chmod +x mysql-template.sh &&
