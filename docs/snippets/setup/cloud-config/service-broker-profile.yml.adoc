@@ -1,0 +1,21 @@
+[source,yaml]
+.mongodb-cloud.yml
+----
+---
+spring:
+  profiles: cloud
+
+docker:
+  imageName: ubuntu:14.04
+  offset: 1000
+
+backend:
+  ports:
+    default: 27017
+  connection:
+    timeouts: 18
+mongodb:
+  security:
+    key:
+      length: 741
+----

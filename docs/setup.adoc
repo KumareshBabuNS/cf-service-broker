@@ -73,4 +73,40 @@ NOTE: If you wish to push with a manifest file that is not named 'manifest.yml',
 
 4. Lean back and watch the deployment.
 
+NOTE: If your cloud config server uses a git repository with SSL and authentication, you can copy the `manifest-with-credentials-example.yml` file in the config subproject and rename it to `manifest-with-credentials.yml`. There exists a `.gitignore` entry, so it will not be uploaded to your git repository. In the files are provided variables to insert your credentials. Use this manifest file to deploy the cloud config server. Or copy it to the parent directory. Then the deployment of all projects is modified and the credentials are provided to the cloud config server.
+
+==== Bosh Deployment
+
+To be added soon.
+
+=== Docker Swarm
+
+To be added soon.
+
+=== Cloud Config Repository
+
+To use a git repository with your cloud config server, you have to provide one.
+
+1. You first have to create a new git repository project (for example on github).
+
+2. Then you need the url of the repository (for example `https://example.com/config`)
+
+3. Insert the url of your repository to the `bootstrap.yml` of your cloud config server or provide them as envrionment variable in your `manifest.yml`.
+
+3. Then add the following files to your repository:
+
+icon:file[] `application.yml` - contains the configuration options for all applications
+include::snippets/setup/cloud-config/application.yml.adoc[]
+
+icon:file[] `<service_name>-<profile>.yml` - contains the configuration options of the service broker (use `rabbitmq` for RabbitMQ service broker) started with the profile
+include::snippets/setup/cloud-config/service-broker-profile.yml.adoc[]
+
+NOTE: We provided support for the profiles `development`, `default`, `cloud` and `bosh`. `cloud` is used by us for deployments to a cloud foundry environment as applications.
+
+4. add your custom properties to the property files
+
+5. Now the properties from your repostory are used when starting the service broker, cloud config server or registry server. Please make sure you start the cloud config server before the service brokers, because it enables the access towards the repostory.
+
+NOTE: Using the `bootstrap.yaml` you can use different property sources for different profiles. See for further information. See link:http://cloud.spring.io/spring-cloud-static/spring-cloud.html#_spring_cloud_config[spring cloud config documentation].
+
 include::deploymentscripts.adoc[leveloffset=+1]
