@@ -33,14 +33,12 @@ public class MySQLBindingService extends BindingServiceImpl {
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
-	private MySQLDbService jdbcService;
-
-	@Autowired
 	private MySQLCustomImplementation mysqlCustomImplementation;
 
-	private boolean connection(ServiceInstance serviceInstance) throws SQLException {
+	private MySQLDbService connection(ServiceInstance serviceInstance) throws SQLException {
+		MySQLDbService jdbcService = new MySQLDbService();
 		if (jdbcService.isConnected())
-			return true;
+			return jdbcService;
 		else {
 			Assert.notNull(serviceInstance, "ServiceInstance may not be null");
 			Assert.notNull(serviceInstance.getId(), "Id of ServiceInstance may not be null");
@@ -48,16 +46,25 @@ public class MySQLBindingService extends BindingServiceImpl {
 			Assert.notNull(host.getIp(), "Host of ServiceInstance may not be null");
 			Assert.notNull(host.getPort(), "Port of ServiceInstance may not be null");
 
-			return jdbcService.createConnection(serviceInstance.getId(), host.getIp(), host.getPort());
+			final boolean isConnected = jdbcService.createConnection(serviceInstance.getId(), host.getIp(),
+					host.getPort());
+			if (isConnected)
+				return jdbcService;
+			else
+				return null;
 		}
 	}
 
 	public void create(ServiceInstance serviceInstance, Plan plan) throws ServiceBrokerException {
+		MySQLDbService jdbcService = null;
 		try {
-			connection(serviceInstance);
+			jdbcService = connection(serviceInstance);
 		} catch (SQLException e1) {
 			throw new ServiceBrokerException("Could not connect to database");
 		}
+
+		if (jdbcService == null)
+			throw new ServiceBrokerException("Could not connect to database");
 
 		String instanceId = serviceInstance.getId();
 
@@ -71,11 +78,15 @@ public class MySQLBindingService extends BindingServiceImpl {
 	}
 
 	public void delete(ServiceInstance serviceInstance, Plan plan) throws ServiceBrokerException {
+		MySQLDbService jdbcService = null;
 		try {
-			connection(serviceInstance);
+			jdbcService = connection(serviceInstance);
 		} catch (SQLException e1) {
 			throw new ServiceBrokerException("Could not connect to database");
 		}
+
+		if (jdbcService == null)
+			throw new ServiceBrokerException("Could not connect to database");
 
 		String instanceId = serviceInstance.getId();
 
@@ -104,16 +115,20 @@ public class MySQLBindingService extends BindingServiceImpl {
 	protected Map<String, Object> createCredentials(String bindingId, ServiceInstance serviceInstance,
 			ServerAddress host) throws ServiceBrokerException {
 
+		MySQLDbService jdbcService = null;
 		try {
-			connection(serviceInstance);
+			jdbcService = connection(serviceInstance);
 		} catch (SQLException e1) {
 			throw new ServiceBrokerException("Could not connect to database");
 		}
 
+		if (jdbcService == null)
+			throw new ServiceBrokerException("Could not connect to database");
+
 		String username = username(bindingId);
 		String password = "";
 		try {
-			password = mysqlCustomImplementation.bindRoleToDatabase(serviceInstance.getId(), username);
+			password = mysqlCustomImplementation.bindRoleToDatabase(jdbcService, serviceInstance.getId(), username);
 		} catch (SQLException e) {
 			log.error(e.toString());
 			throw new ServiceBrokerException("Could not update database");
@@ -130,15 +145,19 @@ public class MySQLBindingService extends BindingServiceImpl {
 
 	@Override
 	protected void deleteBinding(String bindingId, ServiceInstance serviceInstance) throws ServiceBrokerException {
+		MySQLDbService jdbcService = null;
 		try {
-			connection(serviceInstance);
+			jdbcService = connection(serviceInstance);
 		} catch (SQLException e1) {
 			throw new ServiceBrokerException("Could not connect to database");
 		}
 
+		if (jdbcService == null)
+			throw new ServiceBrokerException("Could not connect to database");
+
 		try {
 			String username = username(bindingId);
-			mysqlCustomImplementation.unbindRoleFromDatabase(username);
+			mysqlCustomImplementation.unbindRoleFromDatabase(jdbcService, username);
 		} catch (SQLException e) {
 			log.error(e.toString());
 			throw new ServiceBrokerException("Could not remove from database");

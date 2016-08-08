@@ -77,9 +77,6 @@ public abstract class DockerServiceFactory implements PlatformService {
 	@Value("${docker.port}")
 	private String dockerPort;
 
-	@Value("${docker.volume.service.port}")
-	private String dockerVolumePort;
-
 	@Value("${docker.portRange.start}")
 	private int portRangeStart;
 
