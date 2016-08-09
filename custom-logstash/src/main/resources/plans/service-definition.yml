@@ -16,5 +16,5 @@ plans:
     volumeSize: 1
     volumeUnit: G
     platform: OPENSTACK
-    flavorId: 2
+    flavorId: gp.2small
     connections: 20

@@ -16,7 +16,7 @@ plans:
     volumeSize: 1
     volumeUnit: G
     platform: OPENSTACK
-    flavorId: 2
+    flavorId: gp.2small
     connections: 20
   - id: rabbitmq-l
     name: L
@@ -24,7 +24,7 @@ plans:
     volumeSize: 5
     volumeUnit: G
     platform: OPENSTACK
-    flavorId: 2
+    flavorId: gp.2small
     connections: 300
   - id: rabbitmq-xl
     name: XL
@@ -32,7 +32,7 @@ plans:
     volumeSize: 20
     volumeUnit: G
     platform: OPENSTACK
-    flavorId: 2
+    flavorId: gp.2small
     connections: 300
     metadata:
       cluster: true
@@ -43,7 +43,7 @@ plans:
     volumeSize: 100
     volumeUnit: G
     platform: OPENSTACK
-    flavorId: 4
+    flavorId: gp.2large
     connections: 300
     metadata:
       cluster: true
@@ -54,7 +54,7 @@ plans:
     volumeSize: 250
     volumeUnit: G
     platform: OPENSTACK
-    flavorId: 4
+    flavorId: gp.2large
     connections: 300
     metadata:
       cluster: true

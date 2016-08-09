@@ -16,7 +16,7 @@ plans:
     volumeSize: 1
     volumeUnit: G
     platform: OPENSTACK
-    flavorId: 2
+    flavorId: gp.2small
     connections: 20
   - id: redis-l
     name: L
@@ -24,7 +24,7 @@ plans:
     volumeSize: 5
     volumeUnit: G
     platform: OPENSTACK
-    flavorId: 2
+    flavorId: gp.2small
     connections: 300
   - id: redis-xl
     name: XL
@@ -32,7 +32,7 @@ plans:
     volumeSize: 20
     volumeUnit: G
     platform: OPENSTACK
-    flavorId: 3
+    flavorId: gp.2medium
     connections: 300
   - id: redis-xxl
     name: XXL
@@ -40,7 +40,7 @@ plans:
     volumeSize: 100
     volumeUnit: G
     platform: OPENSTACK
-    flavorId: 4
+    flavorId: gp.2large
     connections: 300
   - id: redis-xxxl
     name: XXXL
@@ -48,5 +48,5 @@ plans:
     volumeSize: 250
     volumeUnit: G
     platform: OPENSTACK
-    flavorId: 4
+    flavorId: gp.2large
     connections: 300
