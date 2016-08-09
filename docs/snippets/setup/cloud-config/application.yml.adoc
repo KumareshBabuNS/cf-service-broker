@@ -35,7 +35,6 @@ openstack:
   password: <password>
   tenant: <tenant>
   networkId: <network id>
-  subnetId: <subnet id>
   imageId: <image id>
   keypair: <key pair>
   log_host: <ip of the logging destination>

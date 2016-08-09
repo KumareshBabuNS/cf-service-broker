@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.openstack4j.model.compute.Server;
 import org.openstack4j.model.heat.Stack;
-import org.openstack4j.model.network.Subnet;
+import org.openstack4j.model.network.Network;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
@@ -26,8 +26,6 @@ public class DefaultIpAccessor extends IpAccessor {
 
 	private String networkId;
 
-	private String subnetId;
-
 	private NovaFluent novaFluent;
 
 	private NeutronFluent neutronFluent;
@@ -36,15 +34,13 @@ public class DefaultIpAccessor extends IpAccessor {
 
 	/**
 	 * @param networkId
-	 * @param subnetId
 	 * @param novaFluent
 	 * @param neutronFluent
 	 * @param heatFluent
 	 */
-	public DefaultIpAccessor(String networkId, String subnetId) {
+	public DefaultIpAccessor(String networkId) {
 		super();
 		this.networkId = networkId;
-		this.subnetId = subnetId;
 	}
 
 	/*
@@ -55,8 +51,8 @@ public class DefaultIpAccessor extends IpAccessor {
 	 */
 	@Override
 	public List<ServerAddress> getIpAddresses(String instanceId) throws PlatformException {
-		Subnet subnet = neutronFluent.subnet(networkId, subnetId);
-		final String ip = novaFluent.ip(this.details(instanceId).get(0), subnet.getName());
+ 		Network network = neutronFluent.get(networkId);
+		final String ip = novaFluent.ip(this.details(instanceId).get(0), network.getName());
 		return Lists.newArrayList(new ServerAddress("default", ip));
 	}
 

@@ -24,9 +24,6 @@ public class OpenstackPlatformServiceConfig {
 	@Value("${openstack.networkId}")
 	private String networkId;
 
-	@Value("${openstack.subnetId}")
-	private String subnetId;
-
 	@ConditionalOnMissingBean(CustomIpAccessor.class)
 	@Bean
 	public IpAccessor ipAccessor() {
@@ -35,7 +32,7 @@ public class OpenstackPlatformServiceConfig {
 
 	@Bean
 	public DefaultIpAccessor defaultIpAccessor() {
-		return new DefaultIpAccessor(networkId, subnetId);
+		return new DefaultIpAccessor(networkId);
 	}
 
 	@ConditionalOnMissingBean(CustomStackHandler.class)
