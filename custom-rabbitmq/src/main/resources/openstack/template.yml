@@ -55,7 +55,7 @@ resources:
             
             wget $REPOSITORY_RABBITMQ/rabbitmq-template.sh --no-cache
             chmod +x rabbitmq-template.sh
-            ./rabbitmq-template.sh  -d $amqp_vhost -u $amqp_user -p $amqp_password -e openstack -l $log_host -m $log_port
+            ./rabbitmq-template.sh  -d $amqp_vhost -u $amqp_user -p $amqp_password -e openstack
           params:
             $amqp_vhost: {get_param: rabbit_vhost}
             $amqp_user: {get_param: rabbit_user}
