@@ -28,6 +28,12 @@ parameters:
   database_number:
     type: string
     description: Database number
+  log_host:
+    type: string
+    description: Host IP or FQDN for logging
+  log_port:
+    type: string
+    description: Port for logging host
 resources:
   nova_instance:
     type: OS::Nova::Server
@@ -43,16 +49,18 @@ resources:
         str_replace:
           template: |
             #!/bin/bash
-            export REPOSITORY_MYSQL="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD/mysql"
+            export REPOSITORY_MYSQL="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD/mariadb"
             export REPOSITORY_MONIT="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD/monit"
             export REPOSITORY_MAIN="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD"
             
-            wget $REPOSITORY_MYSQL/mysql-template.sh --no-cache
-            chmod +x mysql-template.sh
-            ./mysql-template.sh -d $database_name -p $database_password -e openstack
+            wget $REPOSITORY_MYSQL/mariadb-template.sh --no-cache
+            chmod +x mariadb-template.sh
+            ./mariadb-template.sh -d $database_name -p $database_password -e openstack -l $log_host -m $log_port
           params:
             $database_name: {get_param: database_name}
             $database_password: {get_param: database_password}
+            $log_host: { get_param: log_host}
+            $log_port: { get_param: log_port}
   cinder_volume:
     type: OS::Cinder::Volume
     properties:
