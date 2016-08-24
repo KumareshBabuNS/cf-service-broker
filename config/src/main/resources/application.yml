@@ -8,8 +8,8 @@ spring:
           uri: https://bitbucket.org/evoila-boxer/cf-service-broker-config.git
           username: ${GIT_USER}
           password: ${GIT_PASSWORD}
-logging:
-  file: cloud-config.log
+#logging:
+#  file: cloud-config.log
 ---
 spring:
   profiles: default,development  

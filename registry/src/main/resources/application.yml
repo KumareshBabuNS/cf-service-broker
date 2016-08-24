@@ -9,8 +9,8 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
-logging:
-  file: registry.log
+#logging:
+#  file: registry.log
 ---
 spring:
   profiles: cloud
@@ -25,8 +25,8 @@ eureka:
   client:
     serviceUrl:
       defaultZone: http://${eureka.instance.hostname}:${eureka.instance.secure-port}/eureka/
-logging:
-  file: registry.log
+#logging:
+#  file: registry.log
 ---
 spring:
   profiles: bosh
@@ -42,5 +42,5 @@ eureka:
     fetchRegistry: false
     serviceUrl:
       defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
-logging:
-  file: registry.log
+#logging:
+#  file: registry.log
