@@ -6,6 +6,7 @@ package de.evoila;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.actuate.system.ApplicationPidFileWriter;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -31,9 +32,15 @@ public class Application {
 		return customProperties;
 	}
 
+	@Value("${openstack.log_port}")
+	private String logPort;
+
+	@Value("${openstack.log_host}")
+	private String logHost;
+
 	@Bean
 	public DomainBasedCustomPropertyHandler domainPropertyHandler() {
-		return new MySQLCustomPropertyHandler();
+		return new MySQLCustomPropertyHandler(logHost, logPort);
 	}
 
 	public static void main(String[] args) {
