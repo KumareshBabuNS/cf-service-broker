@@ -49,11 +49,11 @@ resources:
         str_replace:
           template: |
             #!/bin/bash
-            export REPOSITORY_MYSQL="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD/mariadb"
+            export REPOSITORY_MARIADB="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD/mariadb"
             export REPOSITORY_MONIT="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD/monit"
             export REPOSITORY_MAIN="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD"
             
-            wget $REPOSITORY_MYSQL/mariadb-template.sh --no-cache
+            wget $REPOSITORY_MARIADB/mariadb-template.sh --no-cache
             chmod +x mariadb-template.sh
             ./mariadb-template.sh -d $database_name -p $database_password -e openstack -l $log_host -m $log_port
           params:
