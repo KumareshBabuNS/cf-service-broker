@@ -12,7 +12,6 @@ jobs:
     - aggregate:
       - get: git-repo
         trigger: true
-      - get: time
     - task: maven-package
       privileged: true
       file: git-repo/pipeline/maven-package.yml
