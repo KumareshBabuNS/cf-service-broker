@@ -5,10 +5,6 @@ resources:
     source:
       uri: https://github.com/evoila/cf-service-broker
       branch: master
-  - name: time
-    type: time
-    source:
-      interval: 60s
 
 jobs:
   - name: maven-package
@@ -20,5 +16,3 @@ jobs:
     - task: maven-package
       privileged: true
       file: git-repo/pipeline/maven-package.yml
-#    - task: rename-file
-#     file: git-repo/pipeline/rename-file.yml
