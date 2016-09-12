@@ -7,8 +7,6 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.springframework.stereotype.Service;
-
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
@@ -19,7 +17,6 @@ import jersey.repackaged.com.google.common.collect.Lists;
  * @author Johannes Hiemer
  *
  */
-@Service
 public class MongoDbService {
 
 	private String host;

@@ -7,7 +7,6 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.sql.SQLException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.evoila.cf.broker.model.ServerAddress;
@@ -21,15 +20,11 @@ import de.evoila.cf.broker.service.postgres.jdbc.PostgresDbService;
 @Service
 public class PostgresCustomImplementation {
 
-	@Autowired
-	private PostgresDbService jdbcService;
-
-	public void initServiceInstance(ServiceInstance serviceInstance, String... databases) throws SQLException {
+	public void initServiceInstance(PostgresDbService jdbcService, ServiceInstance serviceInstance, String... databases)
+			throws SQLException {
 		String serviceInstanceId = serviceInstance.getId();
-		if (!jdbcService.isConnected()) {
-			ServerAddress host = serviceInstance.getHosts().get(0);
-			jdbcService.createConnection(serviceInstanceId, host.getIp(), host.getPort());
-		}
+		ServerAddress host = serviceInstance.getHosts().get(0);
+		jdbcService.createConnection(serviceInstanceId, host.getIp(), host.getPort());
 		jdbcService.executeUpdate("CREATE ROLE \"" + serviceInstanceId + "\"");
 		for (String database : databases) {
 			jdbcService.executeUpdate(
@@ -37,12 +32,13 @@ public class PostgresCustomImplementation {
 		}
 	}
 
-	public void deleteRole(String instanceId) throws SQLException {
+	public void deleteRole(PostgresDbService jdbcService, String instanceId) throws SQLException {
 		jdbcService.checkValidUUID(instanceId);
 		jdbcService.executeUpdate("DROP ROLE IF EXISTS \"" + instanceId + "\"");
 	}
 
-	public String bindRoleToDatabase(String serviceInstanceId, String bindingId) throws SQLException {
+	public String bindRoleToDatabase(PostgresDbService jdbcService, String serviceInstanceId, String bindingId)
+			throws SQLException {
 		jdbcService.checkValidUUID(bindingId);
 
 		SecureRandom random = new SecureRandom();
@@ -64,7 +60,7 @@ public class PostgresCustomImplementation {
 		return passwd;
 	}
 
-	public void unbindRoleFromDatabase(String bindingId) throws SQLException {
+	public void unbindRoleFromDatabase(PostgresDbService jdbcService, String bindingId) throws SQLException {
 		jdbcService.checkValidUUID(bindingId);
 		jdbcService.executeUpdate("ALTER ROLE \"" + bindingId + "\" NOLOGIN");
 	}

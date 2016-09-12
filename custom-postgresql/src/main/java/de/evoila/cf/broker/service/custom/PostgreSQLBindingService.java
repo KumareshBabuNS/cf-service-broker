@@ -33,27 +33,23 @@ public class PostgreSQLBindingService extends BindingServiceImpl {
 	private Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
-	private PostgresDbService jdbcService;
-
-	@Autowired
 	private PostgresCustomImplementation postgresCustomImplementation;
 
-	private boolean connection(ServiceInstance serviceInstance) throws SQLException {
-		if (jdbcService.isConnected())
-			return true;
-		else {
-			Assert.notNull(serviceInstance, "ServiceInstance may not be null");
-			Assert.notNull(serviceInstance.getId(), "Id of ServiceInstance may not be null");
-			Assert.notNull(serviceInstance.getHosts(), "Host of ServiceInstance may not be null");
+	private PostgresDbService connection(ServiceInstance serviceInstance) throws SQLException {
+		Assert.notNull(serviceInstance, "ServiceInstance may not be null");
+		Assert.notNull(serviceInstance.getId(), "Id of ServiceInstance may not be null");
+		Assert.notNull(serviceInstance.getHosts(), "Host of ServiceInstance may not be null");
 
-			ServerAddress host = serviceInstance.getHosts().get(0);
-			return jdbcService.createConnection(serviceInstance.getId(), host.getIp(), host.getPort());
-		}
+		ServerAddress host = serviceInstance.getHosts().get(0);
+		PostgresDbService jdbcService = new PostgresDbService();
+		jdbcService.createConnection(serviceInstance.getId(), host.getIp(), host.getPort());
+		return jdbcService;
 	}
 
 	public void create(ServiceInstance serviceInstance, Plan plan) throws ServiceBrokerException {
+		PostgresDbService jdbcService;
 		try {
-			connection(serviceInstance);
+			jdbcService = connection(serviceInstance);
 		} catch (SQLException e1) {
 			throw new ServiceBrokerException("Could not connect to database");
 		}
@@ -61,7 +57,7 @@ public class PostgreSQLBindingService extends BindingServiceImpl {
 		String instanceId = serviceInstance.getId();
 
 		try {
-			postgresCustomImplementation.initServiceInstance(serviceInstance, serviceInstance.getId());
+			postgresCustomImplementation.initServiceInstance(jdbcService, serviceInstance, serviceInstance.getId());
 
 			jdbcService.executeUpdate("REVOKE all on database \"" + instanceId + "\" from public");
 		} catch (SQLException e) {
@@ -71,8 +67,9 @@ public class PostgreSQLBindingService extends BindingServiceImpl {
 	}
 
 	public void delete(ServiceInstance serviceInstance, Plan plan) throws ServiceBrokerException {
+		PostgresDbService jdbcService;
 		try {
-			connection(serviceInstance);
+			jdbcService = connection(serviceInstance);
 		} catch (SQLException e1) {
 			throw new ServiceBrokerException("Could not connect to database");
 		}
@@ -99,16 +96,16 @@ public class PostgreSQLBindingService extends BindingServiceImpl {
 	@Override
 	protected Map<String, Object> createCredentials(String bindingId, ServiceInstance serviceInstance,
 			ServerAddress host) throws ServiceBrokerException {
-
+		PostgresDbService jdbcService;
 		try {
-			connection(serviceInstance);
+			jdbcService = connection(serviceInstance);
 		} catch (SQLException e1) {
 			throw new ServiceBrokerException("Could not connect to database");
 		}
 
 		String password = "";
 		try {
-			password = postgresCustomImplementation.bindRoleToDatabase(serviceInstance.getId(), bindingId);
+			password = postgresCustomImplementation.bindRoleToDatabase(jdbcService, serviceInstance.getId(), bindingId);
 		} catch (SQLException e) {
 			log.error(e.toString());
 			throw new ServiceBrokerException("Could not update database");
@@ -125,14 +122,15 @@ public class PostgreSQLBindingService extends BindingServiceImpl {
 
 	@Override
 	protected void deleteBinding(String bindingId, ServiceInstance serviceInstance) throws ServiceBrokerException {
+		PostgresDbService jdbcService;
 		try {
-			connection(serviceInstance);
+			jdbcService = connection(serviceInstance);
 		} catch (SQLException e1) {
 			throw new ServiceBrokerException("Could not connect to database");
 		}
 
 		try {
-			postgresCustomImplementation.unbindRoleFromDatabase(bindingId);
+			postgresCustomImplementation.unbindRoleFromDatabase(jdbcService, bindingId);
 		} catch (SQLException e) {
 			log.error(e.toString());
 			throw new ServiceBrokerException("Could not remove from database");

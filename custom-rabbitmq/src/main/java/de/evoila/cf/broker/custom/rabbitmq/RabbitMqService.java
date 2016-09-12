@@ -5,8 +5,6 @@ package de.evoila.cf.broker.custom.rabbitmq;
 
 import java.io.IOException;
 
-import org.springframework.stereotype.Service;
-
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
@@ -14,7 +12,6 @@ import com.rabbitmq.client.ConnectionFactory;
  * @author Johannes Hiemer
  *
  */
-@Service
 public class RabbitMqService {
 
 	private String host;

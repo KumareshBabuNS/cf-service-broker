@@ -12,7 +12,6 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.mongodb.BasicDBObject;
@@ -36,29 +35,23 @@ public class MongoDbBindingService extends BindingServiceImpl {
 
 	private Logger log = LoggerFactory.getLogger(MongoDbBindingService.class);
 
-	@Autowired
-	private MongoDbService mongoDbService;
-
-	private boolean connection(ServiceInstance serviceInstance) {
-		if (mongoDbService.isConnected())
-			return true;
-		else {
-			ServerAddress host = serviceInstance.getHosts().get(0);
-			log.info("Opening connection to " + host.getIp() + ":" + host.getPort());
-			try {
-				mongoDbService.createConnection(serviceInstance.getId(), serviceInstance.getHosts());
-			} catch (UnknownHostException e) {
-				log.info("Could not establish connection", e);
-				return false;
-			}
+	private MongoDbService connection(ServiceInstance serviceInstance) throws ServiceBrokerException {
+		ServerAddress host = serviceInstance.getHosts().get(0);
+		MongoDbService mongoDbService = new MongoDbService();
+		log.info("Opening connection to " + host.getIp() + ":" + host.getPort());
+		try {
+			mongoDbService.createConnection(serviceInstance.getId(), serviceInstance.getHosts());
+		} catch (UnknownHostException e) {
+			log.info("Could not establish connection", e);
+			throw new ServiceBrokerException("Could not establish connection", e);
 		}
-		return true;
+		return mongoDbService;
 	}
 
 	protected Map<String, Object> createCredentials(String bindingId, ServiceInstance serviceInstance,
 			List<ServerAddress> hosts) throws ServiceBrokerException {
 
-		connection(serviceInstance);
+		MongoDbService mongoDbService = connection(serviceInstance);
 
 		SecureRandom random = new SecureRandom();
 		String password = new BigInteger(130, random).toString(32);
@@ -135,7 +128,7 @@ public class MongoDbBindingService extends BindingServiceImpl {
 
 	@Override
 	protected void deleteBinding(String bindingId, ServiceInstance serviceInstance) throws ServiceBrokerException {
-		connection(serviceInstance);
+		MongoDbService mongoDbService = connection(serviceInstance);
 
 		mongoDbService.mongoClient().getDB(serviceInstance.getId()).command(new BasicDBObject("dropUser", bindingId));
 	}

@@ -15,7 +15,6 @@ import java.util.Map;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -69,24 +68,16 @@ public class RabbitMqBindingService extends BindingServiceImpl {
 	private static final String API_URL_PATTERN = HTTP + STRING_URL_VALUE + USER_PASSWORD_SEPARATOR + STRING_URL_VALUE
 			+ CREDENTIAL_IP_SEPARATOR + STRING_URL_VALUE + IP_PORT_SEPARATOR + DOUBLE_URL_VALUE;
 
-	private RestTemplate restTemplate = new RestTemplate();
-
 	private Logger log = LoggerFactory.getLogger(getClass());
 
-	@Autowired
-	private RabbitMqService rabbitMqService;
-
-	private boolean connection(ServiceInstance serviceInstance, String vhostName, String userName, String password)
-			throws IOException {
-		if (rabbitMqService.isConnected())
-			return true;
-		else {
-			ServerAddress host = serviceInstance.getHosts().get(0);
-			log.info("Opening connection to " + host.getIp() + host.getPort());
-			rabbitMqService.createConnection(serviceInstance.getId(), host.getIp(), host.getPort(), vhostName, userName,
-					password);
-		}
-		return true;
+	private RabbitMqService connection(ServiceInstance serviceInstance, String vhostName, String userName,
+			String password) throws IOException {
+		ServerAddress host = serviceInstance.getHosts().get(0);
+		log.info("Opening connection to " + host.getIp() + host.getPort());
+		RabbitMqService rabbitMqService = new RabbitMqService();
+		rabbitMqService.createConnection(serviceInstance.getId(), host.getIp(), host.getPort(), vhostName, userName,
+				password);
+		return rabbitMqService;
 	}
 
 	protected Map<String, Object> createCredentials(String bindingId, ServiceInstance serviceInstance,
@@ -239,7 +230,7 @@ public class RabbitMqBindingService extends BindingServiceImpl {
 		else
 			entity = new HttpEntity<String>(payload, headers);
 
-		restTemplate.exchange(url, method, entity, String.class);
+		new RestTemplate().exchange(url, method, entity, String.class);
 	}
 
 	private String buildAuthHeader(String username, String password) {
