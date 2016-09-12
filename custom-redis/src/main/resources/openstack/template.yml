@@ -19,6 +19,15 @@ parameters:
   availability_zone:
     type: string
     description: The Availability Zone to launch the instance.
+  repo_main:
+    type: string
+    description: Main repository for deployment scripts lookup
+  repo_monit:
+    type: string
+    description: Repository for monit deployment scripts lookup
+  repo_service:
+    type: string
+    description: Repository for deployment scripts lookup for the service to deploy
   database_password:
     type: string
     description: Database password
@@ -40,15 +49,18 @@ resources:
         str_replace:
           template: |
            #!/bin/bash
-            export REPOSITORY_REDIS="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD/redis"
-            export REPOSITORY_MONIT="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD/monit"
-            export REPOSITORY_MAIN="https://bitbucket.org/evoila-boxer/deployment-scripts-docker-openstack/raw/HEAD"
-            
+            export REPOSITORY_REDIS=$repo_service
+            export REPOSITORY_MONIT=$repo_monit
+            export REPOSITORY_MAIN=$repo_main
+
             wget $REPOSITORY_REDIS/redis-template.sh --no-cache
             chmod +x redis-template.sh
-            ./redis-template.sh -n $db_number -p $db_password -e openstack        
+            ./redis-template.sh -n $db_number -p $db_password -e openstack
           params:
-            $db_number: {get_param: database_number}            
+            $repo_main: {get_param: repo_main}
+            $repo_monit: {get_param: repo_monit}
+            $repo_service: {get_param: repo_service}
+            $db_number: {get_param: database_number}
             $db_password: {get_param: database_password}
   cinder_volume:
     type: OS::Cinder::Volume
