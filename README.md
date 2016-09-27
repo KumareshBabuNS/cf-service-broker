@@ -27,7 +27,7 @@ An empty Cloud Foundry Service Broker missing concrete implementation of a disti
 
 -----------------------------------
 
-####Infrastructure etc.
+####Deployment, Infrastructure, etc.
 
 __evoila/cf-service-broker-persistence__
 
