@@ -15,7 +15,7 @@ Central entrypoint and links to sub-repositories. (Contains old repo and code st
 
 ---------------------------------------
 
-#####Example Service Broker
+####Example Service Broker
 
 evoila/cf-service-broker-example
 https://github.com/evoila/cf-service-broker-example
