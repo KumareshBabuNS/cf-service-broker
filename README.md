@@ -1,6 +1,6 @@
 cloudfoundry-service-broker
 ===========================
-### This Repository is will be a central entrypoint to our new Repository structure. We are moving the code in this new repository structure. 
+### This Repository will be a central entrypoint to our new Repository structure. We are moving the code in this new repository structure. 
 (Contains old repo and code structure for archiving for some time.)
 
 Here are the links to the new repositories with a short discription:
