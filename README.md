@@ -10,7 +10,9 @@ Here are the links to the new repositories with a short discription:
 ####Central Entrypoint to Repositories
 
 evoila/cf-service-broker
+
 https://github.com/evoila/cf-service-broker
+
 Central entrypoint and links to sub-repositories. (Contains old repo and code structure for archiving for some time.)
 
 ---------------------------------------
@@ -18,7 +20,9 @@ Central entrypoint and links to sub-repositories. (Contains old repo and code st
 ####Example Service Broker
 
 evoila/cf-service-broker-example
+
 https://github.com/evoila/cf-service-broker-example
+
 An empty Cloud Foundry Service Broker missing concrete implementation of a distinct service. Supports deployment to OpenStack and Docker. Uses Redis Database for management. Configuration files and deployment scripts must be added. Concrete Service logic and binding logic has to be added.
 
 -----------------------------------
@@ -26,19 +30,30 @@ An empty Cloud Foundry Service Broker missing concrete implementation of a disti
 ####Infrastructure etc.
 
 evoila/cf-service-broker-persistence
+
 https://github.com/evoila/cf-service-broker-persistence
+
 Implements the cf-service-broker (see https://github.com/evoila/cf-service-broker) persistence interface with services using Redis. So the management data and inner status of the service broker can be kept in a Redis database.
 
+
 evoila/cf-service-broker-deployment
+
 https://github.com/evoila/cf-service-broker-deployment
+
 This project provides support for deployment of service instances via Cloud Foundry Service Broker (see https://github.com/evoila/cf-service-broker) as Docker Containers onto a Docker Swarm cluster or as Virtual Machines onto OpenStack via Heat Scripts
 
+
 evoila/cf-service-broker-core
+
 https://github.com/evoila/cf-service-broker-core
+
 This project provides core functionalities for Cloud Foundry Service Broker. It needs deployment services and a persistence service (see https://github.com/evoila/cf-service-broker-deployment and https://github.com/evoila/cf-service-broker-persistence) as well as a concrete implementation of service binding routines for a concrete service (for examples see https://github.com/evoila/cf-service-broker-example and https://github.com/evoila/cf-service-broker-elasticsearch).
 
+
 evoila/cf-service-broker-infrastructure
+
 https://github.com/evoila/cf-service-broker-infrastructure
+
 This project provides infrastructure services (like cloud configuration) for Cloud Foundry Service Broker (see https://github.com/evoila/cf-service-broker)
 
 ---------------------------------
@@ -46,7 +61,9 @@ This project provides infrastructure services (like cloud configuration) for Clo
 ####Documentation
 
 evoila/cf-service-broker-doc
+
 https://github.com/evoila/cf-service-broker-doc
+
 Links to the documentation.
 
 -------------------------------
@@ -54,31 +71,46 @@ Links to the documentation.
 ####Services
 
 evoila/cf-service-broker-elasticsearch
+
 https://github.com/evoila/cf-service-broker-redis
+
 Cloud Foundry Service Broker providing Elasticsearch Service Instances. Supports deployment to OpenStack and Docker. Uses Redis Database for management. Configuration files and deployment scripts must be added.
 
+
 evoila/cf-service-broker-redis
+
 https://github.com/evoila/cf-service-broker-redis
+
 Cloud Foundry Service Broker providing Redis Service Instances. Supports deployment to OpenStack and Docker. Uses Redis Database for management. Configuration files and deployment scripts must be added.
 
 evoila/cf-service-broker-logstash
+
 https://github.com/evoila/cf-service-broker-logstash
+
 Cloud Foundry Service Broker providing Logstash Service Instances. Supports deployment to OpenStack and Docker. Uses Redis Database for management. Configuration files and deployment scripts must be added.
 
 evoila/cf-service-broker-mongodb
+
 https://github.com/evoila/cf-service-broker-mongodb
+
 Cloud Foundry Service Broker providing MongoDB Service Instances. Supports deployment to OpenStack and Docker. Uses Redis Database for management. Configuration files and deployment scripts must be added.
 
 evoila/cf-service-broker-mysql
+
 https://github.com/evoila/cf-service-broker-mysql
+
 Cloud Foundry Service Broker providing MySQL (MariaDB) Service Instances. Supports deployment to OpenStack and Docker. Uses Redis Database for management. Configuration files and deployment scripts must be added.
 
 evoila/cf-service-broker-postgresql
+
 https://github.com/evoila/cf-service-broker-postgresql
+
 Cloud Foundry Service Broker providing PostgreSQL Service Instances. Supports deployment to OpenStack and Docker. Uses Redis Database for management. Configuration files and deployment scripts must be added.
 
 evoila/cf-service-broker-rabbitmq
+
 https://github.com/evoila/cf-service-broker-rabbitmq
+
 Cloud Foundry Service Broker providing RabbitMQ Service Instances. Supports deployment to OpenStack and Docker. Uses Redis Database for management. Configuration files and deployment scripts must be added.
 
 ------------------------
