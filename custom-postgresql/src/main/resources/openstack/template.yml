@@ -36,6 +36,7 @@ parameters:
     description: Database user
   database_password:
     type: string
+    hidden: true
     description: Database password
   database_number:
     type: string
@@ -49,12 +50,17 @@ resources:
       key_name: {get_param: keypair}
       networks: [{network: {get_param: network_id} }]
       security_groups:
-        - all
+        - cf-private
       user_data_format: RAW
       user_data:
         str_replace:
           template: |
             #!/bin/bash
+
+            mkdir -p /data
+            echo "/dev/vdb       /data       ext4    defaults     0 0" >> /etc/fstab
+            mkfs.ext4 /dev/vdb
+            mount -a
 
             export REPOSITORY_POSTGRES=$repo_service
             export REPOSITORY_MONIT=$repo_monit
@@ -80,4 +86,4 @@ resources:
     properties:
       volume_id: { get_resource: cinder_volume }
       instance_uuid: { get_resource: nova_instance }
-      mountpoint: /dev/vdc
+      mountpoint: /dev/vdb
