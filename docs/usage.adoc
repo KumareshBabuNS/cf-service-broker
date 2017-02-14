@@ -1,1 +1,56 @@
-== Usage
+= Cloudfoundry Service-Broker
+
+. link:../README.adoc[Getting Started]
+. link:requirements.adoc[Requirements]
+. Installation
+.. link:setup.adoc[Setup]
+.. link:deploymentscripts.adoc[Installation & Configuration Scripts]
+. link:usage.adoc[Usage]
+. link:repositories.adoc[Repositories]
+. link:developers.adoc[Developers]
+. link:license.adoc[License]
+
+== 4. Usage
+
+image::assets/commands.png[cf commands]
+
+First of all you have to login your Cloud Foundry CLI to your Cloud Foundry Environment as described in the "Setup" documentation.
+
+`cf login -u <user> -a <url_of_api_endpoint> -p <password> -o <organization> -s <space>`
+
+Let's assume you already pushed your application as described in the "Setup" documentation aswell.
+
+=== Creating Service Brokers
+
+After pushing the application you can now create a Service Broker: +
+`cf create-service-broker <service_broker_name> <username> <password> <url_of_application>`
+
+You can get the url by simply using: +
+`cf apps`
+
+This will show you all provided applications, their status and the url.
+
+NOTE: The service broker you create are private by default and not immediately availabe to end users. To make them available run: +
+`cf enable-service-access <service_broker_name>`
+
+You can get a list of all your services by using +
+`cf marketplace`
+
+=== Creating and Deleting Service Instance
+
+When you successfully created a service broker, you can go on with creating service instances. Search for the service broker you want to create an instance of and run: +
+`cf create-service <service_broker_name> <plan> <service_instance_name>`
+
+The command for deleting a service instance is nearly equivalent to creating: +
+`cf delete-service <service_name>`
+
+A list of all services instances can be shown using: +
+`cf services`
+
+=== Bind and Unbind services
+
+After creating service instances you can now bind other services to your service instance. Simply run: + 
+`cf bind-service <name_of_service_to_bind> <service_instance_name>`
+
+Again the unbind command is pretty much the same: +
+`cf unbind-service <name_of_service_to_unbind> <service_instance_name>`

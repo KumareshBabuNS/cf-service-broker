@@ -1,5 +1,0 @@
-#!/bin/bash
-
-mkdir -p cfServiceBroker
-cp -r assets cfServiceBroker/assets
-cp -r snippets cfServiceBroker/snippets

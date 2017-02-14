@@ -8,7 +8,19 @@ ifdef::env-github[]
 :warning-caption: :warning:
 endif::[]
 
-== Setup
+= Cloudfoundry Service-Broker
+
+. link:../README.adoc[Getting Started]
+. link:requirements.adoc[Requirements]
+. Installation
+.. link:setup.adoc[Setup]
+.. link:deploymentscripts.adoc[Installation & Configuration Scripts]
+. link:usage.adoc[Usage]
+. link:repositories.adoc[Repositories]
+. link:developers.adoc[Developers]
+. link:license.adoc[License]
+
+== 3.1 Setup
 
 === Deployment
 
@@ -24,7 +36,7 @@ or consists of:
 - Cloud Config Server
 - Service Broker
 
-There is only needed one instance of registry and cloud config server to run several Service Brokers.
+There is only one instance of registry and cloud config server needed to run several Service Brokers.
 
 There exist different possibilities to deploy the service brokers:
 
@@ -34,7 +46,7 @@ There exist different possibilities to deploy the service brokers:
 - Cloud Foundry Application
 - bosh deployment
 
-If you want to run the service broker locally, we encourage you to start the service broker either as Java Process or Linux init.d service. In an production environment we see an deployment as Cloud Foundry Application or bosh release more reasonable.
+If you want to run the service broker locally, we encourage you to start the service broker either as Java Process or Linux init.d service. In an production environment we see a deployment as Cloud Foundry Application or bosh release more reasonable.
 
 ==== Java Process (Standalone Tomcat Server)
 
@@ -87,7 +99,7 @@ To be added soon.
 
 To use a git repository with your cloud config server, you have to provide one.
 
-1. You first have to create a new git repository project (for example on github).
+1. You have to create a new git repository project first (for example on github).
 
 2. Then you need the url of the repository (for example `https://example.com/config`)
 
@@ -103,10 +115,10 @@ include::snippets/setup/cloud-config/service-broker-profile.yml.adoc[]
 
 NOTE: We provided support for the profiles `development`, `default`, `cloud` and `bosh`. `cloud` is used by us for deployments to a cloud foundry environment as applications.
 
-4. add your custom properties to the property files
+4. Add your custom properties to the property files
 
-5. Now the properties from your repostory are used when starting the service broker, cloud config server or registry server. Please make sure you start the cloud config server before the service brokers, because it enables the access towards the repostory.
+5. Now the properties from your repostory are used when starting the service broker, cloud config server or registry server. Please make sure to start the cloud config server before the service brokers, because it enables the access towards the repostory.
 
 NOTE: Using the `bootstrap.yaml` you can use different property sources for different profiles. See for further information. See link:http://cloud.spring.io/spring-cloud-static/spring-cloud.html#_spring_cloud_config[spring cloud config documentation].
 
-include::deploymentscripts.adoc[leveloffset=+1]
+When talking about installation you should also have a look at the link:deploymentscripts.adoc[Installation & configuration scripts]

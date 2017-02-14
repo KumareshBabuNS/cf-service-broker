@@ -8,10 +8,21 @@ ifdef::env-github[]
 :warning-caption: :warning:
 endif::[]
 
-== Installation and Configuration Scripts
+= Cloudfoundry Service-Broker
+
+. link:../README.adoc[Getting Started]
+. link:requirements.adoc[Requirements]
+. Installation
+.. link:setup.adoc[Setup]
+.. link:deploymentscripts.adoc[Installation & Configuration Scripts]
+. link:usage.adoc[Usage]
+. link:repositories.adoc[Repositories]
+. link:developers.adoc[Developers]
+. link:license.adoc[License]
+
+== 3.2 Installation and Configuration Scripts
 In the following sections we describe the structure and functionality of the deployment scripts for the services.
 
-.TL;DR
 [NOTE]
 If you are busy it can be sufficient to read "Module 1: Start Script" to begin the installation.
 
@@ -27,7 +38,7 @@ The services available by now are
 - Elasticsearch
 - and Logstash.
 
-Additionally we created deployment scripts for monitoring with Monit.
+We additionally created deployment scripts for monitoring with Monit.
 
 All deployment scripts are working on different environments.
 In all of them is a build-in differentiation for the environment.
@@ -36,7 +47,7 @@ So all scripts are working deployed to a virtual machine e.g. with a Heat script
 === Parametrization
 
 For most services you can give parameters to the scripts for setting user, password and number of databases (or vhost).
-The possible parameters for any deployment scripts you can find in the section <<servicespecific>>.
+You can find the possible parameters for any deployment scripts in the section <<servicespecific>>.
 
 === Central Data Path
 
@@ -76,7 +87,7 @@ Additionally this is the place for handing over the parameters to the Central Te
 include::snippets/setup/start-script-sh.adoc[]
 
 NOTE: For installation it is not necessary to download any more scripts manually. +
-The start script downloads the template and which pulls all other necessary scripts directly from the repository.
+The start script downloads the template which pulls all other necessary scripts directly from the repository.
 
 You only have to replace the parameters with your own. "Environment" has to be replaced with "openstack" or "docker".
 For other full Virtual Machine you can use "openstack" as parameter.
@@ -86,7 +97,7 @@ For other full Virtual Machine you can use "openstack" as parameter.
 icon:file[] `[exampleservice]-template.sh`
 
 All following steps in the deployment scripts are organized in the Central Template.
-In the Central Template the definition of the most needed variables are bundled.
+The definition of the most needed variables are bundled in the central template.
 The following chart describes the common variables defined in `[exampleservice]-template.sh` and used in all other scripts.
 Specific variables for some scripts are listed in the section <<servicespecific>>.
 [Read more words!](docs/more_words.md)
@@ -113,7 +124,7 @@ As a second step the Central Template handles the parameters given from the star
 After that they will be exported for usage in following child scripts (modules).
 Then the different modules will be loaded and executed in the appropriate order.
 In the same way a service specific "monit control file" ( icon:file[] `[exampleservice]-monitrc` ) for the later following configuration of Monit will be loaded.
-At least Monit will be installed and executed for monitoring and service recovery (for detailed description read the topic <<monit>>).
+At last Monit will be installed and executed for monitoring and service recovery (for detailed description read the topic <<monit>>).
 
 include::snippets/setup/template-sh.adoc[]
 
@@ -133,7 +144,9 @@ After this is done this script installs the service itself.
 
 When all tasks of this module are done the Central Template resumes the control to load and execute module 4 (Configuration).
 
-==== Module 4: Configuration `[exampleservice]-configuration.sh`
+==== Module 4: Configuration 
+
+icon:file[] `[exampleservice]-configuration.sh`
 
 When the installation is successfully done this script configures the service.
 
@@ -153,7 +166,7 @@ This Module starts the ready configured service.
 When all tasks of this module are done the Central Template resumes the control.
 
 NOTE: An important point here is the differentiation between OpenStack and Docker. +
-In detail it is described in the section "<<environment>>" of the documentation.
+It is described in detail in the section "<<environment>>" of the documentation.
 
 It is realized directly in the scripts so you have nothing to do unless you have to set the environment parameter, described in <<Module 1: Start Script>>.
 
@@ -168,16 +181,12 @@ icon:file[] `monit-start-script.sh`
 
 This module installs and runs a Monit. Monit is used for monitoring and service recovery.
 The installation of Monit follows the same structure as it is described from Module 1 to 5.
-When it is already installed it will be only executed.
+It will only be executed in case it is already installed.
 
 NOTE: Monit is only used on OpenStack, not on Docker.
 
 [TIP]
 If you want to use a service without a Monit instance you can delete the correlated lines in the code of the `[exampleservice]-template.sh`.
-
-include::snippets/setup/monit-in-template.adoc[]
-
-
 
 
 [[environment]]
@@ -199,20 +208,20 @@ On OpenStack most processes are started as a service.
 The start command for a service for the environment OpenStack is stored in the variable `$OPENSTACK_START`. The Stop command is stored in `$OPENSTACK_STOP`. The variables are defined in the `[exampleservice]-template.sh`.
 
 ==== Docker
-For the environment Docker it is similar. The start command is stored in the variable `$DOCKER_START` and the Stop command in `$DOCKER_STOP`. The variables are also defined in the `[exampleservice]-template.sh`.
+For the environment Docker is similar. The start command is stored in the variable `$DOCKER_START` and the Stop command in `$DOCKER_STOP`. The variables are also defined in the `[exampleservice]-template.sh`.
 
 
 [[servicespecific]]
 === Service specific
 
-Generally all deployment scripts have the same structure.
-So you have to read first the general description of the modules in the section <<Modularity>>.
+Generally all deployment scripts have the same structure, which means
+you have to read the general description of the modules in the section <<Modularity>> first.
 
 
 ==== PostgreSQL
 
 
-image::services/postgres_b.png[PostgreSQL-Logo,80]
+image::../assets/postgres_b.png[PostgreSQL-Logo,80]
 
 Used Version: 9.3
 
@@ -233,7 +242,7 @@ The PID-file is stored in `/var/run/postgresql/9.3-main.pid`
 
 ==== Redis
 
-image::services/redis_b.png[Redis-Logo,80]
+image::../assets/redis_b.png[Redis-Logo,80]
 
 Used Version: 3.0.3
 
@@ -256,7 +265,7 @@ The PID file is stored in `/var/run/redis`
 
 ==== MongoDB
 
-image::services/mongodb_b.png[MongoDB-Logo,40]
+image::../assets/mongodb_b.png[MongoDB-Logo,40]
 
 Used Version: 3.0.6
 
@@ -273,12 +282,12 @@ Mongo accepts connections on Port 27017.
 
 [NOTE]
 The Desktop-Client Robomongo does not work with the authentication of the recent MongoDB-Versions.
-It’s a Problem of the current Robomongo implementation. With other clients it works.
+It’s a Problem of the current Robomongo implementation, but work with other clients.
 
 
 ==== MySQL
 
-image::services/mysql_b.png[MySQL-Logo,80]
+image::../assets/mysql_b.png[MySQL-Logo,80]
 
 Used Version: 5.7
 
@@ -296,7 +305,7 @@ We tested the login for an external desktop client successfully with Heidi-SQL.
 
 ==== RabbitMQ
 
-image::services/rabbitmq_b.png[RabbitMQ-Logo,80]
+image::../assets/rabbitmq_b.png[RabbitMQ-Logo,80]
 
 Used Version: 3.5.6-1
 
@@ -317,7 +326,7 @@ You can deactivate it the web interface by deleting the following line in the ic
 
 ==== Elasticsearch
 
-image::services/elasticsearch_b.png[Elasticsearch-Logo,80]
+image::../assets/elasticsearch_b.png[Elasticsearch-Logo,80]
 
 Used Version: 1.7.1
 
@@ -326,11 +335,11 @@ Elasticsearch accepts TCP connections on port 6379.
 A parametrization is only realized for the environment. The other parameter handled in the script is the password for Monit.
 
 During the development there where some changes in the java installer which had an effect on the installation.
-So it is necessary to check if java installation works correct to prevent a possible origin of trouble when something is changed in java.
+So it is necessary to check if java installation works correctly to prevent a possible origin of trouble when something is changed in java.
 
 ==== Logstash
 
-image::services/logstash_b.png[Logstash-Logo,80]
+image::../assets/logstash_b.png[Logstash-Logo,80]
 
 Used Version: most recent version
 
@@ -341,7 +350,7 @@ A parametrization is build-in for es-host and the environment.
 
 ==== Monit
 
-image::services/monit_b.png[Monit-Logo,80]
+image::../assets/monit_b.png[Monit-Logo,80]
 
 Used Version: 5.6
 
@@ -361,5 +370,3 @@ WARNING: To ensure, that Monit works with a new or changed include for the monit
 === Central Logging
 
 In a next step a central logging for the services will be added.
-
-include::test.adoc[leveloffset=+1]
