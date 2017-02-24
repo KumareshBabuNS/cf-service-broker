@@ -1,49 +1,81 @@
-[source,yaml]
+[source, yaml]
 .application.yml
 ----
----
+
 spring:
-  profiles: default,development,cloud,bosh
+  ### Profile ###
+  profiles: <default,development,cloud,bosh>
+  ### General Information ###
+  application:
+      name: <name of your application>
+  ### Security ###
   ssl:
-    acceptselfsigned: true
+    acceptselfsigned: <true, false>
 
-redis:
-  host: <hostname or ip>
-  port: <port>
-  password: <password>
-  timeout: 5
-  retries: 20
-  param: <database, ex. 1>
+  ### General Information ###
+  info:
+    app:
+      name: <name>
+      description: <description>
+      version: <version>
 
-docker:
-  host: <hostname or ip>
-  port: <port>
-  volume:
-    service:
-      broker: <url to the docker volume service, ex. tcp://ip:port>
+  server:
+    port: <port>
+
+  ### Login Information ###
+  login:
+    username: <username>
+    password: <password>
+    role: <role>
+
+  ### Persistence ###
+  #### MongoDB ####
+    data:
+      mongodb:
+        host: <ip>
+        port: <port>
+        database: <database>
+        username: <username>
+        password: <password>
+      
+  ### Deployment ###      
+  #### Existing MongoDB Server/Cluster ####
+  existing:
+    endpoint:
+      host: <ip>
       port: <port>
-  portRange:
-    start: 8000
-    end: 20000
-  ssl:
-    enabled: false
-  syslogAddress:  <url to the syslog destination, ex. udp://ip:port>
+      database: <database>
+      username: <username>
+      password: <password>
 
-openstack:
-  endpoint: <url to the openstack authentication endpoint, ex. http://ip:5000/v2.0>
-  username: <username>
-  password: <password>
-  tenant: <tenant>
-  networkId: <network id>
-  imageId: <image id>
-  keypair: <key pair>
-  log_host: <ip of the logging destination>
-  log_port: <ip of the logging destination>
-  cinder:
-    az: nova
+  ### Logging ###
+  logging:
+    file: <file>
+    level:
+      root: <root>
 
-haproxy:
-  uri: <url of the ha proxy backend, ex. https://haproxy.example.com/agents/Default-HaProxy-Agent/schemas?type=listen>
-  auth:
-    token: <authentication token>
+  ### Service ###
+  backend:
+    ports:
+      default: <port>
+    connection:
+      timeouts: <timeouts>
+
+  mongodb:
+    security:
+      key:
+        length: <length>
+
+  ### Service Key Generation ###
+  #### HAProxy ####
+  haproxy:
+    uri: <url of the haproxy backend>
+    auth:
+      token: <authentication token>
+
+  ### Deployment ###
+  deployment:
+    repo:
+      service: <url to the deployment script>
+      monit: <url to the monit script>
 ----

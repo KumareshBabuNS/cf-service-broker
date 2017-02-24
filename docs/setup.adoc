@@ -18,13 +18,15 @@ endif::[]
 . link:usage.adoc[Usage]
 . link:repositories.adoc[Repositories]
 . link:developers.adoc[Developers]
+. link:contribution.adoc[Contribution]
+. link:releasenotes.adoc[Release Notes]
 . link:license.adoc[License]
 
 == 3.1 Setup
 
 === Deployment
 
-There is one deployable instance for each implemented service broker. The setup also contains of a prepared cloud config server and a eureka server (called registry) for service discovery. The service discovery is not fully integrated in the service brokers yet. So the cloud config server has to be introduced to the service brokers via configuration. In future this will be handled by the registry.
+There is one deployable instance for each implemented service broker. The setup also contains a prepared cloud config server and a eureka server (called registry) for service discovery (both servers are optional). The service discovery is not fully integrated in the service brokers yet. So the cloud config server has to be introduced to the service brokers via configuration. In future this will be handled by the registry.
 
 A minimal deployment either is local with configuration file and consists of:
 
@@ -46,11 +48,16 @@ There exist different possibilities to deploy the service brokers:
 - Cloud Foundry Application
 - bosh deployment
 
-If you want to run the service broker locally, we encourage you to start the service broker either as Java Process or Linux init.d service. In an production environment we see a deployment as Cloud Foundry Application or bosh release more reasonable.
+If you want to run the service broker locally, we encourage you to start the service broker either as Java Process or Linux init.d service. In an production environment we see a deployment as Cloud Foundry Application or bosh release as more reasonable.
+
+You also need a database to store management data and inner status of the service broker. You can use
+
+- MongoDB (recommended by us)
+- Redis
 
 ==== Java Process (Standalone Tomcat Server)
 
-As the service brokers as well as the cloud config server and the registry build as Spring Boot Applications, they can be deployed as standalone Tomcat Server without any additional components needed. Only a Java Virtual Machine supporting Java 8 or later is needed. Download the latest release, switch over to the download directory and run:
+As the service brokers as well as the cloud config server and the registry are build as Spring Boot Applications, they can be deployed as standalone Tomcat Server without any additional components needed. Only a Java Virtual Machine supporting Java 8 or later is needed. Download the latest release, switch over to the download directory and run:
 
 `java -jar registry.jar` +
 `java -jar cloud-config.jar` +
@@ -61,18 +68,17 @@ As the service brokers as well as the cloud config server and the registry build
 Newer Spring Boot versions support the deployment as so called 'fully executable jar'. That means the JAR-file can be executed directly. The provided JAR-files of the releases are build as fully executable JARs. How to start them as init.d or system.d service can be found under:
 
 ==== Servlet Container on existing Server
-To run the applications as servlet containers on an existing server (e.g. Apache Tomcat) the following maven build goal has to added to the build chain:
 
-Afterwards run:
+To be added soon.
 
 ==== Cloud Foundry Application
-The applications are build to run on Cloud Foundry. There are manifest files provided to push the applications to Cloud Foundry.
+The applications are build to run on Cloud Foundry. There are link:https://docs.cloudfoundry.org/devguide/deploy-apps/manifest.html[manifest files] provided to push the applications to Cloud Foundry.
 
-WARNING: The manifest files are optimized for our DevOps team. So they use the path structure of the code repo. If you want to use it with the pre-build releases, download the manifest file and change the path to JAR-files according to your file system path.
+WARNING: The manifest files are optimized for our DevOps team. So they use the path structure of the code repo. If you want to use it with the pre-build releases, download the manifest file and change the link:https://docs.cloudfoundry.org/devguide/deploy-apps/manifest.html#path[path] to JAR-files according to your file system path. We advice you to put all necessary JAR-files in the "target" folder of your project.
 
 The following instructions require the installation of a Cloud Foundry CLI on your system.
 
-1. Change to the folder which contains the manifest file: +
+1. Navigate to the folder which contains the manifest file: +
 `cd ./cf-service-broker`
 
 2. Login your Cloud Foundry CLI to your Cloud Foundry Environment: +
@@ -83,7 +89,7 @@ The following instructions require the installation of a Cloud Foundry CLI on yo
 
 NOTE: If you wish to push with a manifest file that is not named 'manifest.yml', you have to add the `-f <path_to_the_manifest_file>` parameter.
 
-4. Lean back and watch the deployment.
+Now lean back and watch the deployment.
 
 NOTE: If your cloud config server uses a git repository with SSL and authentication, you can copy the `manifest-with-credentials-example.yml` file in the config subproject and rename it to `manifest-with-credentials.yml`. There exists a `.gitignore` entry, so it will not be uploaded to your git repository. In the files are provided variables to insert your credentials. Use this manifest file to deploy the cloud config server. Or copy it to the parent directory. Then the deployment of all projects is modified and the credentials are provided to the cloud config server.
 
@@ -91,11 +97,9 @@ NOTE: If your cloud config server uses a git repository with SSL and authenticat
 
 To be added soon.
 
-=== Docker Swarm
-
-To be added soon.
-
 === Cloud Config Repository
+
+WARNING: This part is currently reworked.
 
 To use a git repository with your cloud config server, you have to provide one.
 
@@ -105,13 +109,46 @@ To use a git repository with your cloud config server, you have to provide one.
 
 3. Insert the url of your repository to the `bootstrap.yml` of your cloud config server or provide them as envrionment variable in your `manifest.yml`.
 
-3. Then add the following files to your repository:
+4. Then add the following files to your repository:
 
-icon:file[] `application.yml` - contains the configuration options for all applications
-include::snippets/setup/cloud-config/application.yml.adoc[]
+icon:file[] `application.yml` - contains the configuration options for all applications. For a better understanding see this link:snippets/setup/cloud-config/application.yml.adoc[example].
 
-icon:file[] `<service_name>-<profile>.yml` - contains the configuration options of the service broker (use `rabbitmq` for RabbitMQ service broker) started with the profile
-include::snippets/setup/cloud-config/service-broker-profile.yml.adoc[]
+- *profiles:* The spring profile, for which the following informations applies.
+- *application_name:* The name of your project.
+- *ssl_acceptselfsigned:* Boolean to tell java to accept self signed ssl certificates or not.
+- *info_app_name:* The name of your Service Broker.
+- *info_app_description:* A description of your Service Broker.
+- *info_app_version:* The version number of your Service Broker.
+- *login_username:* Your username for creating Service Brokers.
+- *login_password:* Your password for creating Service Brokers.
+- *login_role:* Your role in the organization.
+- *data_mongodb_host:* The ip of your database where you store user informations.
+- *data_mongodb_port:* The port of this database.
+- *data_mongodb_database:* The name of this database.
+- *data_mongodb_username:* Your username to log in to this database.
+- *data_mongodb_password:* Your password to log in to this database.
+- *existing_endpoint_host:* The ip of your Service Broker database.
+- *existing_endpoint_port:* The port of this database.
+- *existing_endpoint_database:* The name of this database.
+- *existing_endpoint_username:* Your username to log in to this database.
+- *existing_endpoint_password:* Your password to log in to this database.
+- *logging_file:* The file you want to save the log informations in, ex. ${LOG_FILE:cf-service-broker-mongodb.log}
+- *logging_level_root:* The level of logging (error, warn, info, debug or trace), ex. ${LOG_LEVEL_ROOT:INFO}
+- *backend_ports_default:*
+- *backend_connection_timeouts:*
+- *mongodb_security_key_length:* The length of your MongoDB security key.
+- *haproxy_uri:* The url of your HaProxy backend, ex. https://haproxy.example.com/agents/Default-HaProxy-Agent/schemas?type=listen.
+- *haproxy_auth_token:* The authentication token for your HaProxy
+- *deployment_repo_service:* Url of the repository that contains all your service specific scripts.
+- *deployment_repo_monit:* Url of the repository that contains all your monit scripts.
+
+You can also store informations from your application.yml in your manifest.yml. Let's say you want to store the informations about the HaProxy in your manifest.yml. Simply go to the "env" passage and enter in all caps and underscores for every tab:
+
+    env:
+        HAPROXY_URI: (...)
+        HAPROXY_AUTH_TOKEN: (...)
+
+icon:file[] `<service_name>-<profile>.yml` - contains the configuration options of the service broker (use `rabbitmq` for RabbitMQ service broker) started with the profile, as shown in this link:snippets/setup/cloud-config/service-broker-profile.yml.adoc[example].
 
 NOTE: We provided support for the profiles `development`, `default`, `cloud` and `bosh`. `cloud` is used by us for deployments to a cloud foundry environment as applications.
 
@@ -119,6 +156,6 @@ NOTE: We provided support for the profiles `development`, `default`, `cloud` and
 
 5. Now the properties from your repostory are used when starting the service broker, cloud config server or registry server. Please make sure to start the cloud config server before the service brokers, because it enables the access towards the repostory.
 
-NOTE: Using the `bootstrap.yaml` you can use different property sources for different profiles. See for further information. See link:http://cloud.spring.io/spring-cloud-static/spring-cloud.html#_spring_cloud_config[spring cloud config documentation].
+NOTE: Using the `bootstrap.yml` you can use different property sources for different profiles. For further information see link:http://cloud.spring.io/spring-cloud-static/spring-cloud.html#_spring_cloud_config[spring cloud config documentation].
 
-When talking about installation you should also have a look at the link:deploymentscripts.adoc[Installation & configuration scripts]
+link:deploymentscripts.adoc[Next page ->]

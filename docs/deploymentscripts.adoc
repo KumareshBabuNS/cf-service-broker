@@ -18,31 +18,28 @@ endif::[]
 . link:usage.adoc[Usage]
 . link:repositories.adoc[Repositories]
 . link:developers.adoc[Developers]
+. link:contribution.adoc[Contribution]
+. link:releasenotes.adoc[Release Notes]
 . link:license.adoc[License]
 
 == 3.2 Installation and Configuration Scripts
 In the following sections we describe the structure and functionality of the deployment scripts for the services.
 
-[NOTE]
-If you are busy it can be sufficient to read "Module 1: Start Script" to begin the installation.
-
 === Type of Scripts
 We developed scripts for automatic installation and configuration of different services for databases, logging and queueing.
 The services available by now are
 
-- PostgreSQL,
-- Redis,
-- MongoDB,
-- MySQL,
-- RabbitMQ,
+- PostgreSQL
+- Redis
+- MongoDB
+- MySQL
+- RabbitMQ
 - Elasticsearch
-- and Logstash.
+- Logstash
 
 We additionally created deployment scripts for monitoring with Monit.
 
-All deployment scripts are working on different environments.
-In all of them is a build-in differentiation for the environment.
-So all scripts are working deployed to a virtual machine e.g. with a Heat script on OpenStack (or other full Virtual Machine provider e.g. VMware etc.) or as container on Docker. The virtual machines tested are Ubuntu 14.04 LTS.
+All deployment scripts are working on different environments. All of them contain a build-in differentiation for the environment, so all scripts are working deployed to a virtual machine e.g. with a Heat script on OpenStack or as a container on Docker. The virtual machines used for testing run with Ubuntu 16.04 LTS.
 
 === Parametrization
 
@@ -52,7 +49,7 @@ You can find the possible parameters for any deployment scripts in the section <
 === Central Data Path
 
 One specialty is the configuration of our services for a high availability after a failure.
-Developed using the cattle principle the data is stored in a separate volume, which can backed up very easily.
+Developed using the cattle principle the data is stored on a separate volume, which can backed up very easily.
 This means, when an instance has a failure, a new service instance can be created and the stored volume can mounted to the new instance.
 
 An automatic mechanism to mount old volumes in new instances is planned but not implemented yet.
@@ -63,310 +60,11 @@ All deployment scripts for the installation of the services are modularized and 
 This is important for an easier maintainability, further development and enhancements.
 The modules are
 
-- Start Script,
-- Central Template,
-- Installation,
-- Configuration,
+- Start Script
+- Central Template
+- Installation
+- Configuration
 - Run
-- and Monit.
+- Monit
 
-The module "Monit" has the same structure (without the module Monit).
-
-==== Module 1: Start Script
-
-icon:file[] `[exampleservice]-start-script.sh`
-
-The first script is the start script.
-Its only task is to set some very basic things like the path to the repositories, loading and execution of the central template.
-Two repositories are specified there, the main repository and the script specific sub repository.
-And this is the place where you can embed your parameters for the central template.
-
-TIP: You can use this script as a standalone script or embed it as a snippet in your own code. +
-Additionally this is the place for handing over the parameters to the Central Template.
-
-include::snippets/setup/start-script-sh.adoc[]
-
-NOTE: For installation it is not necessary to download any more scripts manually. +
-The start script downloads the template which pulls all other necessary scripts directly from the repository.
-
-You only have to replace the parameters with your own. "Environment" has to be replaced with "openstack" or "docker".
-For other full Virtual Machine you can use "openstack" as parameter.
-
-==== Module 2: Central Template
-
-icon:file[] `[exampleservice]-template.sh`
-
-All following steps in the deployment scripts are organized in the Central Template.
-The definition of the most needed variables are bundled in the central template.
-The following chart describes the common variables defined in `[exampleservice]-template.sh` and used in all other scripts.
-Specific variables for some scripts are listed in the section <<servicespecific>>.
-[Read more words!](docs/more_words.md)
-.common variables
-[width="100%",cols="3"]
-[frame="topbot",grid="none"]
-[options="header"]
-|======
-|Property|Name of variable|Description
-|Version of application|$EXAMPLESERVICE_VERSION [red]#*#|Version of the installed application
-|Configuration Path|$CONF_PATH [red]#*#| Path to the configuration files
-|Data directory|$DATA_DIR [red]#*#|Variable for the data directory (in the scripts set to `/data` )
-|Check path|$CHECK_PATH|Path used for the scripts to check if it is a new installation or is the service still installed
-|OpenStack start command|$OPENSTACK_START|Command to start service on OpenStack as environment
-|OpenStack stop command|$OPENSTACK_STOP|Command to stop service on OpenStack as environment
-|Docker start command|$DOCKER_START|Command to start service on Docker as environment
-|Docker stop command|$DOCKER_STOP|Command to stop service on Docker as environment
-|Environment variable|$ENVIRONMENT| This variable is used for the differentiation between the environments used for the service instances
-|||[red]#_* the marked variables have different names in some services_#
-|======
-
-
-As a second step the Central Template handles the parameters given from the start script or the snippet of the start script you embedded in your code.
-After that they will be exported for usage in following child scripts (modules).
-Then the different modules will be loaded and executed in the appropriate order.
-In the same way a service specific "monit control file" ( icon:file[] `[exampleservice]-monitrc` ) for the later following configuration of Monit will be loaded.
-At last Monit will be installed and executed for monitoring and service recovery (for detailed description read the topic <<monit>>).
-
-include::snippets/setup/template-sh.adoc[]
-
-==== Module 3: Installation
-
-icon:file[] `[exampleservice]-install.sh`
-
-This module prepares the host environment for installation of the service with the following steps.
-
-.Preinstall preparations:
-- creates groups on the host
-- creates a user for the service on the host
-- creates home directories for the user
-- sets write/read permissions and ownership for created folders if needed
-
-After this is done this script installs the service itself.
-
-When all tasks of this module are done the Central Template resumes the control to load and execute module 4 (Configuration).
-
-==== Module 4: Configuration 
-
-icon:file[] `[exampleservice]-configuration.sh`
-
-When the installation is successfully done this script configures the service.
-
-.Typical steps of the scripts
-- generating an administrative user inside the service
-- setting a password for this user
-- applying other service specific configurations (e.g. creating a database with a given name or a given size).
-
-After all tasks are done the Central Template resumes the control to load and execute the run script.
-
-[[run]]
-==== Module 5: Run
-
-icon:file[] `[exampleservice]-run.sh`
-
-This Module starts the ready configured service.
-When all tasks of this module are done the Central Template resumes the control.
-
-NOTE: An important point here is the differentiation between OpenStack and Docker. +
-It is described in detail in the section "<<environment>>" of the documentation.
-
-It is realized directly in the scripts so you have nothing to do unless you have to set the environment parameter, described in <<Module 1: Start Script>>.
-
-When all tasks of this module are done the Central Template resumes the control for installing the monitoring tool for service recovery (Monit).
-
-
-
-[[monit]]
-==== Module 6: Monit
-
-icon:file[] `monit-start-script.sh`
-
-This module installs and runs a Monit. Monit is used for monitoring and service recovery.
-The installation of Monit follows the same structure as it is described from Module 1 to 5.
-It will only be executed in case it is already installed.
-
-NOTE: Monit is only used on OpenStack, not on Docker.
-
-[TIP]
-If you want to use a service without a Monit instance you can delete the correlated lines in the code of the `[exampleservice]-template.sh`.
-
-
-[[environment]]
-=== Environment specific
-
-We developed the scripts for running on different environments (actually OpenStack and Docker).
-Most of the code is similar for both of the used environments.
-Likewise in a few scripts there is a little differentiation in the configuration files necessary.
-When executing the processes on Docker an alternation of the program flow is needed in nearly all scripts. Therefore the different start and stop commands are included in the current Central Template.
-
-.Distinctions between OpenStack and Docker
-[NOTE]
-Subtile distinctions between OpenStack and Docker are embedded directly in the code
-to realize an easier maintainability and further development and enhancements.
-
-==== OpenStack
-On OpenStack most processes are started as a service.
-
-The start command for a service for the environment OpenStack is stored in the variable `$OPENSTACK_START`. The Stop command is stored in `$OPENSTACK_STOP`. The variables are defined in the `[exampleservice]-template.sh`.
-
-==== Docker
-For the environment Docker is similar. The start command is stored in the variable `$DOCKER_START` and the Stop command in `$DOCKER_STOP`. The variables are also defined in the `[exampleservice]-template.sh`.
-
-
-[[servicespecific]]
-=== Service specific
-
-Generally all deployment scripts have the same structure, which means
-you have to read the general description of the modules in the section <<Modularity>> first.
-
-
-==== PostgreSQL
-
-
-image::../assets/postgres_b.png[PostgreSQL-Logo,80]
-
-Used Version: 9.3
-
-A Parametrization is included for database name, user, password and environment.
-
-
-Additional to the different start- and stop-commands on the environments OpenStack and Docker Postgres uses different paths to the configuration files.
-
-On Docker the configuration file is at `/data/postgresql.conf`.
-
-For OpenStack the path to the configuration file is at `/etc/postgresql/$PG_VERSION/main/postgresql.conf`.
-
-We tested the login for an external desktop client successfully with PG-Admin.
-
-Postgres accepts connections on port 5432 with the pgsql protocol.
-
-The PID-file is stored in `/var/run/postgresql/9.3-main.pid`
-
-==== Redis
-
-image::../assets/redis_b.png[Redis-Logo,80]
-
-Used Version: 3.0.3
-
-With the parametrization for Redis the Number of databases, an admin password and the environment can be defined.
-For Redis it is not possible to set a database name with our scripts.
-
-Redis has a very good readable and commented configuration file. Supplements can added in the `redis-configuration.sh`. Examples can be found on http://www.redis.io.
-
-[WARNING]
-Since Redis is very fast you should use a very strong password. Otherwise it will be very easy for an outside user to break the password.
-This is because he can try up to
-150k passwords per second against a fast server.
-
-Redis accepts TCP connections on port 6379.
-We tested the login for an external desktop client successfully with Redis-Desktop-Manager.
-
-Normally Redis creates no PID file. While we use the PID file for monitoring with Monit we forced Redis to create one.
-The PID file is stored in `/var/run/redis`
-
-
-==== MongoDB
-
-image::../assets/mongodb_b.png[MongoDB-Logo,40]
-
-Used Version: 3.0.6
-
-For MongoDB a parametrization in our scripts is available for database name, password, user and environment.
-
-[WARNING]
-An important point is that mongo needs some time for starting and stopping.
-So the configuration script has to wait for mongo for a correct function. This times must be adapted for the engaged machinery.
-
-Additional to the different start- and stop-commands on the environments OpenStack and Docker Mongo are needing different configurations.
-This is realized with overwriting some parts of the configuration files with the environment specific details.
-
-Mongo accepts connections on Port 27017.
-
-[NOTE]
-The Desktop-Client Robomongo does not work with the authentication of the recent MongoDB-Versions.
-It’s a Problem of the current Robomongo implementation, but work with other clients.
-
-
-==== MySQL
-
-image::../assets/mysql_b.png[MySQL-Logo,80]
-
-Used Version: 5.7
-
-A parametrization for MySQL includes the database name, password and an environment.
-MySQL accepts connections on port 3306.
-
-Since we use a custom configuration for MySQL we as well had to write an adapted Apparmor configuration.
-
-[WARNING]
-If you change any paths of the MySQL installation you have to adapt the Apparmor configuration appropriate. +
-Otherwise Apparmor will prevent MySQL to use to these folders.
-
-We tested the login for an external desktop client successfully with Heidi-SQL.
-
-
-==== RabbitMQ
-
-image::../assets/rabbitmq_b.png[RabbitMQ-Logo,80]
-
-Used Version: 3.5.6-1
-
-.Caution when a new version of RabbitMQ is released
-[CAUTION]
-The repositories for the previous version are then no longer available on the old URL. This conducts that an installation is not possible.
-To solve the problem you have to change the version number to a newer one.
-
-A parametrization is build-in for vhost, user, password and environment.
-
-On Rabbit-Instances a login to a web interface is possible with the rabbitmq-management-plugin (http://server-name:15672/).
-This plugin is activated on service instances deployed with our scripts by default.
-
-[TIP]
-You can deactivate it the web interface by deleting the following line in the icon:file[]  `rabbitmq-configuration.sh`: +
-`rabbitmq-plugins enable rabbitmq_management`
-
-
-==== Elasticsearch
-
-image::../assets/elasticsearch_b.png[Elasticsearch-Logo,80]
-
-Used Version: 1.7.1
-
-Elasticsearch accepts TCP connections on port 6379.
-
-A parametrization is only realized for the environment. The other parameter handled in the script is the password for Monit.
-
-During the development there where some changes in the java installer which had an effect on the installation.
-So it is necessary to check if java installation works correctly to prevent a possible origin of trouble when something is changed in java.
-
-==== Logstash
-
-image::../assets/logstash_b.png[Logstash-Logo,80]
-
-Used Version: most recent version
-
-Logstash accepts TCP connections on port 5000.
-
-A parametrization is build-in for es-host and the environment.
-
-
-==== Monit
-
-image::../assets/monit_b.png[Monit-Logo,80]
-
-Used Version: 5.6
-
-A parametrization is build-in for user and password. In the standard configuration of the services the user is set to *monit* and the password is handled over the service-broker from the monitored service.
-
-Different to the other services Monit is a part of the installation of each other service instance. As described above
-Monit uses a central configuration file called "monit controllfile".
-There are all configuration details for Monit stored.
-Additionally at the end of the monit control file (file name: monitrc) you can configure a path to files Monit loads at startup as includes for the configuration.
-[NOTE]
-For every service an own monitrc (excluding Monit itself) file exists in our repository. Monit loads this file to include it in its Monit control file.
-
-WARNING: To ensure, that Monit works with a new or changed include for the monitrc (Monit control file) it is essential to run the command `monit -t` to check the syntax of the monitrc. Otherwise Monit does not work right. After that you have to restart Monit with the command `monit reload`.
-
-
-
-=== Central Logging
-
-In a next step a central logging for the services will be added.
+link:usage.adoc[Next page ->]

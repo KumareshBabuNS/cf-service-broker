@@ -12,16 +12,6 @@
 . link:releasenotes.adoc[Release Notes]
 . link:license.adoc[License]
 
-== 6. Developers
+== 8. Release Notes
 
-All persons listed here were involved in the development.
-
-- Christian Brinker
-- Johannes Hiemer
-- Thomas Brinker
-- Dennis Müller
-- Sebastian Böing
-- Patrick Weber
-- René Schollmeyer
-
-link:contribution.adoc[Next page ->]
+link:license.adoc[Next page ->]
