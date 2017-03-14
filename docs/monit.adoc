@@ -1,5 +1,0 @@
-== Monit
-
-For monitoring and recovery of the services monit is used. All services are configured, that they write a pid-file.
-Monit watches this file and checks the connection to the service every 10 seconds.
-If a connection fails Monit will restart the service.
