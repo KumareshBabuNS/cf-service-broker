@@ -26,7 +26,7 @@ endif::[]
 
 === Deployment
 
-There is one deployable instance for each implemented service broker. The setup also contains a prepared cloud config server and a eureka server (called registry) for service discovery (both servers are optional). The service discovery is not fully integrated in the service brokers yet. So the cloud config server has to be introduced to the service brokers via configuration. In future this will be handled by the registry.
+There is one deployable instance for each implemented service broker. The setup also contains a prepared cloud config server and a eureka server (called registry) for service discovery (both servers are optional). The service discovery is not fully integrated in the service brokers yet. So the cloud config server has to be introduced to the service brokers via configuration. In the future this will be handled by the registry.
 
 A minimal deployment either is local with configuration file and consists of:
 
@@ -38,7 +38,7 @@ or consists of:
 - Cloud Config Server
 - Service Broker
 
-There is only one instance of registry and cloud config server needed to run several Service Brokers.
+There is only one instance of the registry and cloud config server needed to run several Service Brokers.
 
 There exist different possibilities to deploy the service brokers:
 
@@ -48,7 +48,7 @@ There exist different possibilities to deploy the service brokers:
 - Cloud Foundry Application
 - bosh deployment
 
-If you want to run the service broker locally, we encourage you to start the service broker either as Java Process or Linux init.d service. In an production environment we see a deployment as Cloud Foundry Application or bosh release as more reasonable.
+If you want to run the service broker locally, we encourage you to start the service broker either as Java Process or Linux init.d service. In an production environment we see a deployment as a Cloud Foundry Application or bosh release as more reasonable.
 
 You also need a database to store management data and inner status of the service broker. You can use
 
@@ -91,7 +91,7 @@ NOTE: If you wish to push with a manifest file that is not named 'manifest.yml',
 
 Now lean back and watch the deployment.
 
-NOTE: If your cloud config server uses a git repository with SSL and authentication, you can copy the `manifest-with-credentials-example.yml` file in the config subproject and rename it to `manifest-with-credentials.yml`. There exists a `.gitignore` entry, so it will not be uploaded to your git repository. In the files are provided variables to insert your credentials. Use this manifest file to deploy the cloud config server. Or copy it to the parent directory. Then the deployment of all projects is modified and the credentials are provided to the cloud config server.
+NOTE: If your cloud config server uses a git repository with SSL and authentication, you can copy the `manifest-with-credentials-example.yml` file in the config subproject and rename it to `manifest-with-credentials.yml`. There exists a `.gitignore` entry, so it will not be uploaded to your git repository. In the files you find placeholder variables to insert your credentials. Use this manifest file to deploy the cloud config server. Or copy it to the parent directory. Then the deployment of all projects is modified and the credentials are provided to the cloud config server.
 
 ==== Bosh Deployment
 
@@ -113,34 +113,34 @@ To use a git repository with your cloud config server, you have to provide one.
 
 icon:file[] `application.yml` - contains the configuration options for all applications. For a better understanding see this link:snippets/setup/cloud-config/application.yml.adoc[example].
 
-- *profiles:* The spring profile, for which the following informations applies.
-- *application_name:* The name of your project.
-- *ssl_acceptselfsigned:* Boolean to tell java to accept self signed ssl certificates or not.
-- *info_app_name:* The name of your Service Broker.
-- *info_app_description:* A description of your Service Broker.
-- *info_app_version:* The version number of your Service Broker.
-- *login_username:* Your username for creating Service Brokers.
-- *login_password:* Your password for creating Service Brokers.
-- *login_role:* Your role in the organization.
-- *data_mongodb_host:* The ip of your database where you store user informations.
-- *data_mongodb_port:* The port of this database.
-- *data_mongodb_database:* The name of this database.
-- *data_mongodb_username:* Your username to log in to this database.
-- *data_mongodb_password:* Your password to log in to this database.
-- *existing_endpoint_host:* The ip of your Service Broker database.
-- *existing_endpoint_port:* The port of this database.
-- *existing_endpoint_database:* The name of this database.
-- *existing_endpoint_username:* Your username to log in to this database.
-- *existing_endpoint_password:* Your password to log in to this database.
-- *logging_file:* The file you want to save the log informations in, ex. ${LOG_FILE:cf-service-broker-mongodb.log}
-- *logging_level_root:* The level of logging (error, warn, info, debug or trace), ex. ${LOG_LEVEL_ROOT:INFO}
-- *backend_ports_default:*
-- *backend_connection_timeouts:*
-- *mongodb_security_key_length:* The length of your MongoDB security key.
-- *haproxy_uri:* The url of your HaProxy backend, ex. https://haproxy.example.com/agents/Default-HaProxy-Agent/schemas?type=listen.
-- *haproxy_auth_token:* The authentication token for your HaProxy
-- *deployment_repo_service:* Url of the repository that contains all your service specific scripts.
-- *deployment_repo_monit:* Url of the repository that contains all your monit scripts.
+- *spring.profiles:* The spring profile, for which the following informations applies.
+- *spring.application_name:* The name of your project.
+- *spring.ssl.acceptselfsigned:* Boolean to tell java to accept self signed ssl certificates or not.
+- *info.app.name:* The name of your Service Broker.
+- *info.app.description:* A description of your Service Broker.
+- *info.app.version:* The version number of your Service Broker.
+- *login.username:* Your username for creating Service Brokers.
+- *login.password:* Your password for creating Service Brokers.
+- *login.role:* Your role in the organization.
+- *spring.data.mongodb.host:* The ip of your database where you store user informations.
+- *spring.data.mongodb.port:* The port of this database.
+- *spring.data.mongodb.database:* The name of this database.
+- *spring.data.mongodb.username:* Your username to log in to this database.
+- *spring.data.mongodb.password:* Your password to log in to this database.
+- *existing.endpoint.hosts:* A list with the IP(s) of your Service Broker database (cluster).
+- *existing.endpoint.port:* The port of this database.
+- *existing.endpoint.database:* The name of this database.
+- *existing.endpoint.username:* Your username to log in to this database.
+- *existing.endpoint.password:* Your password to log in to this database.
+- *logging.file:* The file you want to save the log informations in, ex. ${LOG_FILE:cf-service-broker-mongodb.log}
+- *logging.level.root:* The level of logging (error, warn, info, debug or trace), ex. ${LOG_LEVEL_ROOT:INFO}
+- *backend.ports.default:*
+- *backend.connection.timeouts:*
+- *mongodb.security.key.length:* The length of your MongoDB security key.
+- *haproxy.uri:* The url of your HaProxy backend, ex. https://haproxy.example.com/agents/Default-HaProxy-Agent/schemas?type=listen.
+- *haproxy.auth.token:* The authentication token for your HaProxy
+- *deployment.repo.service:* Url of the repository that contains all your service specific scripts.
+- *deployment.repo.monit:* Url of the repository that contains all your monit scripts.
 
 You can also store informations from your application.yml in your manifest.yml. Let's say you want to store the informations about the HaProxy in your manifest.yml. Simply go to the "env" passage and enter in all caps and underscores for every tab:
 
@@ -154,7 +154,7 @@ NOTE: We provided support for the profiles `development`, `default`, `cloud` and
 
 4. Add your custom properties to the property files
 
-5. Now the properties from your repostory are used when starting the service broker, cloud config server or registry server. Please make sure to start the cloud config server before the service brokers, because it enables the access towards the repostory.
+5. Now the properties from your repository are used when starting the service broker, cloud config server or registry server. Please make sure to start the cloud config server before the service brokers, because it enables the access towards the repository.
 
 NOTE: Using the `bootstrap.yml` you can use different property sources for different profiles. For further information see link:http://cloud.spring.io/spring-cloud-static/spring-cloud.html#_spring_cloud_config[spring cloud config documentation].
 

@@ -27,16 +27,16 @@ When creating an issue you should follow these tips:
 
 === Pull Request
 
-If you are able to patch a bug or add a feature, you can create a pull request with the code to contribute. But first of all make sure you understand the license. Once you created the pull request, the maintainer(s) can check out your code and decide whether or not to pull in your changes.
+If you are able to patch a bug or add a feature, you can create a pull request with the code to contribute. But first of make sure you understand the license. Once you created the pull request, the maintainer(s) can check out your code and decide whether or not to pull in your changes.
 
 When creating a pull request you should follow these tips:
 
 - *link:https://guides.github.com/activities/forking/[Fork] the repository* and *clone* it locally. Connect your local repository to the original.
 - *Pull changes* as often as possible to stay up to date, so that merge conflicts will be less likely.
 - *Create a link:https://guides.github.com/introduction/flow/[branch]* for your changes.
-- Run your changes against *existing tets*, or create new ones. 
+- Run your changes against *existing tests*, or create new ones. 
 - Follow the *style of the project*, to make it easier for the maintainer to merge.
 
-If you be asked to make some changes to your request, add more commits and push them to your branch. These changes will automatically go into your existing pull request.
+If you are asked to make some changes to your request, add more commits and push them to your branch. These changes will automatically go into your existing pull request.
 
 link:releasenotes.adoc[Next page ->]

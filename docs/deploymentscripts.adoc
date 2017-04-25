@@ -49,10 +49,10 @@ You can find the possible parameters for any deployment scripts in the section <
 === Central Data Path
 
 One specialty is the configuration of our services for a high availability after a failure.
-Developed using the cattle principle the data is stored on a separate volume, which can backed up very easily.
+Developed using the cattle principle the data is stored on a separate volume, which can be backed up very easily.
 This means, when an instance has a failure, a new service instance can be created and the stored volume can mounted to the new instance.
 
-An automatic mechanism to mount old volumes in new instances is planned but not implemented yet.
+An automatic mechanism to mount old volumes in new instances is planned but not yet implemented.
 
 === Modularity
 

@@ -14,7 +14,7 @@
 
 == 1. Getting Started
 
-NOTE: In order to not provide one overfilled file we decided to seperate the documentations about installation, usage etc. and not to put them all in the README.md-file.
+NOTE: In order to not provide one overfilled file we decided to seperate the documentations about installation, usage etc. and to combine them all in one README.adoc-file.
 
 === What are Service Brokers?
 
@@ -22,7 +22,7 @@ A Service Broker provides the possibility to extend a platform (in our case it's
 
 image::docs/assets/service_broker_1.png[Service Broker]
 
-It comes with a catalog of services and service plans, provides service instances, and contains connection details and credentials. It also interprets calls for creating and deleting service instances (for example single databases, dedicated clusters, or just an account on a web application), which means to reserve resources on a serivce, as well as calls for binding and unbinding services, which means to deliver information to an application for accessing the resource.
+It comes with a catalog of services and service plans, provides service instances, and contains connection details and credentials. It also interprets calls for creating and deleting service instances (for example single databases, dedicated clusters, or just an account on a web application), which means to reserve resources on a service, as well as calls for binding and unbinding services, which means to deliver information to an application for accessing the resource.
 
 image::docs/assets/service_broker_2.png[Service Broker]
 

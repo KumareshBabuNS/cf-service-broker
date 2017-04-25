@@ -20,7 +20,7 @@ Before working with Service Brokers you have to clone a couple of repositories:
 2. https://github.com/evoila/cf-service-broker-deployment
 3. https://github.com/evoila/cf-service-broker-persistence
 
-For all these use the following step for step guide:
+For all these use the following step by step guide:
 
 1. Change the location to the directory you want to clone the repository to by running `cd <path>`
 2. Clone the repository with `git clone <link>`
@@ -54,9 +54,9 @@ You can get a list of all your services by using +
 
 For more informations also see link:https://docs.cloudfoundry.org/services/managing-service-brokers.html[Managing Service Brokers]
 
-=== Creating and Deleting Service Instance
+=== Creating and Deleting a Service Instance
 
-When you successfully created a service broker, you can go on with creating service instances. Search for the service broker you want to create an instance of and run: +
+When you successfully created a service broker, you can continue with creating service instances. Search for the service broker you want to create an instance of and run: +
 `cf create-service <service_broker_name> <plan> <service_instance_name>`
 
 The command for deleting a service instance is nearly equivalent to creating: +
