@@ -17,11 +17,13 @@
 All persons listed here were involved in the development.
 
 - Christian Brinker
-- Johannes Hiemer
 - Thomas Brinker
-- Dennis Müller
 - Sebastian Böing
-- Patrick Weber
+- Johannes Hiemer
+- Dennis Müller
+- Yannic Remmet
 - René Schollmeyer
+- Patrick Weber
+
 
 link:contribution.adoc[Next page ->]
