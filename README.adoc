@@ -14,8 +14,6 @@
 
 == 1. Getting Started
 
-NOTE: In order to not provide one overfilled file we decided to seperate the documentations about installation, usage etc. and to combine them all in one README.adoc-file.
-
 === What are Service Brokers?
 
 A Service Broker provides the possibility to extend a platform (in our case it's link:https://www.cloudfoundry.org/[Cloud Foundry]) with services (for example a database) that can be consumed by applications deployed to this platform.
