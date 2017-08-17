@@ -8,8 +8,6 @@
 . link:usage.adoc[Usage]
 . link:repositories.adoc[Repositories]
 . link:developers.adoc[Developers]
-. link:contribution.adoc[Contribution]
-. link:releasenotes.adoc[Release Notes]
 . link:license.adoc[License]
 
 == 6. Developers
@@ -26,4 +24,4 @@ All persons listed here were involved in the development.
 - Patrick Weber
 
 
-link:contribution.adoc[Next page ->]
+link:license.adoc[Next page ->]

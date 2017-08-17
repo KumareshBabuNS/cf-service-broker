@@ -9,9 +9,6 @@
 . link:repositories.adoc[Repositories]
 . link:developers.adoc[Developers]
 . link:contribution.adoc[Contribution]
-. link:releasenotes.adoc[Release Notes]
 . link:license.adoc[License]
-
-== 8. Release Notes
 
 link:license.adoc[Next page ->]

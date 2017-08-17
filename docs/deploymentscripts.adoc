@@ -18,8 +18,6 @@ endif::[]
 . link:usage.adoc[Usage]
 . link:repositories.adoc[Repositories]
 . link:developers.adoc[Developers]
-. link:contribution.adoc[Contribution]
-. link:releasenotes.adoc[Release Notes]
 . link:license.adoc[License]
 
 == 3.2 Installation and Configuration Scripts
@@ -30,12 +28,9 @@ We developed scripts for automatic installation and configuration of different s
 The services available by now are
 
 - PostgreSQL
-- Redis
 - MongoDB
 - MySQL
 - RabbitMQ
-- Elasticsearch
-- Logstash
 
 We additionally created deployment scripts for monitoring with Monit.
 

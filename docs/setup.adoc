@@ -18,8 +18,6 @@ endif::[]
 . link:usage.adoc[Usage]
 . link:repositories.adoc[Repositories]
 . link:developers.adoc[Developers]
-. link:contribution.adoc[Contribution]
-. link:releasenotes.adoc[Release Notes]
 . link:license.adoc[License]
 
 == 3.1 Setup
@@ -52,8 +50,7 @@ If you want to run the service broker locally, we encourage you to start the ser
 
 You also need a database to store management data and inner status of the service broker. You can use
 
-- MongoDB (recommended by us)
-- Redis
+- MongoDB 
 
 ==== Java Process (Standalone Tomcat Server)
 

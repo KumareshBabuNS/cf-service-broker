@@ -8,23 +8,11 @@
 . link:usage.adoc[Usage]
 . link:repositories.adoc[Repositories]
 . link:developers.adoc[Developers]
-. link:contribution.adoc[Contribution]
-. link:releasenotes.adoc[Release Notes]
 . link:license.adoc[License]
 
 == 4. Usage
 
-Before working with Service Brokers you have to clone a couple of repositories:
-
-1. https://github.com/evoila/cf-service-broker-core
-2. https://github.com/evoila/cf-service-broker-deployment
-3. https://github.com/evoila/cf-service-broker-persistence
-
-For all these use the following step by step guide:
-
-1. Change the location to the directory you want to clone the repository to by running `cd <path>`
-2. Clone the repository with `git clone <link>`
-3. Run `mvn install` in the respective directories
+All our currently maintained service brokers are self contained so you only have to checkout the service broker repository and run `mvn isntall`.
 
 To work with Service Brokers you have to login your Cloud Foundry CLI to your Cloud Foundry Environment first (if you haven't done this already):
 
@@ -35,6 +23,8 @@ Let's assume you already pushed your application as described in the "Setup" doc
 The following picture shows the basic commands you need to work with a Service Broker and how the Cloud Controller communicates with the Service Broker when using these commands.
 
 image::assets/commands.png[cf commands]
+
+
 
 === Creating Service Brokers
 
